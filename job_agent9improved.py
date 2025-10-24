@@ -673,23 +673,20 @@ def generate_code_for_action(page_info, resume_data, action, memory, page_signat
         for pattern in failure_patterns[-3:]:
             avoid_text += f"- {pattern['error_keyword']}\n"
 
-    prompt = f"""Generate Selenium code for THIS SPECIFIC ACTION on the current page.
+    # Build prompt without f-string to avoid syntax issues with code examples
+    prompt = """Generate Selenium code for THIS SPECIFIC ACTION on the current page.
 
 ACTION TO TAKE:
-{json.dumps(action, indent=2)}
+""" + json.dumps(action, indent=2) + """
 
 PAGE INFO:
-{json.dumps(page_info, indent=2)}
+""" + json.dumps(page_info, indent=2) + """
 
 RESUME DATA:
-{json.dumps(resume_data, indent=2)}
+""" + json.dumps(resume_data, indent=2) + """
 
 DOMAIN KNOWLEDGE:
-{json.dumps(domain_knowledge, indent=2)}
-{guidance_text}
-{retry_text}
-{selector_text}
-{avoid_text}
+""" + json.dumps(domain_knowledge, indent=2) + guidance_text + retry_text + selector_text + avoid_text + """
 
 CRITICAL RULES BASED ON PAST EXPERIENCE:
 
@@ -767,7 +764,7 @@ if not clicked:
 2. **GENERAL BUTTON CLICKING**:
 ```python
 # Always use JavaScript click for reliability
-driver.execute_script("arguments[0].scrollIntoView({{{{block: 'center'}}}});", element)
+driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
 time.sleep(0.5)
 driver.execute_script("arguments[0].click();", element)
 ```
@@ -778,7 +775,7 @@ file_input.send_keys(resume_pdf_path)
 time.sleep(2)
 uploaded_value = file_input.get_attribute("value")
 if uploaded_value:
-    print(f"✓ File uploaded: {{{{uploaded_value}}}}")
+    print(f"✓ File uploaded: {uploaded_value}")
 else:
     print("⚠️ FILE UPLOAD MAY HAVE FAILED!")
 ```
