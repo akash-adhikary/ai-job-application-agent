@@ -1,0 +1,45 @@
+wait = WebDriverWait(driver, 15)
+
+# -------- Locate Email input (label: "Email Address*") ----------
+try:
+    email_label = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//label[contains(text(),'Email Address')]")
+    ))
+    email_input = email_label.find_element(By.XPATH, ".//following::input[1]")
+except Exception:
+    try:
+        # fallback to known id if label not found
+        email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    except Exception as e:
+        print(f"✗ Could not locate Email input: {e}")
+        email_input = None
+
+if email_input:
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    time.sleep(0.5)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+
+# -------- Locate Password input (label: "Password*") ----------
+try:
+    pwd_label = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//label[contains(text(),'Password')]")
+    ))
+    pwd_input = pwd_label.find_element(By.XPATH, ".//following::input[1]")
+except Exception:
+    try:
+        # fallback to known id if label not found
+        pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    except Exception as e:
+        print(f"✗ Could not locate Password input: {e}")
+        pwd_input = None
+
+if pwd_input:
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pwd_input)
+    time.sleep(0.5)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+
+time.sleep(1)

@@ -1,0 +1,65 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct button with known class and text
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and normalize-space(text())='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (strategy 1)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: Button with exact text inside a modal dialog
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//div[contains(@role, 'dialog')]//button[normalize-space(text())='Sign In']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(0.5)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (strategy 2 - normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (strategy 2 - JS click)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: Fallback to any element containing the text
+if not clicked:
+    try:
+        sign_in_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[normalize-space(text())='Sign In' and (self::button or self::a)]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", sign_in_elem)
+        print("✓ Clicked Sign In element (strategy 3)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"✗ Could not click Sign In button: {e}")
+
+time.sleep(2)  # allow any navigation or processing after click

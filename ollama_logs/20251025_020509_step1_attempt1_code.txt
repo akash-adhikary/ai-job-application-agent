@@ -1,0 +1,35 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def click_accept_cookies():
+    try:
+        # Primary selector: button with exact text
+        accept_btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Accept Cookies']")
+        ))
+    except TimeoutException:
+        try:
+            # Fallback: any element containing the text
+            accept_btn = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Accept Cookies')]")
+            ))
+        except TimeoutException:
+            print("✗ Accept Cookies button not found")
+            return False
+
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", accept_btn)
+    time.sleep(0.5)
+    try:
+        accept_btn.click()
+        print("✓ Clicked Accept Cookies (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked Accept Cookies (JS click)")
+    return True
+
+click_accept_cookies()

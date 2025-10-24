@@ -1,0 +1,57 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button element with exact text or known class
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Sign In' or contains(@class, 'css-1ru62dj')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (XPath + JS)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: CSS selector targeting known class or data-automation-id pattern
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button.css-1ru62dj, button[data-automation-id*='signIn']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (CSS + JS)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: any clickable element containing the text "Sign In"
+if not clicked:
+    try:
+        sign_in_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(), 'Sign In')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_elem)
+        print("✓ Clicked Sign In element by text (JS)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not click the Sign In button using any strategy.")

@@ -1,0 +1,18 @@
+wait = WebDriverWait(driver, 15)
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-1ru62dj') and normalize-space(.)='Create Account']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+    time.sleep(1)
+    try:
+        create_btn.click()
+        print("✓ Clicked 'Create Account' button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (JavaScript click)")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to click 'Create Account' button: {e}")

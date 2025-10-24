@@ -1,0 +1,44 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_sign_in():
+    try:
+        # Primary selector using data-automation-id
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+            )
+        )
+    except TimeoutException:
+        try:
+            # Fallback: use class name and button type
+            sign_in_btn = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and @type='submit' and contains(text(),'Sign In')]")
+                )
+            )
+        except TimeoutException:
+            print("✗ Sign In button not found.")
+            return
+
+    # Scroll into view
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+    except Exception as e:
+        print(f"✗ Failed to click Sign In button: {e}")
+
+click_sign_in()
+time.sleep(1)

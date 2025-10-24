@@ -1,0 +1,52 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_sign_in():
+    try:
+        # Primary target: the "Sign In" button for existing accounts (class css-14pfav7)
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Sign In' and contains(@class, 'css-14pfav7')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked 'Sign In' button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked 'Sign In' button (JS click)")
+        time.sleep(2)
+        return True
+    except (TimeoutException, NoSuchElementException):
+        print("✗ Primary 'Sign In' button not found, attempting fallback.")
+    
+    # Fallback: any visible button with text 'Sign In'
+    try:
+        fallback_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Sign In' and not(ancestor::*[contains(@style,'display: none')])]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", fallback_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", fallback_btn)
+        print("✓ Clicked fallback 'Sign In' button (JS click)")
+        time.sleep(2)
+        return True
+    except (TimeoutException, NoSuchElementException):
+        print("✗ No clickable 'Sign In' button found.")
+        return False
+
+# Execute the action
+click_sign_in()

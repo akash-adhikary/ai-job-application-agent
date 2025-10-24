@@ -1,0 +1,54 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct selector using data-automation-id (most reliable for Workday)
+try:
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_btn)
+    print("✓ Clicked 'Autofill with Resume' button via data-automation-id (JavaScript)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: XPath by exact visible text (fallback if selector above changes)
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//a[normalize-space(text())='Autofill with Resume' or @data-automation-id='autofillWithResume']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+        time.sleep(1)
+        try:
+            autofill_btn.click()
+            print("✓ Clicked 'Autofill with Resume' button via normal click")
+        except Exception:
+            driver.execute_script("arguments[0].click();", autofill_btn)
+            print("✓ Clicked 'Autofill with Resume' button via JavaScript click")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: Any element containing the text (last resort)
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Autofill with Resume')][1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' button via generic text selector")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("❌ Unable to click the 'Autofill with Resume' button after all strategies.")

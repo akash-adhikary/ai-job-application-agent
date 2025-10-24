@@ -1,0 +1,41 @@
+wait = WebDriverWait(driver, 15)
+
+# Helper to click element safely
+def safe_click(elem):
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+    time.sleep(1)
+    try:
+        elem.click()
+        print("✓ Clicked element (native click)")
+    except Exception:
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked element (JS click)")
+
+# 1. Dismiss cookie banner if present (common selector)
+try:
+    cookie_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id*='accept'], button[data-automation-id*='cookie']")))
+    safe_click(cookie_btn)
+except Exception:
+    pass
+
+# 2. Click "Autofill with Resume" (inside modal or on page)
+clicked = False
+selectors = [
+    (By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume']"),
+    (By.XPATH, "//a[contains(@data-automation-id, 'autofillWithResume')]"),
+    (By.XPATH, "//button[contains(@data-automation-id, 'autofillWithResume')]"),
+    (By.XPATH, "//*[contains(text(),'Autofill with Resume')]")
+]
+
+for by, sel in selectors:
+    if clicked:
+        break
+    try:
+        elem = wait.until(EC.element_to_be_clickable((by, sel)))
+        safe_click(elem)
+        clicked = True
+    except Exception:
+        continue
+
+if not clicked:
+    print("✗ Could not locate 'Autofill with Resume' button.")

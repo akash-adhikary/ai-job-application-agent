@@ -1,0 +1,52 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct button with exact text inside a modal (visible)
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space(text())='Sign In' and contains(@class,'css-1ru62dj')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked 'Sign In' button (direct XPath)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Direct button click failed: {e}")
+
+# Strategy 2: Any visible button with text 'Sign In'
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(normalize-space(.), 'Sign In')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked 'Sign In' button (fallback XPath)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Fallback button click failed: {e}")
+
+# Strategy 3: Any element (button/div) containing the text
+if not clicked:
+    try:
+        elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(normalize-space(text()), 'Sign In')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked element with text 'Sign In' (generic fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Generic fallback click failed: {e}")
+
+if not clicked:
+    print("✗ Could not click the 'Sign In' button after all strategies.")

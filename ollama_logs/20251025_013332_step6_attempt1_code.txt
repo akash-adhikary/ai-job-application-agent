@@ -1,0 +1,32 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the Sign In button inside the modal (class css-1ru62dj and text "Sign In")
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and normalize-space()='Sign In']")
+        )
+    )
+    # Scroll into view for safety
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)  # short pause before clicking
+
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"✗ Could not locate or click the Sign In button: {e}")

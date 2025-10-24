@@ -1,0 +1,117 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+def click_apply(driver):
+    wait = WebDriverWait(driver, 15)
+
+    # 1️⃣ Accept cookies if a banner is present
+    try:
+        cookie_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", cookie_btn)
+        driver.execute_script("arguments[0].click();", cookie_btn)
+        print("✓ Accepted cookies")
+        time.sleep(1)
+    except (TimeoutException, NoSuchElementException):
+        pass  # No cookie banner detected
+
+    # 2️⃣ Ensure we are logged in – look for a Sign In button and click if found
+    try:
+        sign_in_btn = driver.find_element(By.XPATH, "//button[contains(text(),'Sign In') or @class='css-wkqt22']")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In")
+        time.sleep(2)  # give login form time to appear
+        # (Login handling would be added here if needed)
+    except NoSuchElementException:
+        pass  # Assume already signed in
+
+    # 3️⃣ Click the Apply link/button using multiple fallback strategies
+    clicked = False
+
+    # Strategy 1: direct <a> with data‑automation‑id or role=button
+    try:
+        apply_el = wait.until(
+            EC.element_to_be_clickable(
+                (
+                    By.CSS_SELECTOR,
+                    "a[data-automation-id*='apply'], a[data-automation-id*='Apply'], a[role='button']",
+                )
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_el)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", apply_el)
+        print("✓ Clicked Apply link (JavaScript)")
+        clicked = True
+    except Exception:
+        pass
+
+    # Strategy 2: visible button with matching text
+    if not clicked:
+        try:
+            btn = wait.until(
+                EC.element_to_be_clickable(
+                    (
+                        By.XPATH,
+                        "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'apply') or contains(.,'Apply')]",
+                    )
+                )
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+            time.sleep(0.5)
+            try:
+                btn.click()
+                print("✓ Clicked Apply button (normal click)")
+            except ElementClickInterceptedException:
+                driver.execute_script("arguments[0].click();", btn)
+                print("✓ Clicked Apply button (JavaScript fallback)")
+            clicked = True
+        except Exception:
+            pass
+
+    # Strategy 3: generic div/button with role=button
+    if not clicked:
+        try:
+            div_btn = driver.find_element(
+                By.CSS_SELECTOR, "div[role='button'][data-automation-id*='apply'], div[role='button'][data-automation-id*='Apply']"
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", div_btn)
+            time.sleep(0.5)
+            driver.execute_script("arguments[0].click();", div_btn)
+            print("✓ Clicked Apply div/button (JavaScript)")
+            clicked = True
+        except NoSuchElementException:
+            pass
+
+    # Strategy 4: any element containing the text "Apply"
+    if not clicked:
+        try:
+            el = driver.find_element(
+                By.XPATH, "//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'apply')][1]"
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", el)
+            time.sleep(0.5)
+            driver.execute_script("arguments[0].click();", el)
+            print("✓ Clicked element by text (JavaScript)")
+            clicked = True
+        except NoSuchElementException:
+            pass
+
+    if not clicked:
+        print("✗ Could not locate or click the Apply button/link.")
+    else:
+        time.sleep(2)  # allow navigation to the application page to load
+
+# Example usage:
+# driver = webdriver.Chrome()
+# driver.get("https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn")
+# click_apply(driver)

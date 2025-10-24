@@ -1,0 +1,62 @@
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Primary selector: button with exact class and data‑automation‑id
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", sign_in_btn
+    )
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (primary selector, JS click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Primary selector failed: {e}")
+
+# Fallback 1: button with class only
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", sign_in_btn
+        )
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (fallback 1, normal click)")
+        except Exception:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (fallback 1, JS click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Fallback 1 failed: {e}")
+
+# Fallback 2: XPath by visible text within button
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(., 'Sign In') and contains(@class, 'css-1ru62dj')]")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", sign_in_btn
+        )
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (fallback 2, JS click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Fallback 2 failed: {e}")
+
+# Final notice if all strategies fail
+if not clicked:
+    print("✗ Unable to locate and click the Sign In button.")

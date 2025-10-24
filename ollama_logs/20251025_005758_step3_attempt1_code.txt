@@ -1,0 +1,43 @@
+wait = WebDriverWait(driver, 15)
+
+# Fill Email field in the sign‑in modal
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-16")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Email entered")
+except Exception as e:
+    print(f"✗ Could not enter email: {e}")
+
+time.sleep(1)
+
+# Click the Sign In button inside the modal
+clicked = False
+try:
+    # Strategy 1: button with exact text
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Sign In']")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(0.5)
+    try:
+        sign_in_btn.click()
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (text match)")
+    clicked = True
+except Exception:
+    pass
+
+if not clicked:
+    try:
+        # Strategy 2: button with known class (modal version)
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class selector)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Could not click Sign In button: {e}")
+
+time.sleep(2)

@@ -1,0 +1,59 @@
+# Click the "Create Account" button on the current page
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button element with exact text
+try:
+    btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Create Account']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+    try:
+        btn.click()
+        print("✓ Clicked 'Create Account' button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", btn)
+        print("✓ Clicked 'Create Account' button (JS click after intercept)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: any clickable element containing the text
+if not clicked:
+    try:
+        elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Create Account') and (self::button or self::a or @role='button')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked element with text 'Create Account' via JS")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: locate by known CSS class
+if not clicked:
+    try:
+        elem = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".css-1ru62dj"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked 'Create Account' button via CSS class")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+if not clicked:
+    print("✗ Could not locate or click the 'Create Account' button.")

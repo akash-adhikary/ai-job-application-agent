@@ -1,0 +1,40 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button element with exact text
+try:
+    accept_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(text())='Accept Cookies']")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    time.sleep(0.5)
+    accept_btn.click()
+    print("✓ Clicked Accept Cookies (normal click)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: any element with the text (including <div>, <a>)
+if not clicked:
+    try:
+        accept_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Accept Cookies')]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        time.sleep(0.5)
+        accept_btn.click()
+        print("✓ Clicked Accept Cookies (fallback click)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: CSS selector by class (common class from page data)
+if not clicked:
+    try:
+        accept_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1pnd5en")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked Accept Cookies (JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not locate or click the 'Accept Cookies' button.")

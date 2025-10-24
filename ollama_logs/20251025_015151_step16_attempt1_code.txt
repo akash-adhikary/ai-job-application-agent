@@ -1,0 +1,42 @@
+wait = WebDriverWait(driver, 15)
+
+# ---- Fill Email ----
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-275")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Email address filled")
+except Exception as e:
+    print(f"✗ Failed to fill email: {e}")
+
+# ---- Fill Password ----
+try:
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-276")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Password filled")
+except Exception as e:
+    print(f"✗ Failed to fill password: {e}")
+
+# ---- Click the appropriate Sign In button ----
+# Prefer the button that resides inside the login form
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//form//button[contains(normalize-space(.), 'Sign In')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    time.sleep(1)  # small pause before click
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In (JavaScript click)")
+except Exception as e:
+    print(f"✗ Could not locate or click Sign In button: {e}")
+
+time.sleep(2)  # allow post‑login processing

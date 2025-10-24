@@ -1,0 +1,53 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Primary strategy: button with specific class and exact text
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and normalize-space(text())='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (primary selector)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Primary selector failed: {e}")
+
+# Fallback 1: any element with the class and visible text
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button.css-1ru62dj")
+            )
+        )
+        if "Sign In" in sign_in_btn.text:
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+            time.sleep(1)
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (CSS selector fallback)")
+            clicked = True
+    except Exception as e:
+        print(f"✗ CSS selector fallback failed: {e}")
+
+# Fallback 2: generic button containing text 'Sign In'
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(., 'SIGN IN', 'sign in'), 'sign in')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (text fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Text fallback failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the Sign In button.")

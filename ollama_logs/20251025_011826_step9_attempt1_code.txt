@@ -1,0 +1,11 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    password_field = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", password_field)
+    password_field.clear()
+    password_field.send_keys(resume_data["password"])
+    print("✓ Filled password field")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Could not fill password field: {e}")

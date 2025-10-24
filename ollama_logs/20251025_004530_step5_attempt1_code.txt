@@ -1,0 +1,61 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: direct button by class
+try:
+    btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", btn)
+    print("✓ Clicked Create Account button (by class)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: button by exact text
+if not clicked:
+    try:
+        btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Create Account']")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+        time.sleep(0.5)
+        try:
+            btn.click()
+            print("✓ Clicked Create Account button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", btn)
+            print("✓ Clicked Create Account button (JS click after intercept)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: any clickable element containing the text
+if not clicked:
+    try:
+        elem = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create Account')][1]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked Create Account element (generic XPath)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+# Final fallback: brute force search for button with matching class pattern
+if not clicked:
+    try:
+        btns = driver.find_elements(By.TAG_NAME, "button")
+        for b in btns:
+            cls = b.get_attribute("class") or ""
+            txt = b.text.strip()
+            if "Create Account" in txt or "css-1ru62dj" in cls:
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", b)
+                time.sleep(0.5)
+                driver.execute_script("arguments[0].click();", b)
+                print("✓ Clicked Create Account button (fallback loop)")
+                clicked = True
+                break
+    except Exception as e:
+        print(f"Strategy 4 failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the Create Account button.")

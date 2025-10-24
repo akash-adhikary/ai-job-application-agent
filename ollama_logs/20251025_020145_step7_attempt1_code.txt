@@ -1,0 +1,41 @@
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Try locating by the class mentioned in the page info
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (class css-1ru62dj) via JavaScript")
+    clicked = True
+except Exception as e:
+    print(f"✗ Sign In button (css-1ru62dj) not clicked: {e}")
+
+# Fallback: try the class provided in user guidance
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1s1r74k")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class css-1s1r74k) via JavaScript")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Sign In button (css-1s1r74k) not clicked: {e}")
+
+# Final fallback: locate by button text
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(text())='Sign In']")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (text match) via JavaScript")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Sign In button (text) not clicked: {e}")
+
+if not clicked:
+    print("⚠️ Unable to locate and click the Sign In button.")

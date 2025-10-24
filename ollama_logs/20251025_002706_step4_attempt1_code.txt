@@ -1,0 +1,52 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: label wrapping the checkbox
+try:
+    checkbox_label = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//label[contains(normalize-space(.), 'Yes, I have read and consent to the terms and conditions')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox_label)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", checkbox_label)
+    print("✓ Clicked consent checkbox via label")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: input checkbox next to the text node
+if not clicked:
+    try:
+        checkbox_input = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//input[@type='checkbox' and (following-sibling::span[contains(.,'Yes, I have read and consent to the terms and conditions')] or following::text()[contains(.,'Yes, I have read and consent to the terms and conditions')])]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox_input)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", checkbox_input)
+        print("✓ Clicked consent checkbox via input")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: any element with exact text (fallback)
+if not clicked:
+    try:
+        element = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Yes, I have read and consent to the terms and conditions')][1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked consent element by text fallback")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the consent checkbox.")

@@ -1,0 +1,51 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# Wait for the modal to appear (any element inside the modal)
+try:
+    modal = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//*[contains(text(), 'Start Your Application') or contains(text(), 'Autofill with Resume')]")
+        )
+    )
+except Exception as e:
+    print(f"⚠️ Modal not detected: {e}")
+
+# Click the "Autofill with Resume" button inside the modal
+clicked = False
+try:
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_btn)
+    print("✓ Clicked 'Autofill with Resume' (JavaScript click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Could not click 'Autofill with Resume' via data-automation-id: {e}")
+
+# Fallback: locate by exact link text
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//a[normalize-space(text())='Autofill with Resume']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' (fallback XPath)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Fallback click failed: {e}")
+
+if not clicked:
+    print("❌ Unable to click the 'Autofill with Resume' button.")

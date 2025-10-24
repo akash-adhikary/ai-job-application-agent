@@ -1,0 +1,69 @@
+wait = WebDriverWait(driver, 15)
+
+# ---------- Fill Email ----------
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email")
+except Exception as e:
+    print(f"✗ Could not fill Email: {e}")
+
+time.sleep(1)
+
+# ---------- Fill Password ----------
+try:
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except Exception as e:
+    print(f"✗ Could not fill Password: {e}")
+
+time.sleep(1)
+
+# ---------- Fill Verify New Password ----------
+try:
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except Exception as e:
+    print(f"✗ Could not fill Verify New Password: {e}")
+
+time.sleep(1)
+
+# ---------- Check Consent Checkbox ----------
+# Locate the checkbox associated with the consent label
+try:
+    consent_label = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//label[contains(text(),'Yes, I have read and consent to the terms and conditions')]")
+    ))
+    # The input is usually a sibling of the label
+    consent_checkbox = consent_label.find_element(By.XPATH, ".//preceding-sibling::input[@type='checkbox'] | .//following-sibling::input[@type='checkbox']")
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", consent_checkbox)
+    if not consent_checkbox.is_selected():
+        driver.execute_script("arguments[0].click();", consent_checkbox)
+        print("✓ Consent checkbox checked")
+    else:
+        print("✓ Consent checkbox already selected")
+except Exception as e:
+    print(f"✗ Could not check consent checkbox: {e}")
+
+time.sleep(1)
+
+# ---------- Click "Create Account" ----------
+try:
+    create_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and (contains(text(),'Create Account') or .='Create Account')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+    driver.execute_script("arguments[0].click();", create_btn)
+    print("✓ Clicked Create Account")
+except Exception as e:
+    print(f"✗ Could not click Create Account button: {e}")
+
+time.sleep(2)

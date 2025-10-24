@@ -1,0 +1,49 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Primary strategy: button with exact visible text
+try:
+    accept_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Accept Cookies']")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Clicked Accept Cookies (text match)")
+    clicked = True
+except Exception as e:
+    print(f"⚠️ Primary click failed: {e}")
+
+# Fallback strategy: button with known class and containing text
+if not clicked:
+    try:
+        accept_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(@class, 'css-1pnd5en') and contains(., 'Accept Cookies')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked Accept Cookies (class fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Class fallback failed: {e}")
+
+# Final fallback: any element containing the text
+if not clicked:
+    try:
+        accept_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Accept Cookies')][1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked Accept Cookies (generic fallback)")
+    except Exception as e:
+        print(f"✗ Could not click Accept Cookies: {e}")

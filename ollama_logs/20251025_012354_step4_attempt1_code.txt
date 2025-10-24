@@ -1,0 +1,30 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# Fill Email
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-10")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    time.sleep(1)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email field")
+except Exception as e:
+    print(f"✗ Could not fill Email field: {e}")
+
+# Fill Password
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-11")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", password_input)
+    time.sleep(1)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Filled Password field")
+except Exception as e:
+    print(f"✗ Could not fill Password field: {e}")
+
+time.sleep(1)

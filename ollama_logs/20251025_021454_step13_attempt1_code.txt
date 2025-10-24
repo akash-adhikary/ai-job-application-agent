@@ -1,0 +1,25 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the Sign In button (class 'css-1ru62dj' and data-automation-id='signInSubmitButton')
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj[data-automation-id='signInSubmitButton']")
+        )
+    )
+    # Scroll the button into view (center of viewport)
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)  # brief pause after scrolling
+
+    # Attempt a normal click first
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except Exception:
+        # Fallback to JavaScript click if normal click fails (e.g., intercepted)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+
+    time.sleep(2)  # allow any post‑click navigation or processing
+except Exception as e:
+    print(f"✗ Could not click the Sign In button: {e}")

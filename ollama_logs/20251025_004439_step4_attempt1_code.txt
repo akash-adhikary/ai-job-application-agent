@@ -1,0 +1,47 @@
+wait = WebDriverWait(driver, 15)
+
+# Strategy 1: Locate the checkbox input directly via label text
+try:
+    consent_checkbox = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//label[contains(., 'Yes, I have read and con')]/preceding-sibling::input[@type='checkbox' or @type='radio']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", consent_checkbox)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", consent_checkbox)
+    print("✓ Clicked consent checkbox (strategy 1)")
+except Exception as e1:
+    print(f"✗ Strategy 1 failed: {e1}")
+
+# Strategy 2: Click the label itself if it toggles the checkbox
+if not locals().get('consent_checkbox'):
+    try:
+        consent_label = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//label[contains(., 'Yes, I have read and con')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", consent_label)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", consent_label)
+        print("✓ Clicked consent label (strategy 2)")
+    except Exception as e2:
+        print(f"✗ Strategy 2 failed: {e2}")
+
+# Strategy 3: Generic search for any clickable element containing the text
+if not locals().get('consent_checkbox') and not locals().get('consent_label'):
+    try:
+        generic_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Yes, I have read and con')][1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", generic_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", generic_elem)
+        print("✓ Clicked consent element (strategy 3)")
+    except Exception as e3:
+        print(f"✗ Strategy 3 failed: {e3}")
+
+time.sleep(1)

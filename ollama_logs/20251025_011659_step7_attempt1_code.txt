@@ -1,0 +1,20 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the password input inside the Sign In modal
+    password_input = wait.until(
+        EC.visibility_of_element_located((By.ID, "input-5"))
+    )
+    # Scroll into view for reliable interaction
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", password_input
+    )
+    time.sleep(0.5)
+
+    # Clear any pre‑filled value and enter the password from resume data
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Filled password field with provided credentials")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to fill password field: {e}")

@@ -1,0 +1,81 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: link with data-automation-id containing 'apply' (Workday typical)
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='apply'], a[data-automation-id*='Apply'], a[role='button']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_link)
+    print("✓ Clicked Apply link via strategy 1 (JavaScript)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: visible button with text 'Apply'
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(normalize-space(.), 'Apply')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(0.5)
+        try:
+            button.click()
+            print("✓ Clicked Apply button via strategy 2 (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked Apply button via strategy 2 (JavaScript click)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: div with role='button' and matching text
+if not clicked:
+    try:
+        div_button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//div[@role='button' and contains(., 'Apply')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", div_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", div_button)
+        print("✓ Clicked Apply div via strategy 3 (JavaScript)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 4: any element containing the text 'Apply'
+if not clicked:
+    try:
+        any_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(normalize-space(text()), 'Apply')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", any_elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", any_elem)
+        print("✓ Clicked Apply element via strategy 4 (JavaScript)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"✗ Could not click Apply button: {e}")
+
+if not clicked:
+    raise Exception("Failed to locate and click the Apply button on the page.")

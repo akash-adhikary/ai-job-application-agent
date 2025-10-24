@@ -1,0 +1,56 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button with specific css class and exact text
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-1ru62dj') and normalize-space()='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (class + text strategy)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: any button with exact text "Sign In"
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Sign In']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (JS fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: any clickable element containing the text "Sign In"
+if not clicked:
+    try:
+        sign_in_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Sign In') and (self::a or self::button or self::div or self::span)]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_elem)
+        print("✓ Clicked Sign In element (generic strategy)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not click the Sign In button.")

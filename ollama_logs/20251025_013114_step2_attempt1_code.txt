@@ -1,0 +1,78 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct selector using known class
+try:
+    apply_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.css-1l7roxh, button.css-1l7roxh")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_btn)
+    print("✓ Clicked Apply button (class selector)")
+    clicked = True
+except Exception:
+    pass
+
+# Strategy 2: data-automation-id or role attribute
+if not clicked:
+    try:
+        apply_link = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "a[data-automation-id*='apply'], a[data-automation-id*='Apply'], a[role='button']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_link)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", apply_link)
+        print("✓ Clicked Apply link (data-automation-id/role)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 3: Visible button with text "Apply"
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply') or " +
+                           "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next') or " +
+                           "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'continue')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(0.5)
+        try:
+            button.click()
+            print("✓ Clicked button (normal click)")
+        except Exception:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked button (JavaScript click)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 4: Div with role=button
+if not clicked:
+    try:
+        div_button = driver.find_element(By.CSS_SELECTOR, "div[role='button'][data-automation-id*='button']")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", div_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", div_button)
+        print("✓ Clicked div button (JavaScript)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 5: Fallback - any element containing text "Apply"
+if not clicked:
+    try:
+        fallback = driver.find_element(
+            By.XPATH,
+            "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')][1]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", fallback)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", fallback)
+        print("✓ Clicked fallback element (JavaScript)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Could not click Apply button: {e}")

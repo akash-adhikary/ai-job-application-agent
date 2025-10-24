@@ -1,0 +1,38 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_sign_in():
+    try:
+        # Locate the form that contains the email and password inputs
+        form = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//input[@id='input-275']/ancestor::form")
+            )
+        )
+        # Within that form, find the visible Sign In button
+        sign_in_btn = form.find_element(
+            By.XPATH, ".//button[contains(text(), 'Sign In') and not(@disabled)]"
+        )
+        # Scroll into view
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        # Small pause before clicking
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (JS click)")
+        time.sleep(2)  # wait for potential navigation
+    except (NoSuchElementException, TimeoutException) as e:
+        print(f"✗ Sign In button not found or not clickable: {e}")
+
+click_sign_in()

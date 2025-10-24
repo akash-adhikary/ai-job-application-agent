@@ -1,0 +1,134 @@
+# Click the "Apply" button using multiple strategies
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: <a> tags with data-automation-id containing 'Apply' or role='button'
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='Apply'], a[data-automation-id*='apply'], a[role='button']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_link)
+    print("✓ Clicked Apply link (JavaScript)")
+    clicked = True
+except Exception:
+    pass
+
+# Strategy 2: visible <button> elements with text 'Apply'
+if not clicked:
+    try:
+        apply_button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(normalize-space(.), 'Apply') or contains(normalize-space(.), 'Next') or contains(normalize-space(.), 'Continue')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_button)
+        time.sleep(0.5)
+        try:
+            apply_button.click()
+        except Exception:
+            driver.execute_script("arguments[0].click();", apply_button)
+        print("✓ Clicked Apply button")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 3: <div role='button'> with data-automation-id containing 'button'
+if not clicked:
+    try:
+        div_button = driver.find_element(By.CSS_SELECTOR, "div[role='button'][data-automation-id*='button']")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", div_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", div_button)
+        print("✓ Clicked div button (JavaScript)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 4: fallback – any element containing the text 'Apply'
+if not clicked:
+    try:
+        fallback_elem = driver.find_element(By.XPATH, "//*[contains(text(), 'Apply')][1]")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", fallback_elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", fallback_elem)
+        print("✓ Clicked fallback element (JavaScript)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Could not click Apply button: {e}")
+
+time.sleep(3)  # wait for navigation / modal to appear
+
+# -------------------------------------------------
+# After clicking Apply, sign in (if required)
+# -------------------------------------------------
+try:
+    # Click the "Sign In" button/link if present
+    sign_in_elem = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(normalize-space(.), 'Sign In') or //a[contains(normalize-space(.), 'Sign In')]]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_elem)
+    time.sleep(0.5)
+    try:
+        sign_in_elem.click()
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_elem)
+    print("✓ Clicked Sign In")
+except Exception:
+    print("ℹ️ Sign In element not found – maybe already on sign‑in page")
+time.sleep(2)
+
+# Fill in credentials
+try:
+    email_input = wait.until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//input[@type='email' or contains(@name, 'username') or contains(@id, 'username') or contains(@placeholder, 'Email')]")
+        )
+    )
+    email_input.clear()
+    email_input.send_keys(resume_data["personal_info"]["email"])
+    print("✓ Entered email")
+except Exception as e:
+    print(f"✗ Could not locate email field: {e}")
+
+try:
+    password_input = wait.until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//input[@type='password' or contains(@name, 'password') or contains(@id, 'password') or contains(@placeholder, 'Password')]")
+        )
+    )
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Entered password")
+except Exception as e:
+    print(f"✗ Could not locate password field: {e}")
+
+# Submit the login form (press Enter or click the submit button)
+try:
+    # First try a submit button
+    submit_btn = driver.find_element(By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') or @type='submit']")
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
+    time.sleep(0.5)
+    try:
+        submit_btn.click()
+    except Exception:
+        driver.execute_script("arguments[0].click();", submit_btn)
+    print("✓ Clicked Submit/Login button")
+except Exception:
+    # Fallback: press ENTER in password field
+    try:
+        password_input.send_keys("\ue007")  # ENTER key
+        print("✓ Submitted login via ENTER key")
+    except Exception as e:
+        print(f"✗ Could not submit login form: {e}")
+
+time.sleep(5)  # allow post‑login navigation to complete
+
+# -------------------------------------------------
+# End of script segment for clicking Apply and signing in
+# -------------------------------------------------

@@ -1,0 +1,59 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Primary strategy: locate button by class and exact text
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-1ru62dj') and normalize-space()='Create Account']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+    time.sleep(1)
+    try:
+        create_btn.click()
+        print("✓ Clicked 'Create Account' button (normal click)")
+    except Exception:
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (JavaScript click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Primary click failed: {e}")
+
+# Fallback strategy 1: locate by visible text only
+if not clicked:
+    try:
+        create_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Create Account')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (fallback by text)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Fallback by text failed: {e}")
+
+# Fallback strategy 2: generic clickable element containing the text
+if not clicked:
+    try:
+        create_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Create Account') and (self::button or self::a or self::div)]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (generic fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Generic fallback failed: {e}")
+
+if not clicked:
+    print("❌ Unable to click the 'Create Account' button after all attempts.")

@@ -1,0 +1,86 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Click <button> with exact text "Sign In"
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Sign In']"))
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", sign_in_btn
+    )
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked 'Sign In' button via exact text (JavaScript)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: Click any button containing the text "Sign In"
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in')]")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", sign_in_btn
+        )
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked 'Sign In' button via normal click")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked 'Sign In' button via JavaScript click (fallback)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: Click element with known CSS class
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", sign_in_btn
+        )
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked 'Sign In' button via CSS class")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 4: Generic clickable element containing "Sign In"
+if not clicked:
+    try:
+        element = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in')]")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", element
+        )
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked 'Sign In' via generic text match")
+        clicked = True
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"✗ Could not click 'Sign In' button: {e}")
+
+if not clicked:
+    raise Exception("Failed to locate and click the 'Sign In' button.")

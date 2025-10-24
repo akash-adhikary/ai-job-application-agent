@@ -1,0 +1,71 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: try <a> tags with role/button (common in Workday)
+try:
+    create_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='create'], a[role='button'][href*='create']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", create_link)
+    print("✓ Clicked 'Create Account' link via CSS selector")
+    clicked = True
+except Exception:
+    pass
+
+# Strategy 2: visible button with exact text
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space(text())='Create Account']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(0.5)
+        try:
+            button.click()
+            print("✓ Clicked 'Create Account' button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked 'Create Account' button (JS click)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 3: button with class from page info
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button.css-1ru62dj")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", button)
+        print("✓ Clicked 'Create Account' button via class selector")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 4: generic element containing the text
+if not clicked:
+    try:
+        element = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Create Account')][1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element by text (fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Could not click 'Create Account': {e}")
+
+time.sleep(2)  # give any post‑click processing time

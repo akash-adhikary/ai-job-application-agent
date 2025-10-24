@@ -1,0 +1,50 @@
+driver.get("https://fractal.wd1.myworkdayjobs.com/en-US/Careers/job/Bengaluru/GCP-Engineer_SR-20029/apply/autofillWithResume?source=LinkedIn")
+wait = WebDriverWait(driver, 15)
+
+# ---- Fill Email ----
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Email filled")
+except Exception as e:
+    print(f"✗ Failed to fill Email: {e}")
+time.sleep(1)
+
+# ---- Fill Password ----
+try:
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Password filled")
+except Exception as e:
+    print(f"✗ Failed to fill Password: {e}")
+time.sleep(1)
+
+# ---- Fill Verify New Password ----
+try:
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Verify Password filled")
+except Exception as e:
+    print(f"✗ Failed to fill Verify Password: {e}")
+time.sleep(1)
+
+# ---- Check Consent Checkbox ----
+# The label text begins with "Yes, I have read and con"
+try:
+    consent_checkbox = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//label[contains(normalize-space(.), 'Yes, I have read and con')]//input[@type='checkbox']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", consent_checkbox)
+    driver.execute_script("arguments[0].click();", consent_checkbox)
+    print("✓ Consent checkbox checked")
+except Exception as e:
+    print(f"✗ Failed to check consent checkbox: {e}")
+time.sleep(1)

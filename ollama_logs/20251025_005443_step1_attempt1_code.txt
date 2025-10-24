@@ -1,0 +1,47 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# Primary strategy: button with exact text
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(text())='Accept Cookies']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Clicked 'Accept Cookies' button (JavaScript - primary strategy)")
+except Exception as e_primary:
+    # Fallback 1: button containing the text
+    try:
+        accept_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(normalize-space(.), 'Accept Cookies')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked 'Accept Cookies' button (JavaScript - fallback 1)")
+    except Exception as e_fallback1:
+        # Fallback 2: any element with matching class and text
+        try:
+            accept_btn = wait.until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, "button.css-1pnd5en")
+                )
+            )
+            # Verify text to avoid wrong element
+            if "Accept Cookies" in accept_btn.text:
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+                time.sleep(1)
+                driver.execute_script("arguments[0].click();", accept_btn)
+                print("✓ Clicked 'Accept Cookies' button (JavaScript - fallback 2)")
+            else:
+                raise Exception("Button with class css-1pnd5en does not contain expected text.")
+        except Exception as e_fallback2:
+            print(
+                f"✗ Could not click 'Accept Cookies' button. Primary error: {e_primary}; "
+                f"Fallback1 error: {e_fallback1}; Fallback2 error: {e_fallback2}"
+            )

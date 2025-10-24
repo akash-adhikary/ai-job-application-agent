@@ -1,0 +1,63 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button with known class
+try:
+    btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+    time.sleep(1)
+    btn.click()
+    print("✓ Clicked 'Create Account' button (normal click) - strategy 1")
+    clicked = True
+except (TimeoutException, ElementClickInterceptedException, NoSuchElementException):
+    pass
+
+# Strategy 2: button containing exact text
+if not clicked:
+    try:
+        btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space(text())='Create Account']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+        time.sleep(1)
+        try:
+            btn.click()
+            print("✓ Clicked 'Create Account' button (normal click) - strategy 2")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", btn)
+            print("✓ Clicked 'Create Account' button (JS click) - strategy 2")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: any clickable element with the text
+if not clicked:
+    try:
+        elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Create Account')][1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked 'Create Account' button (JS click) - strategy 3")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+if not clicked:
+    print("✗ Could not locate or click the 'Create Account' button.")

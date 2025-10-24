@@ -1,0 +1,79 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+def click_sign_in_button(driver):
+    wait = WebDriverWait(driver, 15)
+
+    # Helper to perform a safe JavaScript click
+    def js_click(element):
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(0.5)
+        try:
+            element.click()
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", element)
+
+    # Strategy 1: button with text "Sign In" inside a form
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//form//button[normalize-space()='Sign In']")
+            )
+        )
+        js_click(sign_in_btn)
+        print("✓ Clicked Sign In button (inside form) using primary selector")
+        return
+    except (TimeoutException, NoSuchElementException):
+        print("✗ Primary selector failed, trying alternatives...")
+
+    # Strategy 2: button with exact text "Sign In" (anywhere) and type=submit
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Sign In' and @type='submit']")
+            )
+        )
+        js_click(sign_in_btn)
+        print("✓ Clicked Sign In button (type=submit) using fallback selector")
+        return
+    except (TimeoutException, NoSuchElementException):
+        print("✗ Fallback selector failed, trying class-based selectors...")
+
+    # Strategy 3: button with known CSS classes (most specific first)
+    css_classes = ["css-wkqt22", "css-1ru62dj"]
+    for cls in css_classes:
+        try:
+            sign_in_btn = wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, f"button.{cls}"))
+            )
+            # Verify button text to avoid wrong matches
+            if sign_in_btn.text.strip() == "Sign In":
+                js_click(sign_in_btn)
+                print(f"✓ Clicked Sign In button using class '{cls}'")
+                return
+        except (TimeoutException, NoSuchElementException):
+            continue
+
+    # Strategy 4: any clickable element containing the text "Sign In"
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Sign In') and (self::button or self::a)]")
+            )
+        )
+        js_click(sign_in_btn)
+        print("✓ Clicked Sign In button using generic text selector")
+        return
+    except (TimeoutException, NoSuchElementException):
+        print("✗ Could not locate the Sign In button with any strategy.")
+
+# Example usage:
+# driver.get("https://fractal.wd1.myworkdayjobs.com/en-US/Careers/job/Bengaluru/GCP-Engineer_SR-20029/apply/autofillWithResume?source=LinkedIn")
+# click_sign_in_button(driver)

@@ -1,0 +1,67 @@
+wait = WebDriverWait(driver, 15)
+
+# ---------- Ensure Sign‑In modal is present ----------
+try:
+    # Wait for the modal container (heuristic: a visible element with the modal title)
+    modal = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//div[.//h2[contains(text(),'Sign In')]]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", modal)
+    print("✓ Sign‑In modal is visible")
+except Exception as e:
+    print(f"✗ Sign‑In modal not found: {e}")
+    raise
+
+# ---------- Fill Email Address ----------
+email_sent = False
+try:
+    # Try locating by label text
+    email_input = modal.find_element(
+        By.XPATH, ".//label[contains(text(),'Email Address')]/following::input[1]"
+    )
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    email_sent = True
+    print("✓ Filled Email Address (by label)")
+except Exception:
+    pass
+
+if not email_sent:
+    try:
+        # Fallback: try known input id (commonly used by Workday)
+        email_input = modal.find_element(By.ID, "input-4")
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        print("✓ Filled Email Address (by id 'input-4')")
+        email_sent = True
+    except Exception as e:
+        print(f"✗ Could not locate Email input: {e}")
+
+# ---------- Fill Password ----------
+pwd_sent = False
+try:
+    pwd_input = modal.find_element(
+        By.XPATH, ".//label[contains(text(),'Password')]/following::input[1]"
+    )
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    pwd_sent = True
+    print("✓ Filled Password (by label)")
+except Exception:
+    pass
+
+if not pwd_sent:
+    try:
+        # Fallback: try known password input id
+        pwd_input = modal.find_element(By.ID, "input-5")
+        pwd_input.clear()
+        pwd_input.send_keys(resume_data["password"])
+        print("✓ Filled Password (by id 'input-5')")
+        pwd_sent = True
+    except Exception as e:
+        print(f"✗ Could not locate Password input: {e}")
+
+# ---------- Small pause before next actions ----------
+time.sleep(1)

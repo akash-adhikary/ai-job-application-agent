@@ -1,0 +1,62 @@
+wait = WebDriverWait(driver, 15)
+
+# ----------- Fill Email -----------
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-10")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email field")
+except Exception as e:
+    print(f"✗ Could not fill Email field: {e}")
+
+time.sleep(1)
+
+# ----------- Fill Password -----------
+try:
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-11")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Filled Password field")
+except Exception as e:
+    print(f"✗ Could not fill Password field: {e}")
+
+time.sleep(1)
+
+# ----------- Click Sign In button ----------
+clicked = False
+# Strategy 1: button with exact text "Sign In"
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[normalize-space()='Sign In' or @type='submit' and (contains(@class,'css-wkqt22') or contains(@class,'css-1ru62dj'))]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(0.5)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed to click Sign In: {e}")
+
+# Strategy 2: fallback to any submit button containing 'Sign In'
+if not clicked:
+    try:
+        alt_btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(translate(text(),'sign in','SIGN IN'),'SIGN IN')]")
+        ))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", alt_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_btn)
+        print("✓ Clicked alternative Sign In button (JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+if not clicked:
+    print("✗ Could not locate or click any Sign In button")
+time.sleep(2)

@@ -1,0 +1,24 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+    time.sleep(2)
+except Exception as e:
+    print(f"✗ Could not click Sign In button: {e}")

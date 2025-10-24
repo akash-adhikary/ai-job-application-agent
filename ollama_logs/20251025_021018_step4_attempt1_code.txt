@@ -1,0 +1,40 @@
+wait = WebDriverWait(driver, 15)
+
+# Fill Email Address
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+except Exception as e:
+    print(f"✗ Failed to fill Email Address: {e}")
+
+# Fill Password
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", password_input)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except Exception as e:
+    print(f"✗ Failed to fill Password: {e}")
+
+# Fill Verify New Password
+try:
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except Exception as e:
+    print(f"✗ Failed to fill Verify New Password: {e}")
+
+# Optional: verify that fields have been populated
+try:
+    assert email_input.get_attribute("value") == resume_data["email"]
+    assert password_input.get_attribute("value") == resume_data["password"]
+    assert verify_input.get_attribute("value") == resume_data["password"]
+    print("✓ All fields verified")
+except AssertionError:
+    print("⚠️ Verification of filled fields failed")

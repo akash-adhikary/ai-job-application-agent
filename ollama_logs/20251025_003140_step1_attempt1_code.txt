@@ -1,0 +1,85 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: direct selector by class and href containing 'apply'
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a.css-1l7roxh[href*='apply']")
+        )
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", apply_link
+    )
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_link)
+    print("✓ Clicked Apply link (Strategy 1: class + href)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: data-automation-id or role attribute
+if not clicked:
+    try:
+        apply_link = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "a[data-automation-id*='apply'], a[data-automation-id*='Apply'], a[role='button']")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", apply_link
+        )
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", apply_link)
+        print("✓ Clicked Apply link (Strategy 2: data-automation-id/role)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: visible button with text 'Apply'
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')]")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", button
+        )
+        time.sleep(0.5)
+        try:
+            button.click()
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+        print("✓ Clicked Apply button (Strategy 3: button text)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+# Strategy 4: any element containing the text 'Apply'
+if not clicked:
+    try:
+        element = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')]")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", element
+        )
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked Apply element (Strategy 4: generic text match)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 4 failed: {e}")
+
+if not clicked:
+    print("✗ Could not click the Apply button using any strategy.")

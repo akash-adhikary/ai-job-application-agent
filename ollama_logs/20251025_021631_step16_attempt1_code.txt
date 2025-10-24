@@ -1,0 +1,34 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Primary selector: button with specific class and visible text
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and normalize-space(text())='Sign In']")
+        )
+    )
+except Exception:
+    try:
+        # Fallback selector: button with data-automation-id attribute
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+            )
+        )
+    except Exception as e:
+        print(f"✗ Could not locate Sign In button: {e}")
+        sign_in_btn = None
+
+if sign_in_btn:
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button")
+    except Exception as e:
+        print(f"✗ Failed to click Sign In button with JavaScript: {e}")
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button with normal click")
+        except Exception as e2:
+            print(f"✗ All click attempts failed: {e2}")

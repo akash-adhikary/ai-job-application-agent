@@ -1,0 +1,52 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct selector using data-automation-id
+try:
+    autofill_elem = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "[data-automation-id='autofillWithResume']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_elem)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_elem)
+    print("✓ Clicked 'Autofill with Resume' (data-automation-id) via JavaScript")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: XPath based on visible text (fallback)
+if not clicked:
+    try:
+        autofill_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Autofill with Resume')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_elem)
+        print("✓ Clicked 'Autofill with Resume' (text) via JavaScript")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: Generic link/button selector with partial data-automation-id
+if not clicked:
+    try:
+        autofill_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "a[data-automation-id*='autofill'], button[data-automation-id*='autofill']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_elem)
+        print("✓ Clicked 'Autofill with Resume' (partial data-automation-id) via JavaScript")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the 'Autofill with Resume' button.")

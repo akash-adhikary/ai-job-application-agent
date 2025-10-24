@@ -1,0 +1,20 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the Sign In button within the login form (class css-1ru62dj, data-automation-id='signInSubmitButton')
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+    time.sleep(2)  # give the next page a moment to load
+except Exception as e:
+    print(f"✗ Could not click Sign In button: {e}")

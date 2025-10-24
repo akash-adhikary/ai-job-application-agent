@@ -1,0 +1,65 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button element with exact visible text "Sign In"
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space(text())='Sign In' or contains(., 'Sign In')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (button element, JavaScript click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: any clickable element (button, input, a) containing the text "Sign In"
+if not clicked:
+    try:
+        sign_in_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[self::button or self::a or self::input][contains(translate(normalize-space(text()), 'SIGN IN', 'sign in'), 'sign in') or @value='Sign In']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_elem)
+        print("✓ Clicked Sign In element (generic selector, JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: CSS selector by known class names (if previous strategies miss)
+if not clicked:
+    try:
+        # Try first known class
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-wkqt22"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class css-wkqt22, JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 (class css-wkqt22) failed: {e}")
+
+if not clicked:
+    try:
+        # Try second known class
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-14pfav7"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class css-14pfav7, JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 (class css-14pfav7) failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the Sign In button.")

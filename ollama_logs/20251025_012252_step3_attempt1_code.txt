@@ -1,0 +1,51 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Primary strategy: locate the target "Sign In" button by its unique class
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-wkqt22[type='submit']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked 'Sign In' button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked 'Sign In' button (JavaScript click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Primary locate/click failed: {e}")
+
+# Fallback 1: locate by visible text (in case class changes)
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Sign In') and contains(@class,'css-wkqt22')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked fallback 'Sign In' button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked fallback 'Sign In' button (JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Fallback locate/click failed: {e}")
+
+# Final fallback: any button with text 'Sign In'
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Sign In')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked generic 'Sign In' button (JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ All attempts to click 'Sign In' failed: {e}")

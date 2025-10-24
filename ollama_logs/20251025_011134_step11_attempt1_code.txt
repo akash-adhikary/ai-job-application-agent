@@ -1,0 +1,15 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    state_button = wait.until(EC.element_to_be_clickable((By.ID, "address--countryRegion")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", state_button)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", state_button)
+    print("✓ Clicked State selector button")
+except Exception as e:
+    print(f"✗ Could not click State selector: {e}")

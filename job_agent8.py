@@ -18,8 +18,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 # ---------- CONFIG ----------
 OLLAMA_MODEL = "gpt-oss:120b-cloud"
 MAX_RETRIES = 3
-MAX_STEPS = 20
-HTML_LIMIT = 40000
+MAX_STEPS = 50
+HTML_LIMIT = 4000000
 SCREENSHOT_DIR = "screenshots"
 LOG_DIR = "ollama_logs"
 MEMORY_FILE = "agent_memory.json"
@@ -28,7 +28,7 @@ os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 
 # Interactive mode settings
 INTERACTIVE_MODE = True  # Set to False for fully automated mode
-AUTO_CONTINUE_TIMEOUT = 2  # Seconds to wait before auto-continuing (0 = wait forever)
+AUTO_CONTINUE_TIMEOUT = 5  # Seconds to wait before auto-continuing (0 = wait forever)
 # ----------------------------
 
 # === Your file paths ===
@@ -757,15 +757,16 @@ def execute_single_step(driver, resume_data, step_num, memory):
     print_page_summary(page_info)
     
     # Checkpoint - before decision
-    user_input = interactive_checkpoint(step_num, "BEFORE ACTION")
+    # user_input = interactive_checkpoint(step_num, "BEFORE ACTION")
+    # # user_input = "Pass"
+    # if user_input:
+    #     if user_input.get("action") == "quit":
+    #         return False, "User quit"
+    #     elif user_input.get("action") == "manual":
+    #         return True, "Manual intervention"
     
-    if user_input:
-        if user_input.get("action") == "quit":
-            return False, "User quit"
-        elif user_input.get("action") == "manual":
-            return True, "Manual intervention"
-    
-    user_guidance = user_input.get("message") if user_input and user_input.get("action") == "guidance" else None
+    # user_guidance = user_input.get("message") if user_input and user_input.get("action") == "guidance" else None
+    user_guidance= None
     
     # Decide action
     print("🤔 Deciding action for THIS page...")
@@ -777,11 +778,21 @@ def execute_single_step(driver, resume_data, step_num, memory):
     print(f"  Target: {action.get('target')}\n")
     
     # Check if needs guidance
-    if action.get("needs_guidance"):
-        print(f"\n⚠️ {action.get('guidance_request', 'Need input')}")
-        user_response = input("Your input: ").strip()
-        user_guidance = (user_guidance or "") + "\n" + user_response
-    
+    # if action.get("needs_guidance"):
+    # print(f"\n⚠️ {action.get('guidance_request', 'Need input')}")
+    # user_response = input("Your input: ").strip()
+    # user_guidance = (user_guidance or "") + "\n" + user_response
+    if INTERACTIVE_MODE:
+        user_input2 = interactive_checkpoint(step_num, "REVIEW ANALYSIS")
+        if user_input2:
+            if user_input2.get("action") == "quit":
+                return False, "User quit"
+            elif user_input2.get("action") == "guidance":
+                lesson = user_input2.get("message", "")
+                user_guidance = (user_guidance or "") + "\n" + lesson
+                add_learning(memory, page_info.get("url", ""), lesson)
+   
+
     # Try executing with retries
     current_url = driver.current_url
     success = False
@@ -794,8 +805,9 @@ def execute_single_step(driver, resume_data, step_num, memory):
         
         # Generate code (with retry context if retrying)
         print(f"🤖 Generating code for this action... (attempt {retry_attempt + 1})")
+        # code = generate_code_for_action(page_info, resume_data, action, memory, user_guidance, retry_attempt)
         code = generate_code_for_action(page_info, resume_data, action, memory, user_guidance, retry_attempt)
-        
+
         if last_error:
             code = f"# Previous error: {last_error[:200]}\n\n" + code
         
@@ -810,8 +822,8 @@ def execute_single_step(driver, resume_data, step_num, memory):
         # Checkpoint - before execution (only on first attempt)
         if retry_attempt == 0 and INTERACTIVE_MODE:
             print("⚠️ About to execute. Review code above.")
-            choice = timed_input_windows("Press Enter to execute (or 'g' for guidance, 'q' to quit): ", AUTO_CONTINUE_TIMEOUT)
-            
+            # choice = timed_input_windows("Press Enter to execute (or 'g' for guidance, 'q' to quit): ", AUTO_CONTINUE_TIMEOUT)
+            choice = "enter"
             if choice == 'q':
                 return False, "User quit"
             elif choice == 'g':
@@ -879,15 +891,15 @@ def execute_single_step(driver, resume_data, step_num, memory):
             print("   ⚠️  Action may have failed - page didn't change")
     
     # Checkpoint - after execution
-    if INTERACTIVE_MODE:
-        user_input2 = interactive_checkpoint(step_num, "AFTER ACTION")
+    # if INTERACTIVE_MODE:
+    #     user_input2 = interactive_checkpoint(step_num, "AFTER ACTION")
         
-        if user_input2:
-            if user_input2.get("action") == "quit":
-                return False, "User quit"
-            elif user_input2.get("action") == "guidance":
-                lesson = user_input2.get("message", "")
-                add_learning(memory, page_info.get("url", ""), lesson)
+    #     if user_input2:
+    #         if user_input2.get("action") == "quit":
+    #             return False, "User quit"
+    #         elif user_input2.get("action") == "guidance":
+    #             lesson = user_input2.get("message", "")
+    #             add_learning(memory, page_info.get("url", ""), lesson)
     
     return success or page_changed, "Success" if success else "Completed with issues"
 

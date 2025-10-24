@@ -1,0 +1,49 @@
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: Direct selector using data-automation-id and specific class
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (direct selector)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Direct selector failed: {e}")
+
+# Strategy 2: Fallback – locate by button text and surrounding form context
+if not clicked:
+    try:
+        # Find the form containing the filled email/password inputs
+        form = driver.find_element(By.XPATH, "//form[.//input[@id='input-280'] and .//input[@id='input-281']]")
+        sign_in_btn = form.find_element(By.XPATH, ".//button[contains(text(),'Sign In')]")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (form‑context fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Form‑context fallback failed: {e}")
+
+# Strategy 3: Generic fallback – any visible button with the target class
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(@class,'css-1ru62dj')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (generic class fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Generic class fallback failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the Sign In button.")

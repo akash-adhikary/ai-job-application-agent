@@ -1,0 +1,56 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: direct CSS selector for the known class
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click) - css-1ru62dj")
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JS click) - css-1ru62dj")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: XPath fallback (text + class)
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-1ru62dj') and normalize-space(text())='Sign In']")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (normal click) - XPath fallback")
+        except Exception:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (JS click) - XPath fallback")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: General text search (last resort)
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "(//button[normalize-space(text())='Sign In'])[last()]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (normal click) - general text")
+        except Exception:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (JS click) - general text")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not locate or click the Sign In button with class 'css-1ru62dj'.")
+
+time.sleep(2)  # give the next page a moment to load after click

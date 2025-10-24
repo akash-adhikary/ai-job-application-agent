@@ -1,0 +1,53 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# 1. Click the "Select file" button (id="input-4")
+try:
+    select_btn = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", select_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", select_btn)
+    print("✓ Clicked 'Select file' button")
+except Exception as e:
+    print(f"✗ Could not click 'Select file' button: {e}")
+
+# 2. Locate the hidden file input element and upload the resume PDF
+# Workday typically uses an <input type='file'> that may be invisible.
+try:
+    file_input = wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
+    )
+    # Some implementations require the element to be visible before send_keys;
+    # scroll into view just in case.
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", file_input)
+    time.sleep(0.5)
+
+    resume_path = r"D:\Workspace\jobs-apply\Resume_akash_disn.pdf"
+    file_input.send_keys(resume_path)
+    print(f"✓ Sent resume path to file input: {resume_path}")
+
+    # Verify upload succeeded
+    time.sleep(2)
+    uploaded_val = file_input.get_attribute("value")
+    if uploaded_val:
+        print(f"✓ File uploaded successfully, input value: {uploaded_val}")
+    else:
+        print("⚠️ FILE UPLOAD MAY HAVE FAILED! No value attribute set.")
+except Exception as e:
+    print(f"✗ File input handling failed: {e}")
+
+# 3. (Optional) Click the "Continue" button to proceed after upload
+try:
+    continue_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Continue')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", continue_btn)
+    print("✓ Clicked 'Continue' button")
+except Exception as e:
+    print(f"✗ Could not click 'Continue' button: {e}")

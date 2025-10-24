@@ -1,0 +1,35 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Use data-automation-id
+try:
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_btn)
+    print("✓ Clicked 'Autofill with Resume' (data-automation-id)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: Fallback to visible link text (first instance in modal)
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "(//a[contains(text(),'Autofill with Resume')])[1]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' (XPath fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Final check
+if not clicked:
+    print("✗ Unable to locate and click the 'Autofill with Resume' button.")

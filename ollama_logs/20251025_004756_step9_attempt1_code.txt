@@ -1,0 +1,51 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct button with exact text
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Sign In']")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked 'Sign In' button (XPath exact match)")
+    clicked = True
+except Exception as e:
+    print(f"⧗ Strategy 1 failed: {e}")
+
+# Strategy 2: Button with partial text match
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Sign In')]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked 'Sign In' button (XPath partial match)")
+        clicked = True
+    except Exception as e:
+        print(f"⧗ Strategy 2 failed: {e}")
+
+# Strategy 3: CSS selector using known class
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked 'Sign In' button (CSS class)")
+        clicked = True
+    except Exception as e:
+        print(f"⧗ Strategy 3 failed: {e}")
+
+# Strategy 4: Any clickable element containing the text
+if not clicked:
+    try:
+        element = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Sign In')]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element with text 'Sign In' (fallback)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ All strategies failed to click 'Sign In': {e}")
+
+time.sleep(2)  # give the next page time to load after click

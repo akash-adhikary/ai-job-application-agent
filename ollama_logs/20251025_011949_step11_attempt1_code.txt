@@ -1,0 +1,18 @@
+wait = WebDriverWait(driver, 15)
+
+# Fill Password field in Sign In modal
+try:
+    password_input = wait.until(
+        EC.element_to_be_clickable((By.ID, "input-5"))
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", password_input
+    )
+    time.sleep(1)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Password filled")
+except Exception as e:
+    print(f"✗ Could not fill password: {e}")
+
+time.sleep(1)

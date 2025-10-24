@@ -1,0 +1,78 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: direct selector by data-automation-id or role
+try:
+    apply_elem = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='apply'], a[data-automation-id*='Apply'], a[role='button']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_elem)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_elem)
+    print("✓ Clicked Apply via data‑automation-id/role (JS)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: button with specific class and text
+if not clicked:
+    try:
+        apply_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(@class,'css-1l7roxh') and contains(text(),'Apply')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+        time.sleep(0.5)
+        try:
+            apply_btn.click()
+            print("✓ Clicked Apply button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", apply_btn)
+            print("✓ Clicked Apply button (JS fallback)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: generic button/text match
+if not clicked:
+    try:
+        apply_generic = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(text(),'Apply') or @data-automation-id='adventureButton']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_generic)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", apply_generic)
+        print("✓ Clicked Apply via generic selector (JS)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 4: any clickable element containing the text
+if not clicked:
+    try:
+        any_elem = driver.find_element(By.XPATH, "//*[contains(text(),'Apply')][1]")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", any_elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", any_elem)
+        print("✓ Clicked first element with text 'Apply' (JS)")
+        clicked = True
+    except NoSuchElementException:
+        pass
+
+if not clicked:
+    print("✗ Failed to locate and click the Apply button.")

@@ -1,0 +1,74 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: Button with specific class
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", create_btn
+    )
+    time.sleep(1)
+    try:
+        create_btn.click()
+        print("✓ Clicked 'Create Account' button (normal click, class selector)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (JS click, class selector)")
+    clicked = True
+except (NoSuchElementException, TimeoutException):
+    pass
+
+# Strategy 2: Button with exact visible text
+if not clicked:
+    try:
+        create_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space(text())='Create Account']")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", create_btn
+        )
+        time.sleep(1)
+        try:
+            create_btn.click()
+            print("✓ Clicked 'Create Account' button (normal click, text selector)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", create_btn)
+            print("✓ Clicked 'Create Account' button (JS click, text selector)")
+        clicked = True
+    except (NoSuchElementException, TimeoutException):
+        pass
+
+# Strategy 3: Fallback - any element containing the text
+if not clicked:
+    try:
+        create_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Create Account')][1]")
+            )
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", create_btn
+        )
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (JS click, fallback selector)")
+        clicked = True
+    except (NoSuchElementException, TimeoutException) as e:
+        print(f"✗ Could not locate or click 'Create Account' button: {e}")
+
+if not clicked:
+    raise Exception("Failed to click the 'Create Account' button after all strategies.")

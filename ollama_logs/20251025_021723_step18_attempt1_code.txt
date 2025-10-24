@@ -1,0 +1,40 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+try:
+    # Locate the Sign In button inside the login form by its unique class
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JavaScript click)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Could not click primary Sign In button: {e}")
+
+if not clicked:
+    # Fallback: locate any button with text 'Sign In' and the expected class
+    try:
+        alt_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and contains(text(), 'Sign In')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", alt_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", alt_btn)
+        print("✓ Clicked fallback Sign In button (JavaScript click)")
+        clicked = True
+    except Exception as e2:
+        print(f"✗ Fallback Sign In button click failed: {e2}")
+
+if not clicked:
+    print("❌ All attempts to click the Sign In button were unsuccessful.")

@@ -1,0 +1,78 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: direct link/button with data-automation-id
+try:
+    apply_elem = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id='adventureButton'], button[data-automation-id='adventureButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_elem)
+    print("✓ Clicked Apply (strategy 1, JavaScript)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: by class name
+if not clicked:
+    try:
+        apply_elem = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".css-1l7roxh"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+        time.sleep(1)
+        try:
+            apply_elem.click()
+            print("✓ Clicked Apply (strategy 2, normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", apply_elem)
+            print("✓ Clicked Apply (strategy 2, JavaScript fallback)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: button or link containing text 'Apply'
+if not clicked:
+    try:
+        apply_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//a[contains(text(),'Apply')] | //button[contains(text(),'Apply')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", apply_elem)
+        print("✓ Clicked Apply (strategy 3, JavaScript)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 4: any clickable element with 'Apply' in its text
+if not clicked:
+    try:
+        apply_elem = driver.find_element(
+            By.XPATH, "//*[contains(text(),'Apply')][1]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", apply_elem)
+        print("✓ Clicked Apply (strategy 4, fallback)")
+        clicked = True
+    except NoSuchElementException:
+        pass
+
+if not clicked:
+    print("✗ Could not locate or click the Apply button.")

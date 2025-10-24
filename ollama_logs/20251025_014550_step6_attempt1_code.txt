@@ -1,0 +1,35 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Try locating the button by its visible text
+    create_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Create Account']"))
+    )
+except Exception:
+    try:
+        # Fallback: locate by CSS class if text search fails
+        create_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+    except Exception as e:
+        print(f"✗ Could not locate 'Create Account' button: {e}")
+        create_btn = None
+
+if create_btn:
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(1)
+        try:
+            create_btn.click()
+            print("✓ Clicked 'Create Account' button (normal click)")
+        except Exception:
+            driver.execute_script("arguments[0].click();", create_btn)
+            print("✓ Clicked 'Create Account' button (JavaScript click)")
+        time.sleep(2)
+    except Exception as e:
+        print(f"✗ Error while clicking 'Create Account' button: {e}")

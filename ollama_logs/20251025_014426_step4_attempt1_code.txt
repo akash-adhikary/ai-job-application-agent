@@ -1,0 +1,47 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def fill_account_creation_form():
+    try:
+        # Accept cookies if banner is present
+        try:
+            cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept') or contains(@class,'cookie') or contains(@id,'cookie')]")))
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", cookie_btn)
+            driver.execute_script("arguments[0].click();", cookie_btn)
+            print("✓ Cookie banner accepted")
+            time.sleep(1)
+        except Exception:
+            pass  # No cookie banner found
+
+        # Email Address
+        email_input = wait.until(EC.visibility_of_element_located((By.ID, "input-4")))
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", email_input)
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        print("✓ Filled Email Address")
+        time.sleep(1)
+
+        # Password
+        password_input = wait.until(EC.visibility_of_element_located((By.ID, "input-5")))
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", password_input)
+        password_input.clear()
+        password_input.send_keys(resume_data["password"])
+        print("✓ Filled Password")
+        time.sleep(1)
+
+        # Verify New Password
+        verify_input = wait.until(EC.visibility_of_element_located((By.ID, "input-6")))
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", verify_input)
+        verify_input.clear()
+        verify_input.send_keys(resume_data["password"])
+        print("✓ Filled Verify New Password")
+        time.sleep(1)
+
+    except Exception as e:
+        print(f"✗ Error while filling form: {e}")
+
+fill_account_creation_form()

@@ -1,0 +1,269 @@
+import time
+import os
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+# -------------------  Config / Data  -------------------
+url = "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn"
+
+resume_pdf_path = r"D:\Workspace\jobs-apply\Resume_akash_disn.pdf"
+resume_photo_path = r"D:\Workspace\jobs-apply\AkashPortrait.jpg"
+
+resume_data = {
+    "email": "akash.adhikary@hotmail.com",
+    "password": "Hinjewadi@123",
+    "personal_info": {
+        "name": "Akash Adhikary",
+        "phone": "+91-8420433877",
+        "email": "akash.adhikary@hotmail.com",
+        "address": [
+            {
+                "addressline 1": "671, KPC Layout, Kasasvanahalli",
+                "addressline 2": "Bangalore",
+                "city": "Bangalore",
+                "state": "Karnataka",
+                "zip": "560043",
+                "country": "India",
+            }
+        ],
+    },
+    # Skills list extracted from technical_skills (flattened)
+    "skills": [
+        "Python", "PySpark", "SQL", "C/C++", "Pandas", "NumPy", "SciPy",
+        "AWS", "Azure", "Google Cloud Platform", "Spark", "Databricks",
+        "BigQuery", "Kafka", "Thoughtspot", "Power BI", "Snowflake",
+        "MongoDB", "Oracle", "IBM Db2", "Airflow", "Matillion",
+        "Qlik Replicate", "Informatica", "GitHub Actions", "Docker",
+        "CI/CD pipelines", "PostgreSQL", "MySQL", "DynamoDB"
+    ],
+}
+# ------------------------------------------------------
+
+
+def click_element(element):
+    """Robust click using JS fallback."""
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+    time.sleep(0.5)
+    try:
+        element.click()
+        print("✓ Normal click succeeded")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ JS click used")
+
+
+# -------------------  WebDriver Setup  -----------------
+options = webdriver.ChromeOptions()
+options.add_argument("--start-maximized")
+driver = webdriver.Chrome(options=options)
+wait = WebDriverWait(driver, 20)
+
+driver.get(url)
+time.sleep(2)  # initial load
+
+# ----------- 1. Accept cookies if dialog appears ----------
+try:
+    cookie_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Accept')]"))
+    )
+    click_element(cookie_btn)
+    print("✓ Cookies accepted")
+except TimeoutException:
+    print("ℹ️ No cookie banner found")
+
+# ----------- 2. Handle possible login prompt ----------
+def perform_login():
+    try:
+        # Look for generic login fields
+        email_input = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//input[@type='email' or @name='username' or @name='email']"))
+        )
+        password_input = driver.find_element(By.XPATH, "//input[@type='password' or @name='password']")
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        password_input.clear()
+        password_input.send_keys(resume_data["password"])
+        # Click sign‑in button (try several strategies)
+        try:
+            sign_in_btn = driver.find_element(
+                By.XPATH, "//button[contains(translate(text(),'SIGN IN','sign in'),'sign in')]"
+            )
+        except NoSuchElementException:
+            sign_in_btn = driver.find_element(By.XPATH, "//input[@type='submit' or @value='Sign In']")
+        click_element(sign_in_btn)
+        print("✓ Logged in")
+        time.sleep(5)  # wait for possible redirect
+    except Exception as e:
+        print(f"⚠️ Login not required or failed: {e}")
+
+perform_login()
+
+# ----------- 3. Open the application modal ----------
+# Choose “Apply Manually” (works both inside & outside modal)
+def open_apply_manually():
+    selectors = [
+        (By.CSS_SELECTOR, "a[data-automation-id='applyManually']"),
+        (By.XPATH, "//a[contains(@data-automation-id,'applyManually')]"),
+        (By.XPATH, "//button[contains(text(),'Apply Manually')]"),
+        (By.XPATH, "//a[contains(text(),'Apply Manually')]"),
+    ]
+    for by, sel in selectors:
+        try:
+            elem = wait.until(EC.element_to_be_clickable((by, sel)))
+            click_element(elem)
+            print("✓ Clicked 'Apply Manually'")
+            return True
+        except TimeoutException:
+            continue
+    return False
+
+if not open_apply_manually():
+    print("✗ Could not find 'Apply Manually' button – aborting")
+    driver.quit()
+    exit()
+
+time.sleep(4)  # give modal time to render
+
+# ----------- 4. Fill Personal Information ----------
+def fill_input(by, selector, value, description="field"):
+    try:
+        input_el = wait.until(EC.visibility_of_element_located((by, selector)))
+        input_el.clear()
+        input_el.send_keys(value)
+        print(f"✓ Filled {description}")
+        return True
+    except TimeoutException:
+        print(f"⚠️ {description} not found")
+        return False
+
+# Name (split first / last if separate fields exist)
+full_name = resume_data["personal_info"]["name"]
+name_parts = full_name.split()
+first_name = name_parts[0]
+last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+
+# Try common name field patterns
+filled_first = fill_input(By.XPATH, "//input[contains(@aria-label,'First Name') or contains(@name,'firstName')]", first_name, "First Name")
+filled_last = fill_input(By.XPATH, "//input[contains(@aria-label,'Last Name') or contains(@name,'lastName')]", last_name, "Last Name")
+if not (filled_first and filled_last):
+    # Fallback to single name field
+    fill_input(By.XPATH, "//input[contains(@aria-label,'Name') or contains(@name,'name')]", full_name, "Full Name")
+
+# Email
+fill_input(By.XPATH, "//input[contains(@type,'email') or contains(@aria-label,'Email')]", resume_data["personal_info"]["email"], "Email")
+
+# Phone
+fill_input(By.XPATH, "//input[contains(@aria-label,'Phone') or contains(@name,'phone')]", resume_data["personal_info"]["phone"], "Phone")
+
+# Address fields (use first address entry)
+addr = resume_data["personal_info"]["address"][0]
+
+address_mappings = {
+    "addressline 1": ["Address Line 1", "Street", "Address"],
+    "addressline 2": ["Address Line 2", "Apt", "Suite"],
+    "city": ["City"],
+    "state": ["State", "Province", "Region"],
+    "zip": ["ZIP", "Postal Code", "Postcode"],
+    "country": ["Country"],
+}
+for key, possible_labels in address_mappings.items():
+    value = addr.get(key, "")
+    if not value:
+        continue
+    xpath_expr = " | ".join(
+        [f"//input[contains(@aria-label,'{lbl}')]" for lbl in possible_labels]
+        + [f"//input[contains(@name,'{lbl.lower().replace(' ', '')}')]" for lbl in possible_labels]
+    )
+    fill_input(By.XPATH, xpath_expr, value, f"{key}")
+
+# ----------- 5. Upload Resume ----------
+def upload_file(file_path, description="file"):
+    try:
+        # Workday usually uses <input type="file"> hidden inside a label/button
+        file_input = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, f"//input[@type='file' and (contains(@data-automation-id,'Resume') or contains(@name,'resume') or contains(@id,'resume'))]")
+            )
+        )
+        file_input.send_keys(file_path)
+        time.sleep(2)
+        uploaded = file_input.get_attribute("value")
+        if uploaded:
+            print(f"✓ {description} uploaded: {uploaded}")
+        else:
+            print(f"⚠️ {description} upload may have failed")
+        return True
+    except TimeoutException:
+        print(f"⚠️ {description} input not found")
+        return False
+
+upload_file(resume_pdf_path, "Resume PDF")
+
+# If a separate photo upload appears (optional)
+upload_file(resume_photo_path, "Profile Photo")
+
+# ----------- 6. Add Skills (searchable multi‑select) ----------
+def add_skills(skills):
+    for skill in skills[:10]:  # limit to first 10 to avoid timeouts
+        try:
+            # Locate the skill search box – common pattern in Workday
+            skill_input = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, "//input[contains(@aria-label,'Skill') or contains(@placeholder,'Skill')]")
+                )
+            )
+            skill_input.clear()
+            skill_input.send_keys(skill)
+            time.sleep(1.5)
+            # Select first suggestion matching the skill
+            suggestion = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, f"//div[contains(@class,'suggestion') and contains(text(),'{skill}')]")
+                )
+            )
+            click_element(suggestion)
+            print(f"✓ Added skill: {skill}")
+            time.sleep(0.5)
+        except Exception:
+            print(f"⚠️ Could not add skill: {skill}")
+            continue
+
+add_skills(resume_data["skills"])
+
+# ----------- 7. Click Next / Submit ----------
+def click_next_or_submit():
+    # Try common labels
+    button_texts = ["Next", "Continue", "Submit", "Apply", "Finish"]
+    for txt in button_texts:
+        try:
+            btn = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, f"//button[contains(translate(text(),'{txt.upper()}','{txt.lower()}'),'{txt.lower()}')]|//a[contains(translate(text(),'{txt.upper()}','{txt.lower()}'),'{txt.lower()}')]")
+                )
+            )
+            click_element(btn)
+            print(f"✓ Clicked '{txt}' button")
+            return True
+        except TimeoutException:
+            continue
+    # Fallback generic click
+    try:
+        generic = driver.find_element(By.XPATH, "//*[contains(@role,'button')][1]")
+        click_element(generic)
+        print("✓ Clicked generic button")
+        return True
+    except Exception as e:
+        print(f"✗ Could not find any navigation button: {e}")
+        return False
+
+click_next_or_submit()
+time.sleep(5)  # allow final processing
+
+print("✅ Form automation script completed.")

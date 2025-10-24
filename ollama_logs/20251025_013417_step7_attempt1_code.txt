@@ -1,0 +1,73 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: button inside a modal with exact text
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@class,'modal')]//button[normalize-space()='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(1)
+    try:
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (normal click) - strategy 1")
+    except Exception:
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (JS click) - strategy 1")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: fallback using class selector and text
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button.css-1ru62dj")
+            )
+        )
+        if sign_in_btn.text.strip() == "Sign In":
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+            time.sleep(1)
+            try:
+                sign_in_btn.click()
+                print("✓ Clicked Sign In button (normal click) - strategy 2")
+            except Exception:
+                driver.execute_script("arguments[0].click();", sign_in_btn)
+                print("✓ Clicked Sign In button (JS click) - strategy 2")
+            clicked = True
+        else:
+            raise Exception("Button text mismatch")
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: generic xpath by text
+if not clicked:
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Sign In']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(1)
+        try:
+            sign_in_btn.click()
+            print("✓ Clicked Sign In button (normal click) - strategy 3")
+        except Exception:
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (JS click) - strategy 3")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not click the Sign In button using any strategy.")

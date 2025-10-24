@@ -1,0 +1,50 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: Direct selector using data-automation-id (most reliable for Workday)
+try:
+    autofill_link = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume'], button[data-automation-id='autofillWithResume']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_link)
+    print("✓ Clicked 'Autofill with Resume' via data-automation-id")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: Fallback – locate by visible text within the modal
+if not clicked:
+    try:
+        autofill_text = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Autofill with Resume')][1]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_text)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_text)
+        print("✓ Clicked 'Autofill with Resume' via visible text")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: Generic clickable element search (last resort)
+if not clicked:
+    try:
+        generic = driver.find_element(By.XPATH, "//a[contains(@href,'autofillWithResume') or contains(@data-automation-id,'autofillWithResume')]")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", generic)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", generic)
+        print("✓ Clicked 'Autofill with Resume' via generic selector")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the 'Autofill with Resume' button.")

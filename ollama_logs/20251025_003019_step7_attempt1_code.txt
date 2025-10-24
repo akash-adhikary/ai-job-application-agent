@@ -1,0 +1,56 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# --------- Click the consent checkbox ----------
+try:
+    # Locate the checkbox input that is associated with the consent text
+    consent_checkbox = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//label[contains(., 'Yes, I have read and consent to the terms and conditions')]/input[@type='checkbox']"
+            )
+        )
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", consent_checkbox
+    )
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", consent_checkbox)
+    print("✓ Consent checkbox clicked")
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not locate or click consent checkbox: {e}")
+
+# --------- Click the 'Create Account' button ----------
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//button[contains(@class, 'css-1ru62dj') and contains(text(), 'Create Account')]"
+            )
+        )
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", create_btn
+    )
+    time.sleep(1)
+    try:
+        create_btn.click()
+        print("✓ 'Create Account' button clicked (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ 'Create Account' button clicked (JavaScript click)")
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not locate or click 'Create Account' button: {e}")
+
+time.sleep(2)  # give the page a moment to process the submission

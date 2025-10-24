@@ -1,0 +1,94 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# ----- USER INPUT REQUIRED -----
+# Fill these variables with the desired selections before running the script
+HOW_DID_YOU_HEAR_MAIN = "Job Sites"      # e.g., "Job Sites"
+HOW_DID_YOU_HEAR_SUB = "LinkedIn"       # e.g., "LinkedIn"
+STATE_SELECTION = "Karnataka"           # e.g., "Karnataka"
+PHONE_DEVICE_TYPE = "Mobile"            # e.g., "Mobile"
+# --------------------------------
+
+wait = WebDriverWait(driver, 20)
+
+# ---- How Did You Hear About Us? ----
+try:
+    # Click the input to focus / open suggestions
+    hear_input = wait.until(EC.element_to_be_clickable((By.ID, "source--source")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", hear_input)
+    hear_input.click()
+    time.sleep(0.5)
+
+    # Type the main category (e.g., "Job Sites")
+    hear_input.clear()
+    hear_input.send_keys(HOW_DID_YOU_HEAR_MAIN)
+    time.sleep(1.5)  # wait for suggestion list to appear
+
+    # Select the main category suggestion
+    main_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, f"//div[contains(@class, 'suggestion') and contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{HOW_DID_YOU_HEAR_MAIN.lower()}')]")
+        )
+    )
+    driver.execute_script("arguments[0].click();", main_option)
+    print("✓ Selected How Did You Hear About Us? main option")
+
+    # Type the sub‑option (e.g., "LinkedIn")
+    hear_input.clear()
+    hear_input.send_keys(HOW_DID_YOU_HEAR_SUB)
+    time.sleep(1.5)
+
+    sub_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, f"//div[contains(@class, 'suggestion') and contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{HOW_DID_YOU_HEAR_SUB.lower()}')]")
+        )
+    )
+    driver.execute_script("arguments[0].click();", sub_option)
+    print("✓ Selected How Did You Hear About Us? sub option")
+except Exception as e:
+    print(f"✗ Failed to set How Did You Hear About Us?: {e}")
+
+# ---- State Dropdown ----
+try:
+    state_btn = wait.until(EC.element_to_be_clickable((By.ID, "address--countryRegion")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", state_btn)
+    driver.execute_script("arguments[0].click();", state_btn)
+    time.sleep(0.5)
+
+    state_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, f"//div[contains(@class, 'suggestion') and normalize-space(text())='{STATE_SELECTION}']")
+        )
+    )
+    driver.execute_script("arguments[0].click();", state_option)
+    print(f"✓ Selected State: {STATE_SELECTION}")
+except Exception as e:
+    print(f"✗ Failed to select State: {e}")
+
+# ---- Phone Device Type Dropdown ----
+try:
+    phone_type_btn = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--phoneType")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_type_btn)
+    driver.execute_script("arguments[0].click();", phone_type_btn)
+    time.sleep(0.5)
+
+    phone_type_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, f"//div[contains(@class, 'suggestion') and normalize-space(text())='{PHONE_DEVICE_TYPE}']")
+        )
+    )
+    driver.execute_script("arguments[0].click();", phone_type_option)
+    print(f"✓ Selected Phone Device Type: {PHONE_DEVICE_TYPE}")
+except Exception as e:
+    print(f"✗ Failed to select Phone Device Type: {e}")
+
+# ---- Optionally click Save and Continue ----
+try:
+    save_continue_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Save and Continue')]")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", save_continue_btn)
+    driver.execute_script("arguments[0].click();", save_continue_btn)
+    print("✓ Clicked Save and Continue")
+except Exception as e:
+    print(f"✗ Could not click Save and Continue: {e}")

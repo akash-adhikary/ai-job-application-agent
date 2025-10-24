@@ -1,0 +1,70 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct CSS selector using class and data-automation-id
+try:
+    apply_elem = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a.css-1l7roxh[data-automation-id='adventureButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_elem)
+    print("✓ Clicked Apply link (CSS selector)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: Fallback to generic selector for Workday apply buttons
+if not clicked:
+    try:
+        apply_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "a[data-automation-id*='apply'], a[data-automation-id*='Apply']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", apply_elem)
+        print("✓ Clicked Apply link (generic data-automation-id)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: Locate button by visible text
+if not clicked:
+    try:
+        apply_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//a[contains(text(),'Apply') or contains(@class,'css-1l7roxh')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+        time.sleep(0.5)
+        try:
+            apply_elem.click()
+            print("✓ Clicked Apply button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", apply_elem)
+            print("✓ Clicked Apply button (JavaScript click)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+# Strategy 4: Last resort – any element containing the word "Apply"
+if not clicked:
+    try:
+        apply_elem = driver.find_element(
+            By.XPATH, "//*[contains(text(),'Apply')][1]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", apply_elem)
+        print("✓ Clicked Apply element (fallback XPath)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 4 failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the Apply button.")

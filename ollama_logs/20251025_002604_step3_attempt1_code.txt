@@ -1,0 +1,90 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# Fill Email Address
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not locate/fill Email input: {e}")
+
+time.sleep(1)
+
+# Fill Password
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", password_input)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not locate/fill Password input: {e}")
+
+time.sleep(1)
+
+# Fill Verify New Password
+try:
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not locate/fill Verify Password input: {e}")
+
+time.sleep(1)
+
+# Click "Create Account" button
+clicked = False
+
+# Strategy 1: button by exact text
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Create Account']")
+        )
+    )
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", create_btn
+    )
+    time.sleep(0.5)
+    try:
+        create_btn.click()
+        print("✓ Clicked Create Account (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked Create Account (JS click)")
+    clicked = True
+except Exception:
+    pass
+
+# Strategy 2: fallback to button with known class
+if not clicked:
+    try:
+        create_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", create_btn
+        )
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked Create Account (fallback CSS selector)")
+        clicked = True
+    except Exception:
+        pass
+
+if not clicked:
+    print("✗ Could not click the Create Account button")

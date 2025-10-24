@@ -1,0 +1,64 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: Direct link with data-automation-id inside modal
+try:
+    autofill_link = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_link)
+    print("✓ Clicked 'Autofill with Resume' (direct data-automation-id)")
+    clicked = True
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: Fallback – locate by link text within modal
+if not clicked:
+    try:
+        autofill_link = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//a[contains(text(),'Autofill with Resume')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_link)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_link)
+        print("✓ Clicked 'Autofill with Resume' (link text fallback)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: Generic button with matching text
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(@role, 'button') and contains(text(),'Autofill with Resume')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(1)
+        try:
+            button.click()
+            print("✓ Clicked 'Autofill with Resume' (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked 'Autofill with Resume' (JS click after intercept)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+# Final check
+if not clicked:
+    print("✗ Could not locate or click the 'Autofill with Resume' button.")

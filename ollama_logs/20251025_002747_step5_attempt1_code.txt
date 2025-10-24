@@ -1,0 +1,53 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Click the checkbox input directly (if present)
+try:
+    consent_checkbox = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//input[@type='checkbox' and (../label[contains(text(),'Yes, I have read and consent to the terms and conditions.')]" +
+                       " or following-sibling::label[contains(text(),'Yes, I have read and consent to the terms and conditions.')])]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", consent_checkbox)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", consent_checkbox)
+    print("✓ Clicked consent checkbox (input)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: Click the label that contains the text (labels often toggle the checkbox)
+if not clicked:
+    try:
+        consent_label = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//label[contains(text(),'Yes, I have read and consent to the terms and conditions.')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", consent_label)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", consent_label)
+        print("✓ Clicked consent label")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: Generic text search within any clickable element
+if not clicked:
+    try:
+        consent_elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//*[contains(text(),'Yes, I have read and consent to the terms and conditions.')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", consent_elem)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", consent_elem)
+        print("✓ Clicked consent element by generic text")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not locate or click the consent checkbox/label.")

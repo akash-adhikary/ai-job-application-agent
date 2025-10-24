@@ -1,0 +1,80 @@
+wait = WebDriverWait(driver, 20)
+import time
+
+# ---- 1. Dismiss cookie banner if it blocks interactions ----
+try:
+    cookie_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept') or contains(@aria-label,'accept') or contains(text(),'Accept')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", cookie_btn)
+    driver.execute_script("arguments[0].click();", cookie_btn)
+    print("✓ Cookie banner dismissed")
+    time.sleep(1)
+except Exception:
+    pass  # cookie banner not present
+
+# ---- 2. Ensure any login modal is handled (sign‑in) ----
+try:
+    login_modal = driver.find_element(By.XPATH, "//div[contains(@class,'login') or //form[contains(@action,'login')]]")
+    # locate email & password fields within the modal
+    email_input = login_modal.find_element(By.XPATH, ".//input[contains(@type,'email') or contains(@name,'email')]")
+    password_input = login_modal.find_element(By.XPATH, ".//input[contains(@type,'password') or contains(@name,'password')]")
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    # click the sign‑in button inside the modal
+    sign_in_btn = login_modal.find_element(By.XPATH, ".//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in') or @data-automation-id='signIn']")
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Logged in")
+    time.sleep(3)  # wait for post‑login redirect
+except Exception:
+    pass  # no login modal detected
+
+# ---- 3. Click "Autofill with Resume" button inside the application modal ----
+clicked = False
+# Strategy 1: direct selector by data‑automation‑id
+try:
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-automation-id='autofillWithResume']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", autofill_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", autofill_btn)
+    print("✓ Clicked 'Autofill with Resume' (data‑automation-id)")
+    clicked = True
+except Exception as e:
+    print(f"✗ Strategy 1 failed: {e}")
+
+# Strategy 2: fallback to link text inside modal
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//a[contains(text(),'Autofill with Resume') or contains(@href,'autofillWithResume')]"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", autofill_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' (link text)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 2 failed: {e}")
+
+# Strategy 3: generic button/text search within modal container
+if not clicked:
+    try:
+        modal_container = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//*[contains(text(),'Start Your Application')]/ancestor::div[contains(@class,'modal') or @role='dialog']"))
+        )
+        autofill_btn = modal_container.find_element(By.XPATH, ".//a[contains(text(),'Autofill with Resume')]")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", autofill_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' (within modal)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Unable to locate and click the 'Autofill with Resume' button.")

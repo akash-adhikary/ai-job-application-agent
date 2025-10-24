@@ -1,0 +1,57 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def click_consent_checkbox():
+    try:
+        # Try clicking the label directly (often clicking the label toggles the checkbox)
+        label = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//label[contains(normalize-space(.), 'Yes, I have read and consent to the terms and conditions')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", label)
+        time.sleep(0.5)
+        try:
+            label.click()
+            print("✓ Clicked consent label (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", label)
+            print("✓ Clicked consent label (JavaScript click)")
+        return
+    except (TimeoutException, NoSuchElementException):
+        print("⚠️ Consent label not found via direct label click, trying checkbox input.")
+
+    try:
+        # Locate the checkbox input preceding/following the label text
+        checkbox = wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//input[@type='checkbox' and (following-sibling::label[contains(normalize-space(.), 'Yes, I have read and consent to the terms and conditions')] | preceding-sibling::label[contains(normalize-space(.), 'Yes, I have read and consent to the terms and conditions')])]",
+                )
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", checkbox)
+        time.sleep(0.5)
+        # Ensure checkbox is clickable
+        clickable = wait.until(EC.element_to_be_clickable((By.XPATH, ".//input[@type='checkbox']")))
+        try:
+            clickable.click()
+            print("✓ Clicked consent checkbox (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", clickable)
+            print("✓ Clicked consent checkbox (JavaScript click)")
+    except (TimeoutException, NoSuchElementException):
+        print("✗ Could not locate consent checkbox or label.")
+
+click_consent_checkbox()
+time.sleep(1)

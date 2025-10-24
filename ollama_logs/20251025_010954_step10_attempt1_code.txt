@@ -1,0 +1,103 @@
+wait = WebDriverWait(driver, 15)
+
+# -------- Fill Address Line 1 --------
+try:
+    addr1 = wait.until(EC.element_to_be_clickable((By.ID, "address--addressLine1")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", addr1)
+    addr1.clear()
+    addr1.send_keys("671, KPC Layout, Kasasvanahalli")
+    print("✓ Filled Address Line 1")
+except Exception as e:
+    print(f"✗ Could not fill Address Line 1: {e}")
+
+time.sleep(1)
+
+# -------- Fill City --------
+try:
+    city = wait.until(EC.element_to_be_clickable((By.ID, "address--city")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", city)
+    city.clear()
+    city.send_keys("Bangalore")
+    print("✓ Filled City")
+except Exception as e:
+    print(f"✗ Could not fill City: {e}")
+
+time.sleep(1)
+
+# -------- Fill Postal Code --------
+try:
+    postal = wait.until(EC.element_to_be_clickable((By.ID, "address--postalCode")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", postal)
+    postal.clear()
+    postal.send_keys("560043")
+    print("✓ Filled Postal Code")
+except Exception as e:
+    print(f"✗ Could not fill Postal Code: {e}")
+
+time.sleep(1)
+
+# -------- Select State (Karnataka) --------
+try:
+    state_btn = wait.until(EC.element_to_be_clickable((By.ID, "address--countryRegion")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", state_btn)
+    driver.execute_script("arguments[0].click();", state_btn)
+    print("✓ Opened State dropdown")
+    # Wait for list item and click it
+    state_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@role,'option') and normalize-space()='Karnataka']")
+        )
+    )
+    driver.execute_script("arguments[0].click();", state_option)
+    print("✓ Selected State: Karnataka")
+except Exception as e:
+    print(f"✗ Could not select State: {e}")
+
+time.sleep(1)
+
+# -------- Select Phone Device Type (Mobile) --------
+try:
+    phone_type_btn = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--phoneType")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_type_btn)
+    driver.execute_script("arguments[0].click();", phone_type_btn)
+    print("✓ Opened Phone Device Type dropdown")
+    phone_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@role,'option') and normalize-space()='Mobile']")
+        )
+    )
+    driver.execute_script("arguments[0].click();", phone_option)
+    print("✓ Selected Phone Device Type: Mobile")
+except Exception as e:
+    print(f"✗ Could not select Phone Device Type: {e}")
+
+time.sleep(1)
+
+# -------- Previously Employed? (No) --------
+try:
+    # Look for the label containing 'No' and click it
+    no_label = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//label[normalize-space()='No' or contains(.,'No')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", no_label)
+    driver.execute_script("arguments[0].click();", no_label)
+    print("✓ Selected Previously Employed: No")
+except Exception as e:
+    print(f"✗ Could not set Previously Employed answer: {e}")
+
+time.sleep(1)
+
+# -------- Click Save and Continue --------
+try:
+    continue_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(@class,'css-ctezx6') or normalize-space()='Save and Continue']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", continue_btn)
+    driver.execute_script("arguments[0].click();", continue_btn)
+    print("✓ Clicked Save and Continue")
+except Exception as e:
+    print(f"✗ Could not click Save and Continue: {e}")
+
+time.sleep(2)

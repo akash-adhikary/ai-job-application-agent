@@ -1,0 +1,45 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_create_account():
+    try:
+        # Strategy 1: button with exact class
+        btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+    except TimeoutException:
+        try:
+            # Strategy 2: button containing the exact text
+            btn = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Create Account' or contains(.,'Create Account')]")
+            ))
+        except TimeoutException:
+            try:
+                # Strategy 3: any element with the text (fallback)
+                btn = wait.until(EC.element_to_be_clickable(
+                    (By.XPATH, "//*[contains(text(),'Create Account')][1]")
+                ))
+            except TimeoutException as e:
+                print(f"✗ Could not locate 'Create Account' button: {e}")
+                return
+
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+        time.sleep(1)  # ensure stability after scroll
+        btn.click()
+        print("✓ Clicked 'Create Account' button (normal click)")
+    except ElementClickInterceptedException:
+        try:
+            driver.execute_script("arguments[0].click();", btn)
+            print("✓ Clicked 'Create Account' button (JavaScript click)")
+        except Exception as e:
+            print(f"✗ Failed to click 'Create Account' button via JS: {e}")
+
+# Execute the action
+click_create_account()

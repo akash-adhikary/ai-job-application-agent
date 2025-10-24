@@ -1,58 +1,30 @@
 {
   "learnings": [
     {
-      "timestamp": "2025-10-24T14:46:18.167954",
-      "type": "user_correction",
-      "context": "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn",
-      "lesson": "click on sign in and use the stored creds from json to login ."
+      "timestamp": "2025-10-25T01:35:48.690252",
+      "context": "https://fractal.wd1.myworkdayjobs.com/en-US/Careers/job/Bengaluru/GCP-Engineer_SR-20029/apply/autofillWithResume?source=LinkedIn",
+      "lesson": "fill the form, and click on the right sign in button, there can be multiple sign in buttons one for navigating to sign in page and another for submitting the sign in form"
     },
     {
-      "timestamp": "2025-10-24T14:48:37.083613",
-      "type": "user_correction",
-      "context": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn",
-      "lesson": "provide email and password to sign in and click on sign in"
+      "timestamp": "2025-10-25T02:01:37.112450",
+      "context": "https://fractal.wd1.myworkdayjobs.com/en-US/Careers/job/Bengaluru/GCP-Engineer_SR-20029/apply/autofillWithResume?source=LinkedIn",
+      "lesson": "the sign in button is in class css-1s1r74k"
     },
     {
-      "timestamp": "2025-10-24T14:49:11.643912",
-      "type": "error",
-      "context": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn",
-      "lesson": "Error at step 3: Message: element click intercepted: Element <button type=\"submit\" data-automation-id=\"signInSubmitBu"
-    },
-    {
-      "timestamp": "2025-10-24T14:57:33.597099",
-      "type": "error",
-      "context": "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn",
-      "lesson": "Error at step 1: Message: \nStacktrace:\n\tGetHandleVerifier [0x0x7dc333+65459]\n\tGetHandleVerifier [0x0x7dc374+65524]\n\t("
-    },
-    {
-      "timestamp": "2025-10-24T14:58:28.057018",
-      "type": "user_correction",
-      "context": "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn",
-      "lesson": "now analyse what screen came up and based on your analysis tell us what info is it asking ?"
-    },
-    {
-      "timestamp": "2025-10-24T15:01:31.076823",
-      "type": "user_correction",
-      "context": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn",
-      "lesson": "you were supposed to click on sign in link , but you filled in the creds."
-    },
-    {
-      "timestamp": "2025-10-25T00:08:12.128641",
-      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
-      "lesson": "look at the modal window"
+      "timestamp": "2025-10-25T02:03:45.948777",
+      "context": "https://fractal.wd1.myworkdayjobs.com/en-US/Careers/job/Bengaluru/GCP-Engineer_SR-20029/apply/autofillWithResume?source=LinkedIn",
+      "lesson": "sign in button data-automation-id=\"signInSubmitButton\" class css-1ru62dj area-hidden=\"true\""
     }
   ],
-  "successful_patterns": [
-    {
-      "page_type": "application",
-      "action": "1. Click the \"Accept Cookies\" button to close the cookie consent banner. 2. Locate the \"Apply Manually\" link (href: https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn) and click it to navigate to the manual application form where further data entry and file uploads will occur.",
-      "timestamp": "2025-10-24T14:46:18.177739"
-    }
-  ],
-  "failed_patterns": [],
   "domain_knowledge": {
-    "skill_selectors": "For searchable skill dropdowns, type skill name, wait for suggestions, then click the suggestion. Repeat for each skill individually.",
-    "file_uploads": "ALWAYS verify file upload fields are filled before clicking Submit. Use send_keys() and check if value attribute is set.",
-    "multi_select": "For multi-select fields with search, add items one by one: type, wait, select, repeat."
+    "first action": "accept cookies pop-up if present, to avoid blocking further actions.",
+    "second action": "if a login/ sign in prompt appears, log in/sign in  using stored credentials before proceeding., prefer sign in over sign up/ create account",
+    "page analysis": "analyse complete page at one go and try to fill everything and click next for the first iteration itself, if issue arise then do it step by step for the once where issues arrise",
+    "skill_selectors": "For searchable skill dropdowns: type ONE skill, wait 1 sec, click suggestion. Repeat for each skill.",
+    "file_uploads": "ALWAYS verify file upload: after send_keys(), check if value attribute is set. Print confirmation.",
+    "multi_select": "Add items one by one: type, wait, select, repeat. Never paste comma-separated list.",
+    "button_clicks": "If normal click fails with 'element click intercepted', use JavaScript click: driver.execute_script('arguments[0].click();', element)",
+    "sign in button": "If multiple 'Sign In' buttons are present, identify the correct one by checking its context (e.g., within a login form) before clicking.",
+    "modal dialogs": "Always check for modal dialogs after page loads or actions. If present, handle them (e.g., close or accept) before proceeding."
   }
 }

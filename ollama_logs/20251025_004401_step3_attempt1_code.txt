@@ -1,0 +1,33 @@
+wait = WebDriverWait(driver, 15)
+
+# Fill Email Address (id="input-4")
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+except Exception as e:
+    print(f"✗ Could not fill Email Address: {e}")
+
+# Fill Password (id="input-5")
+try:
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except Exception as e:
+    print(f"✗ Could not fill Password: {e}")
+
+# Fill Verify New Password (id="input-6")
+try:
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except Exception as e:
+    print(f"✗ Could not fill Verify New Password: {e}")
+
+time.sleep(1)  # slight pause after filling fields

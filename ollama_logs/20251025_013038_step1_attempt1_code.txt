@@ -1,0 +1,68 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def click_accept_cookies():
+    clicked = False
+
+    # Strategy 1: button element with exact visible text
+    try:
+        accept_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Accept Cookies']"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        time.sleep(1)
+        accept_btn.click()
+        print("✓ Clicked 'Accept Cookies' button (normal click)")
+        clicked = True
+    except (TimeoutException, ElementClickInterceptedException, NoSuchElementException):
+        pass
+
+    # Strategy 2: any element (button/div) containing the text
+    if not clicked:
+        try:
+            accept_elem = wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, "//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept cookies')]")
+                )
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_elem)
+            time.sleep(1)
+            try:
+                accept_elem.click()
+                print("✓ Clicked 'Accept Cookies' element (normal click)")
+            except ElementClickInterceptedException:
+                driver.execute_script("arguments[0].click();", accept_elem)
+                print("✓ Clicked 'Accept Cookies' element (JavaScript click)")
+            clicked = True
+        except (TimeoutException, NoSuchElementException):
+            pass
+
+    # Strategy 3: CSS selector based on known class (if present)
+    if not clicked:
+        try:
+            accept_css = wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, ".css-1pnd5en"))
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_css)
+            time.sleep(1)
+            driver.execute_script("arguments[0].click();", accept_css)
+            print("✓ Clicked 'Accept Cookies' button via CSS selector")
+            clicked = True
+        except (TimeoutException, NoSuchElementException):
+            pass
+
+    if not clicked:
+        print("✗ Could not find or click the 'Accept Cookies' button.")
+
+# Execute the action
+click_accept_cookies()
+time.sleep(2)  # allow any post‑click overlay to settle

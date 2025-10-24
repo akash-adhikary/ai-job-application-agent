@@ -1,0 +1,50 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def click_via_js(elem):
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+    time.sleep(0.5)
+    try:
+        elem.click()
+    except Exception:
+        driver.execute_script("arguments[0].click();", elem)
+
+try:
+    # 1. Click the “How Did You Hear About Us?” field to open the first dropdown
+    source_field = wait.until(EC.element_to_be_clickable((By.ID, "source--source")))
+    click_via_js(source_field)
+    print("✓ Clicked source field")
+    time.sleep(1)
+
+    # 2. Select the top‑level option “Job Site”
+    job_site_option = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//div[contains(@role,'option') or contains(@class,'option')][contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'job site')]"
+            )
+        )
+    )
+    click_via_js(job_site_option)
+    print("✓ Selected 'Job Site'")
+    time.sleep(1)
+
+    # 3. After selecting “Job Site”, another dropdown appears – choose “LinkedIn”
+    linkedin_option = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//div[contains(@role,'option') or contains(@class,'option')][contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'linkedin')]"
+            )
+        )
+    )
+    click_via_js(linkedin_option)
+    print("✓ Selected 'LinkedIn'")
+    time.sleep(1)
+
+except Exception as e:
+    print(f"✗ Failed to set source field: {e}")
