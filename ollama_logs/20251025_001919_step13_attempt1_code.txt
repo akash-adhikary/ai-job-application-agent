@@ -1,0 +1,51 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button with exact class and text
+try:
+    btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(@class, 'css-1ru62dj') and normalize-space()='Create Account']")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+    time.sleep(1)
+    try:
+        btn.click()
+        print("✓ Clicked 'Create Account' button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", btn)
+        print("✓ Clicked 'Create Account' button (JS click)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: any button with matching text
+if not clicked:
+    try:
+        btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(text(),'Create Account')]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+        time.sleep(1)
+        try:
+            btn.click()
+            print("✓ Clicked 'Create Account' button (fallback normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", btn)
+            print("✓ Clicked 'Create Account' button (fallback JS click)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: any element containing the text (button/div/etc.)
+if not clicked:
+    try:
+        elem = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//*[contains(text(),'Create Account')][1]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", elem)
+        print("✓ Clicked element with text 'Create Account' (JS click)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+if not clicked:
+    print("✗ Could not click the 'Create Account' button after all strategies.")

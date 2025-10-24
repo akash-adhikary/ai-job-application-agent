@@ -1,0 +1,21 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the Sign In button that submits the credentials
+    sign_in_button = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-16vlq4s') and normalize-space()='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_button)
+    sign_in_button.click()
+    print("✓ Clicked 'Sign In' button")
+except Exception as e:
+    print(f"✗ Failed to click 'Sign In' button: {e}")
+
+time.sleep(2)

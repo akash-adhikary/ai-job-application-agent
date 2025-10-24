@@ -1,0 +1,246 @@
+import os
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+# ---------- Configuration ----------
+MAIN_URL = "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn"
+APPLY_MANUALLY_HREF = (
+    "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn"
+)
+
+resume_pdf_path = r"D:\Workspace\jobs-apply\Resume_akash_disn.pdf"
+resume_photo_path = r"D:\Workspace\jobs-apply\AkashPortrait.jpg"
+
+resume_data = {
+    "email": "akash.adhikary@hotmail.com",
+    "password": "Hinjewadi@123",
+    "personal_info": {
+        "name": "Akash Adhikary",
+        "phone": "+91-8420433877",
+        "email": "akash.adhikary@hotmail.com",
+        "address": [
+            {
+                "addressline 1": "671, KPC Layout, Kasasvanahalli",
+                "addressline 2": "Bangalore",
+                "city": "Bangalore",
+                "state": "Karnataka",
+                "zip": "560043",
+                "country": "India",
+            }
+        ],
+    },
+    "technical_skills": {
+        "programming_frameworks": [
+            "Python",
+            "PySpark",
+            "SQL",
+            "C/C++",
+            "Pandas",
+            "NumPy",
+            "SciPy",
+        ],
+        "cloud_platforms": ["AWS (S3, Lambda, API Gateway, CloudFormation)", "Azure", "Google Cloud Platform (GCP)"],
+        "big_data_analytics": ["Spark", "Databricks", "BigQuery", "Kafka", "Thoughtspot", "Power BI"],
+        "data_warehousing": ["Snowflake", "BigQuery", "MongoDB", "Oracle", "IBM Db2"],
+        "etl_orchestration": ["Airflow", "Matillion", "Qlik Replicate", "Informatica"],
+        "devops_iac": ["GitHub Actions", "Docker", "CI/CD pipelines"],
+        "databases": ["SQL (PostgreSQL, MySQL)", "NoSQL (MongoDB, DynamoDB)"],
+    },
+}
+
+# Flatten skill list
+skill_list = []
+for category in resume_data["technical_skills"].values():
+    skill_list.extend(category)
+
+# ---------- WebDriver Setup ----------
+options = webdriver.ChromeOptions()
+options.add_argument("--headless=new")
+options.add_argument("--disable-gpu")
+driver = webdriver.Chrome(options=options)
+
+wait = WebDriverWait(driver, 15)
+
+def safe_click(locator, description):
+    try:
+        elem = wait.until(EC.element_to_be_clickable(locator))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.click()
+        print(f"✅ Clicked {description}")
+        return elem
+    except (TimeoutException, ElementClickInterceptedException) as e:
+        print(f"⚠️ Failed to click {description}: {e}")
+        return None
+
+def safe_send_keys(locator, text, description):
+    try:
+        elem = wait.until(EC.visibility_of_element_located(locator))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.clear()
+        elem.send_keys(text)
+        print(f"✅ Sent keys to {description}")
+        return elem
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"⚠️ Failed to send keys to {description}: {e}")
+        return None
+
+def verify_file_uploaded(file_input):
+    value = file_input.get_attribute("value")
+    if value and os.path.basename(value) in [os.path.basename(resume_pdf_path), os.path.basename(resume_photo_path)]:
+        print("✅ File uploaded successfully")
+        return True
+    else:
+        print("⚠️ File upload may have failed!")
+        return False
+
+try:
+    # 1. Open main application page
+    driver.get(MAIN_URL)
+    print("🔎 Opened main page")
+
+    # 2. Click Sign In (if presented)
+    sign_in_btn = safe_click((By.XPATH, "//button[contains(@data-automation-id, 'signInButton')]"), "Sign In button")
+    if sign_in_btn:
+        # 3. Provide credentials
+        safe_send_keys((By.ID, "email"), resume_data["email"], "Email field")
+        safe_send_keys((By.ID, "password"), resume_data["password"], "Password field")
+        # 4. Submit login
+        safe_click((By.XPATH, "//button[@data-automation-id='signInSubmitButton']"), "Submit Sign In")
+        time.sleep(3)  # allow possible redirects
+
+    # 5. Click "Apply Manually" link (ensure we are on the correct page)
+    apply_manual_link = safe_click((By.LINK_TEXT, "Apply Manually"), '"Apply Manually" link')
+    time.sleep(2)
+
+    # 6. Wait for form to load
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "form")))
+    print("🔎 Application form loaded")
+
+    # 7. Upload Resume PDF
+    try:
+        resume_input = driver.find_element(By.XPATH, "//input[@type='file' and contains(@accept, '.pdf')]")
+        resume_input.send_keys(resume_pdf_path)
+        time.sleep(1)
+        verify_file_uploaded(resume_input)
+    except NoSuchElementException:
+        print("⚠️ Resume file input not found")
+
+    # 8. Upload Photo if field exists
+    try:
+        photo_input = driver.find_element(By.XPATH, "//input[@type='file' and (contains(@accept, 'image') or contains(@name, 'photo'))]")
+        photo_input.send_keys(resume_photo_path)
+        time.sleep(1)
+        verify_file_uploaded(photo_input)
+    except NoSuchElementException:
+        print("ℹ️ Photo upload field not present, skipping")
+
+    # 9. Fill critical personal info fields if empty
+    fields = {
+        "Full Name": (By.XPATH, "//input[contains(@placeholder, 'Name') or contains(@aria-label, 'Name')]"),
+        "Email": (By.XPATH, "//input[contains(@type, 'email')]"),
+        "Phone": (By.XPATH, "//input[contains(@type, 'tel') or contains(@placeholder, 'Phone')]"),
+        "Address Line 1": (By.XPATH, "//input[contains(@placeholder, 'Address') and contains(@aria-label, 'Line 1')]"),
+    }
+
+    for desc, locator in fields.items():
+        try:
+            elem = driver.find_element(*locator)
+            current = elem.get_attribute("value").strip()
+            if not current:
+                if desc == "Full Name":
+                    value = resume_data["personal_info"]["name"]
+                elif desc == "Email":
+                    value = resume_data["personal_info"]["email"]
+                elif desc == "Phone":
+                    value = resume_data["personal_info"]["phone"]
+                elif desc == "Address Line 1":
+                    value = resume_data["personal_info"]["address"][0]["addressline 1"]
+                else:
+                    value = ""
+                safe_send_keys(locator, value, desc)
+            else:
+                print(f"ℹ️ {desc} already filled")
+        except NoSuchElementException:
+            print(f"⚠️ {desc} field not found")
+
+    # 10. Populate searchable skill selectors (example assumes a single multi‑select input)
+    for skill in skill_list:
+        try:
+            skill_input = wait.until(
+                EC.element_to_be_clickable((By.XPATH, "//input[contains(@placeholder, 'Skill') or contains(@aria-label, 'Skill')]"))
+            )
+            driver.execute_script("arguments[0].scrollIntoView(true);", skill_input)
+            skill_input.clear()
+            skill_input.send_keys(skill)
+            time.sleep(1)  # wait for suggestions
+            suggestion = wait.until(
+                EC.element_to_be_clickable((By.XPATH, f"//li[contains(., '{skill}')]"))
+            )
+            suggestion.click()
+            print(f"✅ Added skill: {skill}")
+            time.sleep(0.5)
+        except (TimeoutException, NoSuchElementException) as e:
+            print(f"⚠️ Could not add skill {skill}: {e}")
+
+    # 11. Tick mandatory checkboxes (e.g., Terms & Conditions)
+    try:
+        checkboxes = driver.find_elements(By.XPATH, "//input[@type='checkbox' and @required]")
+        for cb in checkboxes:
+            if not cb.is_selected():
+                driver.execute_script("arguments[0].scrollIntoView(true);", cb)
+                cb.click()
+                print("✅ Checked a required checkbox")
+    except Exception as e:
+        print(f"⚠️ Error handling checkboxes: {e}")
+
+    # 12. Verify critical fields before submission
+    critical_ok = True
+    # Verify resume upload
+    try:
+        resume_input = driver.find_element(By.XPATH, "//input[@type='file' and contains(@accept, '.pdf')]")
+        if not resume_input.get_attribute("value"):
+            print("⚠️ Critical: Resume not uploaded")
+            critical_ok = False
+    except NoSuchElementException:
+        print("⚠️ Critical: Resume input missing")
+        critical_ok = False
+
+    # Verify name, email, phone presence
+    for desc, locator in fields.items():
+        try:
+            elem = driver.find_element(*locator)
+            if not elem.get_attribute("value").strip():
+                print(f"⚠️ Critical: {desc} empty")
+                critical_ok = False
+        except NoSuchElementException:
+            print(f"⚠️ Critical: {desc} field missing")
+            critical_ok = False
+
+    if not critical_ok:
+        print("⛔️ Aborting submit due to missing critical information")
+    else:
+        # 13. Click Submit / Apply button
+        submit_btn = safe_click(
+            (By.XPATH, "//button[contains(., 'Submit') or contains(., 'Apply')]"),
+            "Submit/Apply button",
+        )
+        if submit_btn:
+            # 14. Verify submission success
+            try:
+                success_msg = wait.until(
+                    EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'Thank you') or contains(text(), 'application submitted')]"))
+                )
+                print("✅ Application submitted successfully")
+            except TimeoutException:
+                print("⚠️ Submission may have failed – success message not found")
+finally:
+    time.sleep(3)
+    driver.quit()

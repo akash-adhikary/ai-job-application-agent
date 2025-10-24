@@ -1,0 +1,41 @@
+try:
+    wait = WebDriverWait(driver, 15)
+
+    # Locate the "No" radio button label that belongs to the required question
+    no_label = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//div[contains(.,'Have you been previously employed with us?')]//label[normalize-space(.)='No']"
+            )
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", no_label)
+    time.sleep(0.5)
+
+    # The label is usually linked to the input; click the label first
+    try:
+        no_label.click()
+        print("✓ Clicked 'No' option via label (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", no_label)
+        print("✓ Clicked 'No' option via label (JS click)")
+    except Exception:
+        # Fallback: click the associated radio input directly
+        radio_input = driver.find_element(
+            By.XPATH,
+            "//div[contains(.,'Have you been previously employed with us?')]//input[@type='radio' and ( @value='No' or @aria-label='No' )]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", radio_input)
+        time.sleep(0.5)
+        try:
+            radio_input.click()
+            print("✓ Clicked 'No' radio input (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", radio_input)
+            print("✓ Clicked 'No' radio input (JS click)")
+        except Exception as e_inner:
+            print(f"✗ Failed to click 'No' radio input: {e_inner}")
+
+except Exception as e:
+    print(f"✗ Could not locate or click the 'No' option: {e}")

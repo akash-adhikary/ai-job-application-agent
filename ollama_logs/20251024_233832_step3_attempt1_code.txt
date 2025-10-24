@@ -1,0 +1,43 @@
+try:
+    wait = WebDriverWait(driver, 15)
+    # Fill Email
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "input-20")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    time.sleep(0.5)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email field")
+except Exception as e:
+    print(f"✗ Failed to fill Email: {e}")
+
+try:
+    # Fill Password
+    password_input = wait.until(EC.presence_of_element_located((By.ID, "input-21")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    time.sleep(0.5)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Filled Password field")
+except Exception as e:
+    print(f"✗ Failed to fill Password: {e}")
+
+# Optional: click Sign In button using fallback strategy
+try:
+    button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Sign In')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", button)
+    time.sleep(0.5)
+    button.click()
+    print("✓ Clicked Sign In button (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", button)
+    print("✓ Clicked Sign In button (JavaScript click)")
+except Exception as e:
+    try:
+        alt_button = driver.find_element(By.CSS_SELECTOR, "div[role='button'][aria-label*='Sign In']")
+        driver.execute_script("arguments[0].click();", alt_button)
+        print("✓ Clicked alternative Sign In button")
+    except Exception as alt_e:
+        print(f"✗ Could not click Sign In button: {e} | Alt attempt failed: {alt_e}")
+
+time.sleep(1)

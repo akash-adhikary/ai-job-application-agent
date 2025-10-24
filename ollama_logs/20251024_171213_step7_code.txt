@@ -1,0 +1,62 @@
+wait = WebDriverWait(driver, 15)
+
+# Fill Email Address
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-91")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+except Exception as e:
+    print(f"✗ Could not fill Email Address: {e}")
+time.sleep(1)
+
+# Fill Password
+try:
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-92")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except Exception as e:
+    print(f"✗ Could not fill Password: {e}")
+time.sleep(1)
+
+# Fill Verify New Password
+try:
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-93")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except Exception as e:
+    print(f"✗ Could not fill Verify New Password: {e}")
+time.sleep(1)
+
+# Check consent checkbox
+try:
+    # Locate the label containing the consent text and then its associated checkbox input
+    consent_label = wait.until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//label[contains(text(),'Yes, I have read and consent to the terms and conditions.')]")
+        )
+    )
+    consent_checkbox = consent_label.find_element(By.XPATH, ".//preceding::input[1]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", consent_checkbox)
+    if not consent_checkbox.is_selected():
+        consent_checkbox.click()
+    print("✓ Consent checkbox checked")
+except Exception as e:
+    print(f"✗ Could not check consent box: {e}")
+time.sleep(1)
+
+# Optional: click the Create Account button to submit the form
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Create Account')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", create_btn)
+    create_btn.click()
+    print("✓ Clicked Create Account")
+except Exception as e:
+    print(f"✗ Could not click Create Account button: {e}")

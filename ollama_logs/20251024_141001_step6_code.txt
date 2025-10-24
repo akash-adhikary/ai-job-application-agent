@@ -1,0 +1,61 @@
+# ---- Handle cookie notice (optional) ----
+try:
+    accept_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Accept Cookies')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("Accepted cookies")
+except Exception as e:
+    print("Cookie accept not needed or failed:", e)
+
+# ---- Click Sign In and perform login ----
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Sign In')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked Sign In")
+except Exception as e:
+    print("Sign In button not found or click failed:", e)
+
+try:
+    email_input = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//input[@type='email' or contains(@placeholder,'Email') or contains(@name,'email') or contains(@id,'email')]")))
+    password_input = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//input[@type='password' or contains(@placeholder,'Password') or contains(@name,'password') or contains(@id,'password')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+    print("Filled login credentials")
+except Exception as e:
+    print("Login fields not found:", e)
+
+try:
+    submit_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in') or \
+                    contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'login') or \
+                    @type='submit']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("Submitted login form")
+except Exception as e:
+    print("Login submit button not found or click failed:", e)
+
+# ---- Click "Apply Manually" link ----
+try:
+    apply_manual = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//a[contains(.,'Apply Manually')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_manual)
+    apply_manual.click()
+    print("Clicked Apply Manually")
+except Exception as e:
+    print("Apply Manually link not found or click failed:", e)
+
+# ---- Wait for URL change after clicking ----
+try:
+    old_url = driver.current_url
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed to:", driver.current_url)
+except Exception as e:
+    print("URL did not change after clicking Apply Manually:", e)

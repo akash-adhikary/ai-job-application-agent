@@ -1,0 +1,76 @@
+# STEP 1 – Select resume (file upload) and click Continue
+
+try:
+    # -------------------------------------------------
+    # 1. Click the “From Device” method button to reveal file upload UI
+    # -------------------------------------------------
+    method_file_btn = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.ID, "methodButton--file"))
+    )
+    print("Clicking 'From Device' method button")
+    method_file_btn.click()
+except Exception as e:
+    print(f"Could not click 'From Device' method button: {e}")
+
+try:
+    # -------------------------------------------------
+    # 2. Upload the resume PDF
+    # -------------------------------------------------
+    # The actual <input type="file"> is hidden but we can still send_keys to it
+    file_input = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.ID, "resumeFile"))
+    )
+    print(f"Uploading resume PDF from path: {resume_pdf_path}")
+    file_input.send_keys(resume_pdf_path)
+except Exception as e:
+    print(f"Failed to upload resume file: {e}")
+
+try:
+    # -------------------------------------------------
+    # 3. Click the Continue button for the file upload method
+    # -------------------------------------------------
+    continue_btn = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.ID, "uploadFileResume"))
+    )
+    print("Clicking 'Continue' button to proceed to next step")
+    continue_btn.click()
+except Exception as e:
+    print(f"Could not click Continue button: {e}")
+
+# -------------------------------------------------
+# 4. (Optional) Fill any other visible fields on this step
+# -------------------------------------------------
+# In this particular step there are no other visible inputs,
+# but the generic logic below shows how you could handle them.
+
+def fill_input_by_name(name, value):
+    try:
+        elem = WebDriverWait(driver, 5).until(
+            EC.element_to_be_clickable((By.NAME, name))
+        )
+        print(f"Filling field '{name}' with value '{value}'")
+        elem.clear()
+        elem.send_keys(value)
+    except Exception as ex:
+        print(f"Field '{name}' not found or not interactable: {ex}")
+
+def fill_textarea_by_id(elem_id, value):
+    try:
+        elem = WebDriverWait(driver, 5).until(
+            EC.element_to_be_clickable((By.ID, elem_id))
+        )
+        print(f"Filling textarea '{elem_id}' with value '{value}'")
+        elem.clear()
+        elem.send_keys(value)
+    except Exception as ex:
+        print(f"Textarea '{elem_id}' not found or not interactable: {ex}")
+
+# Example: if a textarea for pasting resume becomes visible
+if resume_data.get("professional_summary"):
+    # concatenate summary (or entire resume text) as needed
+    summary_text = resume_data["professional_summary"]
+    fill_textarea_by_id("resumePaste", summary_text)
+
+# Example: fill login fields if they become visible (unlikely on STEP 1)
+fill_input_by_name("username", resume_data["personal_info"]["email"])
+fill_input_by_name("password", "YourPasswordHere")  # placeholder; replace as needed

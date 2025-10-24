@@ -1,0 +1,15 @@
+try:
+    print("Attempting to click the 'Sign In' button to submit credentials...")
+    wait = WebDriverWait(driver, 15)
+
+    # Locate the first visible Sign In button (by text)
+    sign_in_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[normalize-space(text())='Sign In' or @type='submit' and (contains(@class,'css-1pluuwy') or contains(@class,'css-14pfav7'))]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(1)  # allow any scrolling animation to finish
+    sign_in_btn.click()
+    time.sleep(2)  # wait for the next page/section to load
+    print("✓ Successfully clicked the 'Sign In' button.")
+except Exception as e:
+    print(f"Could not click the 'Sign In' button: {e}")

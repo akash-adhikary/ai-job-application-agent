@@ -1,0 +1,45 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def fill_login_form():
+    # Email Address
+    try:
+        email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        print("✓ Filled Email Address")
+    except Exception as e:
+        print(f"✗ Failed to fill Email Address: {e}")
+
+    time.sleep(1)
+
+    # Password
+    try:
+        pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-7")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", pwd_input)
+        pwd_input.clear()
+        pwd_input.send_keys(resume_data["password"])
+        print("✓ Filled Password")
+    except Exception as e:
+        print(f"✗ Failed to fill Password: {e}")
+
+    time.sleep(1)
+
+    # Hidden anti‑bot field (leave empty)
+    try:
+        hidden_input = wait.until(EC.presence_of_element_located((By.ID, "c8c981f8-6926-499a-b88a-11e9b1bbf8cb")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", hidden_input)
+        hidden_input.clear()
+        hidden_input.send_keys("")  # explicit empty string
+        print("✓ Set hidden anti‑bot field (empty)")
+    except Exception as e:
+        print(f"✗ Failed to set hidden anti‑bot field: {e}")
+
+    time.sleep(1)
+
+fill_login_form()

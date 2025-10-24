@@ -1,0 +1,45 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Method 1: Normal click with wait
+    start_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Start Your Application']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", start_btn)
+    time.sleep(0.5)
+    start_btn.click()
+    print("✓ Clicked 'Start Your Application' button (normal click)")
+
+except ElementClickInterceptedException:
+    # Method 2: JavaScript click if intercepted
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", start_btn)
+    print("✓ Clicked 'Start Your Application' button (JavaScript click)")
+
+except (TimeoutException, NoSuchElementException) as e:
+    # Method 3: Fallback to alternative element (e.g., div with role=button)
+    print(f"⚠️ Primary button not found or not clickable: {e}")
+    try:
+        alt_btn = driver.find_element(
+            By.XPATH, "//div[@role='button' and contains(., 'Start Your Application')]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_btn)
+        print("✓ Clicked alternative 'Start Your Application' element")
+    except Exception as fallback_err:
+        print(f"✗ Could not click 'Start Your Application' button: {fallback_err}")
+
+time.sleep(1)  # ensure any subsequent page load starts safely

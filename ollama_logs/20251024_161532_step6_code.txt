@@ -1,0 +1,17 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the Verify New Password input
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-88")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", verify_input)
+    time.sleep(1)  # allow scroll animation
+    
+    # Clear any existing text (just in case) and fill the password
+    verify_input.clear()
+    password_to_enter = "Hinjewadi@123"  # same as the original password
+    verify_input.send_keys(password_to_enter)
+    time.sleep(1)  # wait for input processing
+    
+    print("✓ Filled 'Verify New Password' field.")
+except Exception as e:
+    print(f"✗ Failed to fill 'Verify New Password' field: {e}")

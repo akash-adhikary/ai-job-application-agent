@@ -1,0 +1,52 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_apply_button():
+    try:
+        # Method 1: Normal click using button text
+        button = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Apply']"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", button)
+        time.sleep(0.5)
+        button.click()
+        print("✓ Clicked 'Apply' button (normal click)")
+        return
+    except (ElementClickInterceptedException, TimeoutException):
+        print("⚠️ Click intercepted or timeout, trying JavaScript click...")
+        try:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked 'Apply' button (JavaScript click)")
+            return
+        except Exception as e:
+            print(f"✗ JavaScript click failed: {e}")
+
+    except Exception as e:
+        print(f"✗ Initial click attempt failed: {e}")
+
+    # Method 3: Alternative locator (div or span acting as button)
+    try:
+        alt_button = driver.find_element(
+            By.XPATH, "//*[self::div or self::span][contains(@role,'button')][contains(.,'Apply')]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_button)
+        print("✓ Clicked alternative 'Apply' element")
+        return
+    except NoSuchElementException:
+        print("✗ Alternative 'Apply' element not found")
+    except Exception as e:
+        print(f"✗ Could not click alternative button: {e}")
+
+# Execute the click
+click_apply_button()
+time.sleep(1)

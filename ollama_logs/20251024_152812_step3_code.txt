@@ -1,0 +1,3 @@
+The page currently shows only “Save” and sharing options with no form or apply button visible. To proceed, I need to know what you’d like to do next on this job page. 
+
+Please let me know which action you’d like to perform (e.g., click “Save”, open the sharing options, attempt to apply for the position, or any other specific task). Once you specify the desired step, I can generate the appropriate Selenium code for you.

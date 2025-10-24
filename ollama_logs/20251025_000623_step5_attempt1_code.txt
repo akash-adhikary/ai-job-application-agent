@@ -1,0 +1,73 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Click <a> tags with possible data-automation-id or role='button'
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='Apply'], a[data-automation-id*='apply'], a[role='button']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_link)
+    print("✓ Clicked Apply link (JavaScript)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: Visible buttons with matching text
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'apply') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'next') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'continue')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(0.5)
+        try:
+            button.click()
+            print("✓ Clicked button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked button (JavaScript click after intercept)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: Divs acting as buttons
+if not clicked:
+    try:
+        div_button = driver.find_element(By.CSS_SELECTOR, "div[role='button'][data-automation-id*='button']")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", div_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", div_button)
+        print("✓ Clicked div button (JavaScript)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+# Strategy 4: Fallback - any element containing 'Apply' text
+if not clicked:
+    try:
+        element = driver.find_element(
+            By.XPATH,
+            "//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'apply') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'next')][1]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element by text (JavaScript)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 4 failed: {e}")
+
+if not clicked:
+    print("✗ Could not click any Apply-related element.")

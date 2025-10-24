@@ -1,0 +1,58 @@
+{
+  "learnings": [
+    {
+      "timestamp": "2025-10-24T14:46:18.167954",
+      "type": "user_correction",
+      "context": "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn",
+      "lesson": "click on sign in and use the stored creds from json to login ."
+    },
+    {
+      "timestamp": "2025-10-24T14:48:37.083613",
+      "type": "user_correction",
+      "context": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn",
+      "lesson": "provide email and password to sign in and click on sign in"
+    },
+    {
+      "timestamp": "2025-10-24T14:49:11.643912",
+      "type": "error",
+      "context": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn",
+      "lesson": "Error at step 3: Message: element click intercepted: Element <button type=\"submit\" data-automation-id=\"signInSubmitBu"
+    },
+    {
+      "timestamp": "2025-10-24T14:57:33.597099",
+      "type": "error",
+      "context": "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn",
+      "lesson": "Error at step 1: Message: \nStacktrace:\n\tGetHandleVerifier [0x0x7dc333+65459]\n\tGetHandleVerifier [0x0x7dc374+65524]\n\t("
+    },
+    {
+      "timestamp": "2025-10-24T14:58:28.057018",
+      "type": "user_correction",
+      "context": "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn",
+      "lesson": "now analyse what screen came up and based on your analysis tell us what info is it asking ?"
+    },
+    {
+      "timestamp": "2025-10-24T15:01:31.076823",
+      "type": "user_correction",
+      "context": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn",
+      "lesson": "you were supposed to click on sign in link , but you filled in the creds."
+    },
+    {
+      "timestamp": "2025-10-25T00:08:12.128641",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "look at the modal window"
+    }
+  ],
+  "successful_patterns": [
+    {
+      "page_type": "application",
+      "action": "1. Click the \"Accept Cookies\" button to close the cookie consent banner. 2. Locate the \"Apply Manually\" link (href: https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn) and click it to navigate to the manual application form where further data entry and file uploads will occur.",
+      "timestamp": "2025-10-24T14:46:18.177739"
+    }
+  ],
+  "failed_patterns": [],
+  "domain_knowledge": {
+    "skill_selectors": "For searchable skill dropdowns, type skill name, wait for suggestions, then click the suggestion. Repeat for each skill individually.",
+    "file_uploads": "ALWAYS verify file upload fields are filled before clicking Submit. Use send_keys() and check if value attribute is set.",
+    "multi_select": "For multi-select fields with search, add items one by one: type, wait, select, repeat."
+  }
+}

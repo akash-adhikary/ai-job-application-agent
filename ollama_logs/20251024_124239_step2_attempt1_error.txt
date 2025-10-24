@@ -1,0 +1,42 @@
+Traceback (most recent call last):
+  File "job_agent6.py", line 348, in handle_form_step
+    exec(code, exec_globals)
+  File "<string>", line 42, in <module>
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webelement.py", line 94, in click
+    self._execute(Command.CLICK_ELEMENT)
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webelement.py", line 395, in _execute
+    return self._parent.execute(command, params)
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element <button type="submit" data-automation-id="createAccountSubmitButton" font-size="14" height="40" class="css-1pluuwy" tabindex="-2" aria-hidden="true">...</button> is not clickable at point (510, 605). Other element would receive the click: <div font-size="14" height="40" aria-label="Create Account" role="button" tabindex="0" data-automation-id="click_filter" class="css-maqlan"></div>
+  (Session info: chrome=140.0.7339.208)
+Stacktrace:
+	GetHandleVerifier [0x0x7dc333+65459]
+	GetHandleVerifier [0x0x7dc374+65524]
+	(No symbol) [0x0x5fd973]
+	(No symbol) [0x0x64dbc0]
+	(No symbol) [0x0x64bf23]
+	(No symbol) [0x0x6499c7]
+	(No symbol) [0x0x648c66]
+	(No symbol) [0x0x63d195]
+	(No symbol) [0x0x669dfc]
+	(No symbol) [0x0x63cbf4]
+	(No symbol) [0x0x669fb4]
+	(No symbol) [0x0x68b606]
+	(No symbol) [0x0x669bf6]
+	(No symbol) [0x0x63b38e]
+	(No symbol) [0x0x63c274]
+	GetHandleVerifier [0x0xa5eda3+2697763]
+	GetHandleVerifier [0x0xa59ec7+2677575]
+	GetHandleVerifier [0x0x804194+228884]
+	GetHandleVerifier [0x0x7f49f8+165496]
+	GetHandleVerifier [0x0x7fb18d+192013]
+	GetHandleVerifier [0x0x7e47d8+99416]
+	GetHandleVerifier [0x0x7e4972+99826]
+	GetHandleVerifier [0x0x7cebea+10346]
+	BaseThreadInitThunk [0x0x76f17ba9+25]
+	RtlInitializeExceptionChain [0x0x77d4c36b+107]
+	RtlClearBits [0x0x77d4c2ef+191]
+

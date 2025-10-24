@@ -1,0 +1,46 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Ensure EMAIL and PASSWORD are available; prompt for password if not defined
+try:
+    PASSWORD
+except NameError:
+
+try:
+    # Email field
+    email_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "input-7"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_field)
+    email_field.clear()
+    email_field.send_keys(EMAIL)
+    time.sleep(0.5)
+except Exception as e:
+    print(f"Error handling email field: {e}")
+
+try:
+    # Password field
+    password_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "input-8"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_field)
+    password_field.clear()
+    password_field.send_keys(PASSWORD)
+    time.sleep(0.5)
+except Exception as e:
+    print(f"Error handling password field: {e}")
+
+try:
+    # Sign In button (second one in the form)
+    sign_in_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(2) > div > main > div > div:nth-of-type(3) > div > div > div:nth-of-type(1) > div > form > div:nth-of-type(3) > div > div > div > div > button")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_button)
+    sign_in_button.click()
+    time.sleep(1)
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")

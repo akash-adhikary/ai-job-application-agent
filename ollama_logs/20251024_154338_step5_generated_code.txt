@@ -1,0 +1,23 @@
+# Fill Email field
+try:
+    email_elem = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#input-4"))
+    )
+    email_value = resume_data.get("email", "")
+    email_elem.clear()
+    email_elem.send_keys(email_value)
+    print("✅ Filled Email field.")
+except (NoSuchElementException, Exception) as e:
+    print(f"❌ Failed to fill Email field: {e}")
+
+# Fill Password field
+try:
+    password_elem = WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#input-5"))
+    )
+    password_value = resume_data.get("password", "")
+    password_elem.clear()
+    password_elem.send_keys(password_value)
+    print("✅ Filled Password field.")
+except (NoSuchElementException, Exception) as e:
+    print(f"❌ Failed to fill Password field: {e}")

@@ -1,0 +1,36 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Assume resume_pdf_path is already defined (e.g., from provided variables)
+try:
+    # Locate and click the "Select files" button
+    upload_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "resumeAttachments--attachments"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", upload_btn)
+    upload_btn.click()
+    print("✓ Clicked 'Select files' button")
+except Exception as e:
+    print(f"✗ Could not click upload button: {e}")
+
+try:
+    # After clicking, locate the hidden file input element
+    file_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", file_input)
+    # Send the resume file path to the input
+    file_input.send_keys(resume_pdf_path)
+    print(f"✓ Sent file path to input: {resume_pdf_path}")
+    time.sleep(2)  # give the UI time to register the upload
+
+    # Verify that the file input now has a value (uploaded)
+    uploaded_value = file_input.get_attribute("value")
+    if uploaded_value:
+        print(f"✓ File uploaded successfully: {uploaded_value}")
+    else:
+        print("⚠️ FILE UPLOAD MAY HAVE FAILED!")
+except Exception as e:
+    print(f"✗ File input not found or upload failed: {e}")

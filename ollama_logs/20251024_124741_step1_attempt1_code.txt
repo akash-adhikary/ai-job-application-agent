@@ -1,0 +1,201 @@
+import time
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementNotInteractableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+
+# --------------------------------------------------------------------
+# Helper functions
+# --------------------------------------------------------------------
+def click_button_by_text(button_texts):
+    """Click the first visible button whose text matches any of the given texts."""
+    for txt in button_texts:
+        try:
+            btn = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, f"//button[normalize-space(text())='{txt}']"))
+            )
+            print(f"Clicking button with text: '{txt}'")
+            btn.click()
+            return True
+        except (TimeoutException, NoSuchElementException, ElementNotInteractableException):
+            continue
+    return False
+
+def fill_input_field(by, locator, value):
+    try:
+        elem = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((by, locator))
+        )
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling field {locator} with value {value}")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException):
+        print(f"Could not locate or fill input field: {locator}")
+
+def fill_textarea_by_placeholder(placeholder, value):
+    try:
+        elem = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, f"//textarea[@placeholder='{placeholder}']"))
+        )
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling textarea '{placeholder}' with value")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException):
+        print(f"Could not locate textarea with placeholder: {placeholder}")
+
+def select_dropdown_by_label(label_text, option_text):
+    try:
+        # Find the select element that follows a label with given text
+        select_elem = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, f"//label[normalize-space(text())='{label_text}']/following-sibling::select"))
+        )
+        select = Select(select_elem)
+        select.select_by_visible_text(option_text)
+        print(f"Selecting '{option_text}' in dropdown for '{label_text}'")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException):
+        print(f"Could not select option '{option_text}' for dropdown '{label_text}'")
+
+def upload_file_input(by, locator, file_path):
+    try:
+        file_input = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((by, locator))
+        )
+        file_input.send_keys(file_path)
+        print(f"Uploading file {file_path} to input {locator}")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException):
+        print(f"Could not locate file input: {locator}")
+
+# --------------------------------------------------------------------
+# STEP 1: Navigate to manual application form (if needed)
+# --------------------------------------------------------------------
+# Try to click "Apply Manually" to reach the actual form fields
+applied = False
+try:
+    apply_manually_btn = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//a[@data-automation-id='applyManually']"))
+    )
+    print("Clicking 'Apply Manually' to open the application form.")
+    apply_manually_btn.click()
+    applied = True
+except (TimeoutException, NoSuchElementException):
+    print("'Apply Manually' button not found; assuming we are already on the form page.")
+
+# Small pause to let the new content load
+time.sleep(3)
+
+# --------------------------------------------------------------------
+# STEP 2: Fill visible input fields
+# --------------------------------------------------------------------
+personal = resume_data.get("personal_info", {})
+full_name = personal.get("name", "")
+first_name = ""
+last_name = ""
+if full_name:
+    parts = full_name.strip().split()
+    first_name = parts[0]
+    last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+
+# Email (use the one from personal info if present)
+email = personal.get("email", resume_data.get("email", ""))
+
+# Phone
+phone = personal.get("phone", "")
+
+# LinkedIn & Github
+linkedin = personal.get("linkedin", "")
+github = personal.get("github", "")
+
+# Address components (take first address entry)
+address = personal.get("address", [{}])[0]
+addr_line1 = address.get("addressline 1", "")
+addr_line2 = address.get("addressline 2", "")
+city = address.get("city", "")
+state = address.get("state", "")
+zip_code = address.get("zip", "")
+country = address.get("country", "")
+
+# Mapping logic: try common name attributes or placeholder texts
+field_mappings = [
+    # (by, locator, value)
+    (By.NAME, "firstName", first_name),
+    (By.NAME, "first_name", first_name),
+    (By.NAME, "givenName", first_name),
+    (By.NAME, "lastName", last_name),
+    (By.NAME, "last_name", last_name),
+    (By.NAME, "familyName", last_name),
+    (By.NAME, "email", email),
+    (By.NAME, "emailAddress", email),
+    (By.NAME, "phone", phone),
+    (By.NAME, "phoneNumber", phone),
+    (By.NAME, "mobile", phone),
+    (By.NAME, "linkedin", linkedin),
+    (By.NAME, "linkedinUrl", linkedin),
+    (By.NAME, "github", github),
+    (By.NAME, "githubUrl", github),
+    (By.NAME, "addressLine1", addr_line1),
+    (By.NAME, "address1", addr_line1),
+    (By.NAME, "addressLine2", addr_line2),
+    (By.NAME, "address2", addr_line2),
+    (By.NAME, "city", city),
+    (By.NAME, "state", state),
+    (By.NAME, "province", state),
+    (By.NAME, "zip", zip_code),
+    (By.NAME, "postalCode", zip_code),
+    (By.NAME, "country", country),
+]
+
+for by, locator, value in field_mappings:
+    if value:  # don't waste time on empty strings
+        fill_input_field(by, locator, value)
+
+# --------------------------------------------------------------------
+# STEP 3: Fill textareas (e.g., professional summary, cover letter, etc.)
+# --------------------------------------------------------------------
+summary = resume_data.get("professional_summary", "")
+if summary:
+    # Attempt common placeholders or aria-labels
+    try:
+        textarea = WebDriverWait(driver, 5).until(
+            EC.visibility_of_element_located((By.XPATH, "//textarea[contains(@placeholder, 'summary') or contains(@aria-label, 'summary')]"))
+        )
+        textarea.clear()
+        textarea.send_keys(summary)
+        print("Filling professional summary textarea.")
+    except (TimeoutException, NoSuchElementException):
+        print("Professional summary textarea not found; skipping.")
+
+# --------------------------------------------------------------------
+# STEP 4: Handle dropdowns (if any) - example: country selection
+# --------------------------------------------------------------------
+if country:
+    # Look for a label that mentions Country and select the appropriate option
+    select_dropdown_by_label("Country", country)
+
+# --------------------------------------------------------------------
+# STEP 5: Upload resume PDF (if a file input exists)
+# --------------------------------------------------------------------
+resume_pdf_path = resume_data.get("RESUME_PDF_PATH")
+if resume_pdf_path:
+    # Try common input names for resume upload
+    possible_locators = [
+        (By.NAME, "resume"),
+        (By.NAME, "resumeUpload"),
+        (By.XPATH, "//input[@type='file' and (contains(@id, 'resume') or contains(@name, 'resume'))]")
+    ]
+    uploaded = False
+    for by, loc in possible_locators:
+        try:
+            upload_file_input(by, loc, resume_pdf_path)
+            uploaded = True
+            break
+        except Exception:
+            continue
+    if not uploaded:
+        print("Resume file input not found; skipping file upload.")
+
+# --------------------------------------------------------------------
+# STEP 6: Click Next / Continue / Save and Continue button (if present)
+# --------------------------------------------------------------------
+next_clicked = click_button_by_text(["Next", "Continue", "Save and Continue", "Save & Continue", "Next Step"])
+if not next_clicked:
+    print("No Next/Continue button found on this step; form filling complete for STEP 1.")

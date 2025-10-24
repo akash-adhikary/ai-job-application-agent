@@ -1,0 +1,23 @@
+wait = WebDriverWait(driver, 15)
+
+# Fill Email Address
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+    time.sleep(1)
+except Exception as e:
+    print("✗ Error filling Email Address:", e)
+
+# Fill Password
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+    time.sleep(1)
+except Exception as e:
+    print("✗ Error filling Password:", e)

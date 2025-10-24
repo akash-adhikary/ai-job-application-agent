@@ -1,0 +1,28 @@
+try:
+    wait = WebDriverWait(driver, 15)
+    # Attempt 1: locate the visible Sign In button by its text and type
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Sign In' and @type='submit']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(0.5)
+    sign_in_btn.click()
+    print("✓ Clicked button (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked button (JavaScript click)")
+except Exception as e:
+    try:
+        # Attempt 2: alternative selector (e.g., div with role='button' containing 'Sign In')
+        alt_btn = driver.find_element(
+            By.XPATH, "//div[@role='button' and contains(translate(., 'SIGN IN', 'sign in'), 'sign in')]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_btn)
+        print("✓ Clicked alternative button element")
+    except Exception as inner_e:
+        print(f"✗ Could not click Sign In button: {inner_e}")

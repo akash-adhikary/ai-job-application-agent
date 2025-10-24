@@ -1,0 +1,84 @@
+# ------------------------------------------------------------
+# Selenium script to start the Deloitte job application,
+# choose a resume method, upload the PDF and fill any
+# visible input fields.
+# ------------------------------------------------------------
+
+try:
+    print("Waiting for a method button (From Device / Copy & Paste / LinkedIn)...")
+    # Prefer the \"From Device\" method if available
+    method_btn = None
+    try:
+        method_btn = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "methodButton--file"))
+        )
+        method_name = "From Device"
+    except Exception:
+        # Fall back to Copy & Paste button
+        method_btn = WebDriverWait(driver, 5).until(
+            EC.element_to_be_clickable((By.ID, "methodButton--paste"))
+        )
+        method_name = "Copy & Paste"
+    print(f"Clicking the '{method_name}' method button.")
+    method_btn.click()
+except Exception as e:
+    print(f"❌ Could not click any method button: {e}")
+
+# ------------------------------------------------------------
+# 1️⃣  Upload resume file (only for the \"From Device\" method)
+# ------------------------------------------------------------
+if method_name == "From Device":
+    try:
+        print("Waiting for the hidden file input to become present...")
+        file_input = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "resumeFile"))
+        )
+        # The <input type='file'> is hidden (display:none) but we can still send keys to it
+        print(f"Uploading resume PDF from: {resume_pdf_path}")
+        file_input.send_keys(resume_pdf_path)
+
+        # Click the Continue button for the file method
+        print("Clicking the Continue button for file upload...")
+        continue_btn = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "uploadFileResume"))
+        )
+        continue_btn.click()
+    except Exception as e:
+        print(f"❌ Error during file upload step: {e}")
+
+# ------------------------------------------------------------
+# 2️⃣  Fill any visible input fields on the current page
+# ------------------------------------------------------------
+def fill_field(element, value):
+    try:
+        element.clear()
+        element.send_keys(value)
+        print(f"    ✅ Filled '{element.get_attribute('name')}' with provided value.")
+    except Exception as ex:
+        print(f"    ⚠️ Could not fill field '{element.get_attribute('name')}': {ex}")
+
+try:
+    print("Scanning for visible input fields to populate...")
+    visible_inputs = driver.find_elements(By.XPATH, "//input[not(@type='hidden') and not(@type='file')]")
+    for inp in visible_inputs:
+        if not inp.is_displayed():
+            continue  # skip hidden elements
+        name_attr = inp.get_attribute("name") or inp.get_attribute("id") or ""
+        # Simple mapping based on common names
+        if "email" in name_attr.lower() or "username" in name_attr.lower():
+            fill_field(inp, resume_data["personal_info"]["email"])
+        elif "password" in name_attr.lower():
+            # No password in resume_data – using placeholder
+            fill_field(inp, "PlaceholderPassword123")
+        elif "phone" in name_attr.lower():
+            fill_field(inp, resume_data["personal_info"]["phone"])
+        elif "first" in name_attr.lower() or "last" in name_attr.lower() or "name" in name_attr.lower():
+            fill_field(inp, resume_data["personal_info"]["name"])
+        # Add more heuristics here if needed
+except Exception as e:
+    print(f"❌ Unexpected error while filling fields: {e}")
+
+# ------------------------------------------------------------
+# 3️⃣  Final status
+# ------------------------------------------------------------
+print("✅ Script finished – form is populated but not submitted.")

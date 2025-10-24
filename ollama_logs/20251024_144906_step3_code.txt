@@ -1,0 +1,72 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+import time
+
+# Assumes `driver` is already instantiated and navigated to the login page
+wait = WebDriverWait(driver, 15)
+
+def scroll_into_view(elem):
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+
+def login():
+    try:
+        # Email input
+        email_input = wait.until(EC.presence_of_element_located((By.ID, "input-7")))
+        scroll_into_view(email_input)
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        print("✓ Email entered")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("⚠️ Email input not found:", e)
+        return False
+
+    try:
+        # Password input
+        password_input = wait.until(EC.presence_of_element_located((By.ID, "input-8")))
+        scroll_into_view(password_input)
+        password_input.clear()
+        password_input.send_keys(resume_data["password"])
+        print("✓ Password entered")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("⚠️ Password input not found:", e)
+        return False
+
+    # Ensure hidden anti‑bot field remains empty (do not interact)
+    try:
+        hidden_input = driver.find_element(By.NAME, "website")
+        hidden_value = hidden_input.get_attribute("value")
+        if hidden_value:
+            print("⚠️ Hidden 'website' field is not empty! Clearing it.")
+            driver.execute_script("arguments[0].value = '';", hidden_input)
+        else:
+            print("✓ Hidden 'website' field is empty as required")
+    except NoSuchElementException:
+        # Field may not be present; no action needed
+        pass
+
+    try:
+        # Sign In button
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'css-1pluuwy') and @type='submit']")))
+        scroll_into_view(sign_in_btn)
+        sign_in_btn.click()
+        print("→ Clicked Sign In")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("⚠️ Sign In button not found or not clickable:", e)
+        return False
+
+    # Wait for post‑login indicator (e.g., presence of "My Information" heading or URL change)
+    try:
+        wait.until(EC.any_of(
+            EC.url_contains("/apply/"),
+            EC.presence_of_element_located((By.XPATH, "//h2[contains(text(), 'My Information')]"))
+        ))
+        print("✅ Login successful, navigated to application section")
+        return True
+    except TimeoutException:
+        print("⚠️ Login may have failed – post‑login element not detected")
+        return False
+
+# Execute login step
+login()

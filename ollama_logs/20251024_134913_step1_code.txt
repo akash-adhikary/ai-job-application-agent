@@ -1,0 +1,114 @@
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# ==== CONFIGURATION ====
+URL = "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn"
+
+# Provide your credentials here. If left empty the script will stop with a helpful message.
+EMAIL = ""      # e.g. "you@example.com"
+PASSWORD = ""   # e.g. "YourSecretPassword"
+
+# ==== SETUP WEB DRIVER ====
+options = webdriver.ChromeOptions()
+options.add_argument("--start-maximized")
+driver = webdriver.Chrome(options=options)
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    driver.get(URL)
+    print("Navigated to the job page.")
+except Exception as e:
+    print(f"Failed to load URL: {e}")
+    driver.quit()
+    raise
+
+time.sleep(2)
+
+# ---- STEP 1: Accept Cookie Notice ----
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+            "html > body > div#root > div > div > div:nth-of-type(1) > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > div > button"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("Clicked 'Accept Cookies'.")
+except Exception as e:
+    print(f"Could not click 'Accept Cookies': {e}")
+
+time.sleep(2)
+
+# ---- STEP 2: Click Sign In ----
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+            "html > body > div#root > div > div > div:nth-of-type(2) > div > header > div:nth-of-type(2) > div:nth-of-type(3) > div > div > button"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked 'Sign In' button.")
+except Exception as e:
+    print(f"Could not click 'Sign In': {e}")
+
+time.sleep(2)
+
+# ---- CREDENTIAL CHECK ----
+if not EMAIL or not PASSWORD:
+    print("Email and/or password not provided. Please set EMAIL and PASSWORD variables in the script.")
+    driver.quit()
+    # Exit the script gracefully
+    raise SystemExit
+
+# ---- STEP 3: Fill Login Form (assuming common field selectors) ----
+# Note: Exact selectors for the login fields are not supplied in the page information.
+# The following are generic guesses; adapt them if they differ.
+try:
+    email_input = wait.until(
+        EC.presence_of_element_located((By.NAME, "username"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+    print("Entered email.")
+except Exception as e:
+    print(f"Failed to locate or fill email field: {e}")
+
+time.sleep(1)
+
+try:
+    password_input = wait.until(
+        EC.presence_of_element_located((By.NAME, "password"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+    print("Entered password.")
+except Exception as e:
+    print(f"Failed to locate or fill password field: {e}")
+
+time.sleep(1)
+
+# ---- STEP 4: Submit Login ----
+try:
+    submit_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("Clicked login/submit button.")
+except Exception as e:
+    print(f"Failed to click login button: {e}")
+
+# Optional: wait for URL change after login
+try:
+    wait.until(lambda d: d.current_url != URL)
+    print("URL changed after login, proceeding.")
+except Exception:
+    print("URL did not change after login within timeout.")
+
+# Cleanup (optional)
+# driver.quit()

@@ -1,0 +1,20 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the "Sign In" button (by text and/or class)
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Sign In' or contains(@class,'css-wkqt22')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("✓ Clicked 'Sign In' button")
+    time.sleep(2)  # allow any login modal to load
+except Exception as e:
+    print(f"✗ Could not click 'Sign In' button: {e}")

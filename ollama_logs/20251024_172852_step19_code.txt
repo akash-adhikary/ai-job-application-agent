@@ -1,0 +1,36 @@
+state_button = None
+try:
+    # Try locating by the expected ID
+    state_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "address--state"))
+    )
+except Exception:
+    # Fallback: locate the button with visible text "Select One"
+    try:
+        state_button = WebDriverWait(driver, 15).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Select One']"))
+        )
+    except Exception as e:
+        print(f"❌ Unable to locate State dropdown button: {e}")
+
+if state_button:
+    try:
+        driver.execute_script("arguments[0].scrollIntoView(true);", state_button)
+        time.sleep(0.5)
+        state_button.click()
+        print("✓ Clicked State dropdown")
+        time.sleep(1)  # allow options to render
+
+        # Select 'Karnataka' from the dropdown options
+        kar_option = WebDriverWait(driver, 15).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//div[contains(@role, 'option') and normalize-space()='Karnataka']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", kar_option)
+        time.sleep(0.5)
+        kar_option.click()
+        print("✓ Selected state: Karnataka")
+        time.sleep(1)
+    except Exception as e:
+        print(f"❌ Error interacting with State dropdown: {e}")

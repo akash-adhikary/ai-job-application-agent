@@ -1,0 +1,56 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# ---- Fill State ----
+try:
+    state_elem = wait.until(EC.element_to_be_clickable((By.ID, "address--state")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", state_elem)
+    state_elem.click()
+    time.sleep(0.5)
+    # Some dropdowns accept typing; send the value then ENTER
+    state_elem.send_keys("Karnataka")
+    state_elem.send_keys(Keys.ENTER)
+    print("✓ Filled State: Karnataka")
+except Exception as e:
+    print(f"✗ Could not fill State: {e}")
+time.sleep(1)
+
+# ---- Fill Phone Device Type ----
+try:
+    phone_type_elem = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--phoneType")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", phone_type_elem)
+    phone_type_elem.click()
+    time.sleep(0.5)
+    phone_type_elem.send_keys("Mobile")
+    phone_type_elem.send_keys(Keys.ENTER)
+    print("✓ Filled Phone Device Type: Mobile")
+except Exception as e:
+    print(f"✗ Could not fill Phone Device Type: {e}")
+time.sleep(1)
+
+# ---- Fill Phone Number ----
+try:
+    phone_number_elem = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--phoneNumber")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", phone_number_elem)
+    phone_number_elem.clear()
+    phone_number_elem.send_keys("+91-8420433877")
+    print("✓ Filled Phone Number: +91-8420433877")
+except Exception as e:
+    print(f"✗ Could not fill Phone Number: {e}")
+time.sleep(1)
+
+# ---- Fill "How Did You Hear About Us?" ----
+try:
+    source_elem = wait.until(EC.element_to_be_clickable((By.ID, "source--source")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_elem)
+    source_elem.clear()
+    source_elem.send_keys("LinkedIn")
+    print("✓ Filled source (How Did You Hear About Us?): LinkedIn")
+except Exception as e:
+    print(f"✗ Could not fill source: {e}")
+time.sleep(1)

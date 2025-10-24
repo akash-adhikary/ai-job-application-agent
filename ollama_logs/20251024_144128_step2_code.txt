@@ -1,0 +1,179 @@
+import time
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    ElementClickInterceptedException,
+)
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+wait = WebDriverWait(driver, 15)
+
+def click_element(locator, description):
+    try:
+        elem = wait.until(EC.element_to_be_clickable(locator))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.click()
+        print(f"✓ Clicked {description}")
+        return True
+    except (TimeoutException, ElementClickInterceptedException) as e:
+        print(f"⚠️ Failed to click {description}: {e}")
+        return False
+
+def fill_input(locator, value, description):
+    try:
+        inp = wait.until(EC.presence_of_element_located(locator))
+        driver.execute_script("arguments[0].scrollIntoView(true);", inp)
+        inp.clear()
+        inp.send_keys(value)
+        print(f"✓ Filled {description} with '{value}'")
+        return True
+    except TimeoutException as e:
+        print(f"⚠️ Failed to fill {description}: {e}")
+        return False
+
+def upload_file(locator, file_path, description):
+    try:
+        file_input = wait.until(EC.presence_of_element_located(locator))
+        driver.execute_script("arguments[0].scrollIntoView(true);", file_input)
+        file_input.send_keys(file_path)
+        time.sleep(1)  # give UI a moment to register
+        if not file_input.get_attribute("value"):
+            print(f"⚠️ {description} upload may have failed!")
+            return False
+        print(f"✓ {description} uploaded successfully")
+        return True
+    except TimeoutException as e:
+        print(f"⚠️ Failed to locate {description} upload field: {e}")
+        return False
+
+# 1. Click "Apply Manually"
+apply_manually_clicked = click_element(
+    (By.XPATH, "//a[contains(text(),'Apply Manually')]"),
+    "\"Apply Manually\" link"
+)
+
+if not apply_manually_clicked:
+    raise Exception("Cannot proceed without navigating to manual application page.")
+
+# 2. Upload Resume
+resume_uploaded = upload_file(
+    (By.XPATH, "//input[@type='file' and (contains(@name,'resume') or contains(@id,'resume'))]"),
+    resume_pdf_path,
+    "Resume file"
+)
+
+# 3. Upload Photo
+photo_uploaded = upload_file(
+    (By.XPATH, "//input[@type='file' and (contains(@name,'photo') or contains(@id,'photo'))]"),
+    resume_photo_path,
+    "Photo file"
+)
+
+# 4. Fill Personal Information
+personal = resume_data["personal_info"]
+fill_input((By.XPATH, "//input[contains(@placeholder,'Name') or @name='fullName']"),
+           personal["name"], "Name")
+fill_input((By.XPATH, "//input[contains(@placeholder,'Email') or @name='email']"),
+           personal["email"], "Email")
+fill_input((By.XPATH, "//input[contains(@placeholder,'Phone') or @name='phone']"),
+           personal["phone"], "Phone")
+# Address handling (assume separate fields)
+address = personal["address"][0]
+fill_input((By.XPATH, "//input[contains(@placeholder,'Address Line 1') or @name='addressLine1']"),
+           address["addressline 1"], "Address Line 1")
+fill_input((By.XPATH, "//input[contains(@placeholder,'Address Line 2') or @name='addressLine2']"),
+           address["addressline 2"], "Address Line 2")
+fill_input((By.XPATH, "//input[contains(@placeholder,'City') or @name='city']"),
+           address["city"], "City")
+fill_input((By.XPATH, "//input[contains(@placeholder,'State') or @name='state']"),
+           address["state"], "State")
+fill_input((By.XPATH, "//input[contains(@placeholder,'ZIP') or @name='zip']"),
+           address["zip"], "ZIP")
+fill_input((By.XPATH, "//input[contains(@placeholder,'Country') or @name='country']"),
+           address["country"], "Country")
+fill_input((By.XPATH, "//input[contains(@placeholder,'LinkedIn') or @name='linkedin']"),
+           personal["linkedin"], "LinkedIn")
+fill_input((By.XPATH, "//input[contains(@placeholder,'GitHub') or @name='github']"),
+           personal["github"], "GitHub")
+
+# 5. Eligibility / Work Authorization (example: a dropdown)
+try:
+    eligibility_dropdown = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//select[contains(@name,'eligibility') or contains(@id,'eligibility')]")
+    ))
+    eligibility_dropdown.click()
+    option = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//option[contains(text(),'Authorized')]")
+    ))
+    option.click()
+    print("✓ Selected eligibility option")
+except (TimeoutException, NoSuchElementException):
+    print("⚠️ Eligibility dropdown not found or option missing")
+
+# 6. Populate Skill Selectors
+skills = []
+for category in resume_data["technical_skills"].values():
+    skills.extend(category)
+# Remove duplicates while preserving order
+seen = set()
+unique_skills = [s for s in skills if not (s in seen or seen.add(s))]
+
+for skill in unique_skills:
+    try:
+        skill_input = wait.until(EC.presence_of_element_located(
+            (By.XPATH, "//input[contains(@placeholder,'Skill') or contains(@class,'skill-input')]")
+        ))
+        driver.execute_script("arguments[0].scrollIntoView(true);", skill_input)
+        skill_input.clear()
+        skill_input.send_keys(skill)
+        time.sleep(1)  # wait for suggestions
+        suggestion = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, f"//li[contains(text(),'{skill}')]")
+        ))
+        suggestion.click()
+        print(f"✓ Added skill: {skill}")
+        time.sleep(0.5)
+    except TimeoutException:
+        print(f"⚠️ Could not add skill: {skill}")
+
+# 7. Verify critical fields before submission
+critical_ok = True
+if not resume_uploaded:
+    print("⚠️ Resume not uploaded")
+    critical_ok = False
+if not photo_uploaded:
+    print("⚠️ Photo not uploaded")
+    critical_ok = False
+
+# Verify some required text inputs are not empty
+required_fields = [
+    ("Name", "//input[contains(@placeholder,'Name') or @name='fullName']"),
+    ("Email", "//input[contains(@placeholder,'Email') or @name='email']"),
+    ("Phone", "//input[contains(@placeholder,'Phone') or @name='phone']"),
+    ("Address Line 1", "//input[contains(@placeholder,'Address Line 1') or @name='addressLine1']"),
+]
+for desc, xpath in required_fields:
+    try:
+        elem = driver.find_element(By.XPATH, xpath)
+        val = elem.get_attribute("value")
+        if not val.strip():
+            print(f"⚠️ Required field {desc} is empty")
+            critical_ok = False
+        else:
+            print(f"✓ Required field {desc} is filled")
+    except NoSuchElementException:
+        print(f"⚠️ Required field {desc} not found")
+        critical_ok = False
+
+# 8. Submit if all critical checks passed
+if critical_ok:
+    submit_clicked = click_element(
+        (By.XPATH, "//button[contains(text(),'Submit') or contains(text(),'Save') or @type='submit']"),
+        "Submit button"
+    )
+    if submit_clicked:
+        print("🎉 Application submitted successfully")
+else:
+    print("⛔ Not submitting due to failed critical checks")

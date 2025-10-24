@@ -1,0 +1,23 @@
+try:
+    # Try locating the Sign In button using the CSS selector first
+    sign_in_btn = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-16vlq4s"))
+    )
+except Exception as e_css:
+    print("Sign In button not found via CSS selector, trying XPath...:", e_css)
+    try:
+        sign_in_btn = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[text()='Sign In']"))
+        )
+    except Exception as e_xpath:
+        print("Failed to locate Sign In button:", e_xpath)
+        sign_in_btn = None
+
+if sign_in_btn:
+    try:
+        safe_click_element(driver, sign_in_btn, "Sign In button")
+        print("Clicked Sign In button successfully.")
+    except Exception as click_err:
+        print("Error clicking Sign In button:", click_err)
+else:
+    print("Sign In button could not be located; cannot proceed.")

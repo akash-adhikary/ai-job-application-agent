@@ -1,0 +1,27 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    wait = WebDriverWait(driver, 15)
+
+    # Locate the "Autofill with Resume" button (could be a <button>, <a> or <div>)
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//*[self::button or self::a or self::div][contains(normalize-space(.), 'Autofill with Resume')]"
+            )
+        )
+    )
+
+    # Ensure the button is in view before clicking
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+    time.sleep(1)  # slight pause after scrolling
+
+    autofill_btn.click()
+    print("✓ Clicked 'Autofill with Resume' button")
+    time.sleep(2)  # allow any subsequent UI to load
+except Exception as e:
+    print(f"✗ Failed to click 'Autofill with Resume' button: {e}")

@@ -1,0 +1,44 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Primary method: locate the button by its visible text
+    start_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Start Your Application']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", start_btn)
+    time.sleep(0.5)
+    start_btn.click()
+    print("✓ Clicked 'Start Your Application' button (normal click)")
+except (ElementClickInterceptedException, TimeoutException):
+    print("⚠️ Normal click failed, attempting JavaScript click...")
+    try:
+        driver.execute_script("arguments[0].click();", start_btn)
+        print("✓ Clicked 'Start Your Application' button (JS click)")
+    except Exception as e_js:
+        print(f"⚠️ JavaScript click also failed: {e_js}")
+        # Fallback: try a generic clickable element containing the text
+        try:
+            alt_btn = driver.find_element(
+                By.XPATH, "//*[contains(@role,'button') and contains(.,'Start Your Application')]"
+            )
+            driver.execute_script("arguments[0].scrollIntoView(true);", alt_btn)
+            time.sleep(0.5)
+            driver.execute_script("arguments[0].click();", alt_btn)
+            print("✓ Clicked alternative element for 'Start Your Application'")
+        except NoSuchElementException as e_alt:
+            print(f"✗ Could not locate any clickable element for 'Start Your Application': {e_alt}")
+        except Exception as e_alt_other:
+            print(f"✗ Failed to click alternative element: {e_alt_other}")
+except Exception as e:
+    print(f"✗ Unexpected error while clicking 'Start Your Application' button: {e}")

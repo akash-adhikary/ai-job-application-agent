@@ -1,0 +1,96 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: Direct button/link with possible data-automation-id or role attribute
+try:
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'autofill with resume')"
+                " or (self::a and contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'autofill with resume'))]"
+            )
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+    time.sleep(1)
+    try:
+        autofill_btn.click()
+        print("✓ Clicked 'Autofill with Resume' button (normal click)")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' button (JS click)")
+    clicked = True
+except (NoSuchElementException, TimeoutException):
+    pass
+
+# Strategy 2: Any visible element containing the exact text
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'autofill with resume')"
+                    " and (self::button or self::a or @role='button')]"
+                )
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+        time.sleep(1)
+        try:
+            autofill_btn.click()
+            print("✓ Clicked 'Autofill with Resume' via generic selector (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", autofill_btn)
+            print("✓ Clicked 'Autofill with Resume' via generic selector (JS click)")
+        clicked = True
+    except (NoSuchElementException, TimeoutException):
+        pass
+
+# Strategy 3: Divs or spans acting as buttons
+if not clicked:
+    try:
+        autofill_btn = wait.until(
+            EC.element_to_be_clickable(
+                (
+                    By.CSS_SELECTOR,
+                    "div[role='button'], span[role='button']"
+                )
+            )
+        )
+        if "autofill with resume".lower() in autofill_btn.text.lower():
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+            time.sleep(1)
+            driver.execute_script("arguments[0].click();", autofill_btn)
+            print("✓ Clicked 'Autofill with Resume' using div/span role button (JS click)")
+            clicked = True
+    except (NoSuchElementException, TimeoutException):
+        pass
+
+# Final fallback: first element that contains the text
+if not clicked:
+    try:
+        autofill_btn = driver.find_element(
+            By.XPATH,
+            "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'autofill with resume')]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", autofill_btn)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", autofill_btn)
+        print("✓ Clicked 'Autofill with Resume' using fallback selector (JS click)")
+        clicked = True
+    except NoSuchElementException:
+        pass
+
+if not clicked:
+    print("✗ Could not locate or click the 'Autofill with Resume' button.")

@@ -1,0 +1,18 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the Continue button by its text and class
+    continue_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-ctezx6') and normalize-space(text())='Continue']")
+        )
+    )
+    # Scroll into view before clicking
+    driver.execute_script("arguments[0].scrollIntoView(true);", continue_btn)
+    time.sleep(1)  # slight pause after scroll
+    continue_btn.click()
+    print("✓ Clicked 'Continue' button successfully.")
+except Exception as e:
+    print(f"✗ Failed to click 'Continue' button: {e}")
+
+time.sleep(1)  # ensure page has time to react after click

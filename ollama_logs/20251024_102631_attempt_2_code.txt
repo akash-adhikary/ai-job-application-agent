@@ -1,0 +1,34 @@
+import PyPDF2
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import pandas as pd
+
+# Resume data
+resume_data = {
+    "programming_frameworks": ["Python", "PySpark", "SQL", "C/C++", "Pandas", "NumPy", "SciPy"],
+    "cloud_platforms": ["AWS (S3, Lambda, API Gateway, CloudFormation)", "Azure", "Google Cloud Platform (GCP)"],
+    "big_data_analytics": ["Spark", "Databricks", "BigQuery", "Kafka", "Thoughtspot", "Power BI"],
+    "data_warehousing": ["Snowflake", "BigQuery", "MongoDB", "Oracle", "IBM Db2"],
+    "etl_orchestration": ["Airflow", "Matillion", "Qlik Replicate", "Informatica"],
+    "devops_iac": ["GitHub Actions", "Docker", "CI/CD pipelines"],
+    "databases": ["SQL (PostgreSQL, MySQL)", "NoSQL (MongoDB, DynamoDB)"]
+}
+
+# Function to convert pdf to text
+def pdf_to_text(pdf_path):
+    pdf_file = open(pdf_path, 'rb')
+    pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+    num_pages = pdf_reader.numPages
+    text = ''
+    for page in range(num_pages):
+        text += pdf_reader.getPage(page).extractText()
+    return text
+
+# Create a pandas DataFrame from the resume data
+resume_df = pd.DataFrame(resume_data)
+
+# Print the DataFrame
+print(resume_df)

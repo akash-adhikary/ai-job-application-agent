@@ -1,0 +1,168 @@
+# STEP 1: Fill visible fields on the Intel application page
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementNotInteractableException
+
+wait = WebDriverWait(driver, 20)
+
+def safe_find(locator):
+    """Helper to find element with wait, return None if not found."""
+    try:
+        return wait.until(EC.presence_of_element_located(locator))
+    except (TimeoutException, NoSuchElementException):
+        return None
+
+def click_if_visible(locator):
+    """Click element if it's visible and clickable."""
+    try:
+        elem = wait.until(EC.element_to_be_clickable(locator))
+        elem.click()
+        return True
+    except (TimeoutException, ElementNotInteractableException):
+        return False
+
+# -------------------------------------------------
+# 1. Identify and fill input fields (text, email, tel, etc.)
+# -------------------------------------------------
+input_fields = driver.find_elements(By.XPATH, "//input[not(@type='hidden')][not(contains(@style,'display:none'))]")
+for inp in input_fields:
+    try:
+        # Skip disabled or readonly inputs
+        if inp.get_attribute("disabled") or inp.get_attribute("readonly"):
+            continue
+
+        name_attr = inp.get_attribute("name") or ""
+        placeholder = inp.get_attribute("placeholder") or ""
+        aria_label = inp.get_attribute("aria-label") or ""
+        label_text = " ".join([name_attr.lower(), placeholder.lower(), aria_label.lower()])
+
+        # Determine which resume field to use
+        value_to_type = None
+
+        if any(keyword in label_text for keyword in ["first name", "firstname", "given name"]):
+            # split full name
+            first_name = resume_data["personal_info"]["name"].split()[0]
+            value_to_type = first_name
+        elif any(keyword in label_text for keyword in ["last name", "surname", "family name"]):
+            parts = resume_data["personal_info"]["name"].split()
+            last_name = parts[-1] if len(parts) > 1 else ""
+            value_to_type = last_name
+        elif any(keyword in label_text for keyword in ["email", "e‑mail", "e-mail"]):
+            value_to_type = resume_data["personal_info"]["email"]
+        elif any(keyword in label_text for keyword in ["phone", "mobile", "tel"]):
+            value_to_type = resume_data["personal_info"]["phone"]
+        elif any(keyword in label_text for keyword in ["linkedin"]):
+            value_to_type = resume_data["personal_info"]["linkedin"]
+        elif any(keyword in label_text for keyword in ["github"]):
+            value_to_type = resume_data["personal_info"]["github"]
+        elif any(keyword in label_text for keyword in ["address", "street"]):
+            addr = resume_data["personal_info"]["address"][0]
+            # Prefer address line 1
+            value_to_type = addr.get("addressline 1", "")
+        elif any(keyword in label_text for keyword in ["city"]):
+            addr = resume_data["personal_info"]["address"][0]
+            value_to_type = addr.get("city", "")
+        elif any(keyword in label_text for keyword in ["state", "province"]):
+            addr = resume_data["personal_info"]["address"][0]
+            value_to_type = addr.get("state", "")
+        elif any(keyword in label_text for keyword in ["zip", "postal"]):
+            addr = resume_data["personal_info"]["address"][0]
+            value_to_type = addr.get("zip", "")
+        elif any(keyword in label_text for keyword in ["country"]):
+            addr = resume_data["personal_info"]["address"][0]
+            value_to_type = addr.get("country", "")
+
+        # Fallback: if field looks like a generic text field, try to populate with professional summary
+        if not value_to_type and inp.get_attribute("type") in ["text", "search"]:
+            value_to_type = resume_data.get("professional_summary", "")
+
+        if value_to_type is not None:
+            inp.clear()
+            inp.send_keys(value_to_type)
+            print(f"Filling field [{label_text.strip()}] with value [{value_to_type}]")
+    except Exception as e:
+        print(f"Could not fill input [{inp.get_attribute('outerHTML')[:80]}...]: {e}")
+
+# -------------------------------------------------
+# 2. Identify and fill <textarea> elements
+# -------------------------------------------------
+textareas = driver.find_elements(By.XPATH, "//textarea[not(contains(@style,'display:none'))]")
+for ta in textareas:
+    try:
+        if ta.get_attribute("disabled") or ta.get_attribute("readonly"):
+            continue
+        placeholder = ta.get_attribute("placeholder") or ""
+        aria_label = ta.get_attribute("aria-label") or ""
+        label_text = " ".join([placeholder.lower(), aria_label.lower()])
+
+        # Use professional summary for generic textareas, else use first relevant block of work experience
+        if "summary" in label_text or "about" in label_text:
+            content = resume_data.get("professional_summary", "")
+        elif "experience" in label_text:
+            # concatenate titles of recent positions
+            content = "; ".join([f"{exp['title']} at {exp['company']}" for exp in resume_data["work_experience"][:2]])
+        else:
+            content = ""
+
+        if content:
+            ta.clear()
+            ta.send_keys(content)
+            print(f"Filling textarea [{label_text.strip()}] with content [{content[:60]}...]")
+    except Exception as e:
+        print(f"Could not fill textarea [{ta.get_attribute('outerHTML')[:80]}...]: {e}")
+
+# -------------------------------------------------
+# 3. Identify and select <select> dropdowns
+# -------------------------------------------------
+select_elements = driver.find_elements(By.XPATH, "//select[not(contains(@style,'display:none'))]")
+for sel_el in select_elements:
+    try:
+        select_obj = Select(sel_el)
+        name_attr = sel_el.get_attribute("name") or ""
+        aria_label = sel_el.get_attribute("aria-label") or ""
+        label_text = " ".join([name_attr.lower(), aria_label.lower()])
+
+        # Simple heuristic: pick the first option that is not placeholder or empty
+        options = [opt for opt in select_obj.options if opt.get_attribute("value")]
+        if options:
+            chosen = options[0]
+            select_obj.select_by_value(chosen.get_attribute("value"))
+            print(f"Selecting dropdown [{label_text.strip()}] option [{chosen.text}]")
+    except Exception as e:
+        print(f"Could not handle select [{sel_el.get_attribute('outerHTML')[:80]}...]: {e}")
+
+# -------------------------------------------------
+# 4. Handle file inputs (upload resume PDF)
+# -------------------------------------------------
+file_inputs = driver.find_elements(By.XPATH, "//input[@type='file' and not(contains(@style,'display:none'))]")
+for file_inp in file_inputs:
+    try:
+        # Assume the first file input is for resume upload
+        file_path = resume_data.get("RESUME_PDF_PATH") or resume_pdf_path
+        if file_path:
+            file_inp.send_keys(file_path)
+            print(f"Uploading resume PDF from [{file_path}]")
+    except Exception as e:
+        print(f"Could not upload file [{file_inp.get_attribute('outerHTML')[:80]}...]: {e}")
+
+# -------------------------------------------------
+# 5. Click Next / Continue / Save and Continue button if present
+# -------------------------------------------------
+next_button = None
+button_text_options = ["Next", "Continue", "Save and Continue", "Save & Continue"]
+for txt in button_text_options:
+    next_button = safe_find((By.XPATH, f"//button[contains(normalize-space(.), '{txt}')]"))
+    if next_button:
+        break
+
+if next_button:
+    try:
+        driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+        next_button.click()
+        print(f"Clicked '{next_button.text}' button to proceed to the next step.")
+    except Exception as e:
+        print(f"Failed to click Next button: {e}")
+else:
+    print("No Next/Continue button found on this step; form filling completed without navigation.")

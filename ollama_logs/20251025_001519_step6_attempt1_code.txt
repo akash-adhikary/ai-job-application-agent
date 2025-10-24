@@ -1,0 +1,48 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: button element with exact text "Create Account"
+try:
+    create_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Create Account']")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", create_btn)
+    print("✓ Clicked 'Create Account' button (XPath exact text)")
+    clicked = True
+except Exception as e:
+    print(f"Strategy 1 failed: {e}")
+
+# Strategy 2: button with class hint
+if not clicked:
+    try:
+        create_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button (CSS class)")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 2 failed: {e}")
+
+# Strategy 3: any element containing the text
+if not clicked:
+    try:
+        create_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create Account')]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked element with text 'Create Account'")
+        clicked = True
+    except Exception as e:
+        print(f"Strategy 3 failed: {e}")
+
+# Final fallback: generic click attempt
+if not clicked:
+    try:
+        create_btn = driver.find_element(By.XPATH, "//*[contains(text(),'Create Account')]")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked fallback element with text 'Create Account'")
+    except Exception as e:
+        print(f"All strategies failed to click 'Create Account': {e}")

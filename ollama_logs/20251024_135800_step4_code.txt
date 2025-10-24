@@ -1,0 +1,36 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 10)
+
+# Fill Email Address
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-7")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys("akash.adhikary@hotmail.com")
+    time.sleep(0.5)
+except Exception as e:
+    print(f"Error interacting with email field: {e}")
+
+# Fill Password
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-8")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+    time.sleep(0.5)
+except Exception as e:
+    print(f"Error interacting with password field: {e}")
+
+# Click Sign In button (form submit button)
+sign_in_selector = "html > body > div#root > div > div > div:nth-of-type(2) > div > main > div > div:nth-of-type(3) > div > div > div:nth-of-type(1) > div > form > div:nth-of-type(3) > div > div > div > div > button"
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, sign_in_selector)))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    time.sleep(1)
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")

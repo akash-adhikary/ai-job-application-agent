@@ -1,0 +1,34 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
+import time
+
+# Assume driver, resume_data, resume_pdf_path, resume_photo_path are already defined
+
+try:
+    wait = WebDriverWait(driver, 15)
+
+    # Locate the "How Did You Hear About Us?" input
+    source_input = wait.until(
+        EC.presence_of_element_located((By.ID, "source--source"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_input)
+    time.sleep(0.5)
+
+    # Clear any existing value and re‑enter "LinkedIn"
+    source_input.clear()
+    time.sleep(0.2)
+    source_input.send_keys("LinkedIn")
+    print("✓ Re‑entered value for 'How Did You Hear About Us?'")
+    time.sleep(1)
+
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not locate the source input: {e}")
+
+except Exception as e:
+    print(f"✗ Unexpected error while filling the source field: {e}")

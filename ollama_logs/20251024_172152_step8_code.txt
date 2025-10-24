@@ -1,0 +1,21 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+def click_apply_button(driver):
+    try:
+        wait = WebDriverWait(driver, 15)
+        apply_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", apply_btn)
+        time.sleep(1)
+        apply_btn.click()
+        print("✓ Clicked 'Apply' button")
+    except Exception as e:
+        print(f"✗ Failed to click 'Apply' button: {e}")
+
+click_apply_button(driver)

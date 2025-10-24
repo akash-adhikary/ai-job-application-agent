@@ -1,0 +1,82 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: <a> tags with data-automation-id or role='button'
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='Apply'], a[data-automation-id*='apply'], a[role='button']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_link)
+    print("✓ Clicked Apply link (JavaScript)")
+    clicked = True
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# Strategy 2: visible <button> elements with relevant text
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply') "
+                           "or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next') "
+                           "or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'continue')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+        time.sleep(0.5)
+        try:
+            button.click()
+            print("✓ Clicked button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked button (JavaScript click)")
+        clicked = True
+    except (TimeoutException, NoSuchElementException):
+        pass
+
+# Strategy 3: <div> with role='button' and data-automation-id containing 'button'
+if not clicked:
+    try:
+        div_button = driver.find_element(
+            By.CSS_SELECTOR, "div[role='button'][data-automation-id*='button']"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", div_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", div_button)
+        print("✓ Clicked div button (JavaScript)")
+        clicked = True
+    except NoSuchElementException:
+        pass
+
+# Strategy 4: fallback - any element containing the word 'Apply' or 'Next'
+if not clicked:
+    try:
+        element = driver.find_element(
+            By.XPATH,
+            "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply') "
+            "or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next')][1]",
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element by text (JavaScript)")
+        clicked = True
+    except NoSuchElementException as e:
+        print(f"✗ Could not click any button: {e}")
+
+if not clicked:
+    print("✗ Failed to locate and click the Apply button.")

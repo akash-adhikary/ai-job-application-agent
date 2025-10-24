@@ -1,0 +1,34 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, TimeoutException
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Sign In']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(0.5)
+    sign_in_btn.click()
+    print("✓ Clicked Sign In button (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (JavaScript click)")
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"⚠️ Normal locate failed: {e}")
+    try:
+        alt_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-wkqt22")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_btn)
+        time.sleep(0.5)
+        alt_btn.click()
+        print("✓ Clicked Sign In button (alternative CSS selector)")
+    except Exception as e2:
+        print("⚠️ Alternative CSS selector failed, trying generic role/button...")
+        try:
+            generic_btn = driver.find_element(By.XPATH, "//div[@role='button' and contains(translate(., 'SIGN IN', 'sign in'), 'sign in')]")
+            driver.execute_script("arguments[0].click();", generic_btn)
+            print("✓ Clicked Sign In button (generic div role button)")
+        except Exception as e3:
+            print(f"✗ Could not click Sign In button: {e3}")

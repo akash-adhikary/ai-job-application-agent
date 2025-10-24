@@ -1,0 +1,48 @@
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# Helper function to fill input fields
+def fill_input(by, locator, value, field_name):
+    try:
+        elem = wait.until(EC.visibility_of_element_located((by, locator)))
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling field '{field_name}' with value '{value}'")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Unable to locate or fill field '{field_name}': {e}")
+
+# 1. Fill Email
+email = resume_data.get("personal_info", {}).get("email", "")
+fill_input(By.ID, "input-4", email, "Email Address")
+
+# 2. Fill Password (using a generated secure password)
+secure_password = "SecurePass123!"  # you may replace with a more suitable password
+fill_input(By.ID, "input-5", secure_password, "Password")
+fill_input(By.ID, "input-6", secure_password, "Verify Password")
+
+# 3. Fill hidden website field (anti‑bot honey‑pot) – leave blank
+try:
+    website_elem = driver.find_element(By.ID, "0f7eff86-84c0-43fc-8935-517f4b07222c")
+    if website_elem.is_displayed():
+        website_elem.clear()
+        print("Leaving hidden 'website' field blank (anti‑bot)")
+except NoSuchElementException:
+    print("Hidden 'website' field not found, skipping.")
+
+# 4. Click the Continue / Create Account button
+# The button has data-automation-id="createAccountSubmitButton"
+try:
+    next_btn = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "button[data-automation-id='createAccountSubmitButton']")))
+    next_btn.click()
+    print("Clicked 'Create Account' button to proceed to the next step.")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"Next/Continue button not found or not clickable: {e}")
+
+# Optional: short pause to allow next page to load
+time.sleep(2)

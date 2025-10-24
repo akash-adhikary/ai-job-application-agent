@@ -1,0 +1,102 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def scroll_into_view(element):
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+
+# 1. Dismiss cookie consent banner
+print("🔎 Looking for cookie consent buttons...")
+for btn_text in ["Accept Cookies", "Decline"]:
+    try:
+        cookie_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, f"//button[normalize-space()='{btn_text}']"))
+        )
+        scroll_into_view(cookie_btn)
+        cookie_btn.click()
+        print(f"✅ Clicked cookie button: '{btn_text}'")
+        break
+    except (TimeoutException, ElementClickInterceptedException):
+        print(f"⚠️ Cookie button '{btn_text}' not found or not clickable yet.")
+else:
+    print("⚠️ No cookie consent button was clicked. Continuing...")
+
+# 2. Click the “Apply Manually” link
+print("🔎 Searching for 'Apply Manually' link...")
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'css-knntjq') and normalize-space()='Apply Manually']"))
+    )
+    scroll_into_view(apply_link)
+    apply_link.click()
+    print("✅ 'Apply Manually' link clicked.")
+except (TimeoutException, ElementClickInterceptedException) as e:
+    print("❌ Failed to click 'Apply Manually' link:", e)
+    raise
+
+# 3. Wait for sign‑in form, fill credentials, and submit
+print("🔎 Waiting for sign‑in fields...")
+try:
+    email_input = wait.until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='email' or @name='username' or @placeholder='Email']"))
+    )
+    password_input = wait.until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='password' or @name='password' or @placeholder='Password']"))
+    )
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(@data-automation-id, 'signIn') or contains(text(),'Sign In')]"))
+    )
+    
+    scroll_into_view(email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✅ Email entered.")
+    
+    scroll_into_view(password_input)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✅ Password entered.")
+    
+    scroll_into_view(sign_in_btn)
+    sign_in_btn.click()
+    print("✅ Sign‑in button clicked.")
+except (TimeoutException, NoSuchElementException) as e:
+    print("❌ Sign‑in elements not found:", e)
+    raise
+
+# 4. Verify that the application form fields are present
+print("🔎 Verifying presence of required application fields...")
+
+required_selectors = {
+    "resume_upload": (By.XPATH, "//input[@type='file' and (contains(@name, 'resume') or contains(@id, 'resume'))]"),
+    "email_field": (By.XPATH, "//input[@type='email' or @name='email']"),
+    "password_field": (By.XPATH, "//input[@type='password' and not(@name='confirm')]"),
+    "skill_selector": (By.XPATH, "//div[contains(@class, 'skill') or contains(@aria-label, 'skill')]"),
+}
+
+field_status = {}
+
+for name, locator in required_selectors.items():
+    try:
+        elem = wait.until(EC.presence_of_element_located(locator))
+        scroll_into_view(elem)
+        field_status[name] = True
+        print(f"✅ Field '{name}' found.")
+    except TimeoutException:
+        field_status[name] = False
+        print(f"⚠️ Field '{name}' NOT found.")
+
+# Summary of verification
+if all(field_status.values()):
+    print("🎉 All critical fields are present. Ready for subsequent automation steps.")
+else:
+    missing = [k for k, v in field_status.items() if not v]
+    print(f"❗ Missing critical fields: {', '.join(missing)}. Review before proceeding.")

@@ -1,0 +1,48 @@
+old_url = driver.current_url
+
+# Fill login credentials
+try:
+    username = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//input[@type='email' or @type='text' or @name='username' or @id='username' or @name='email']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", username)
+    username.clear()
+    username.send_keys(EMAIL)
+
+        EC.visibility_of_element_located(
+            (By.XPATH, "//input[@type='password' or @name='password' or @id='password']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", password)
+    password.clear()
+    password.send_keys(PASSWORD)
+
+    print("Filled login credentials")
+except Exception as e:
+    print(f"Error filling credentials: {e}")
+
+# Click the Sign In button
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//button[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in')]"
+                " | //input[@type='submit' and contains(translate(@value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in')]"
+            )
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked Sign In button")
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")
+
+# Wait for URL to change after login
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after login")
+except Exception as e:
+    print(f"Error waiting for URL change: {e}")

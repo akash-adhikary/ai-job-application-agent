@@ -1,0 +1,17 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the first visible 'Save' button
+    save_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space(text())='Save' or normalize-space(.)='Save']")
+        )
+    )
+    # Scroll into view and click
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    time.sleep(1)  # slight pause after scrolling
+    save_btn.click()
+    print("✓ Clicked 'Save' button successfully.")
+    time.sleep(2)  # allow any post‑click processing
+except Exception as e:
+    print(f"✗ Failed to click 'Save' button: {e}")

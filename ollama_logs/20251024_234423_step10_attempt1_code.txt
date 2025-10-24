@@ -1,0 +1,52 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_accept_cookies():
+    try:
+        # Locate button by class and exact text
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(@class, 'css-1pnd5en') and normalize-space(text())='Accept Cookies']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", button)
+        time.sleep(0.5)
+        button.click()
+        print("✓ Clicked Accept Cookies button (normal click)")
+        return
+    except (ElementClickInterceptedException, TimeoutException) as e:
+        print(f"⚠️ Normal click failed: {e}")
+        try:
+            # Fallback to JavaScript click
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked Accept Cookies button (JavaScript click)")
+            return
+        except Exception as js_e:
+            print(f"⚠️ JavaScript click failed: {js_e}")
+    except Exception as e:
+        print(f"✗ Unexpected error locating Accept Cookies button: {e}")
+
+    # Alternative strategy: find any element with matching class and click via JS
+    try:
+        alt_button = driver.find_element(By.XPATH, "//button[contains(@class, 'css-1pnd5en') and contains(., 'Accept Cookies')]")
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_button)
+        print("✓ Clicked Accept Cookies button (alternative element)")
+    except NoSuchElementException:
+        print("✗ Accept Cookies button not found by alternative method")
+    except Exception as alt_e:
+        print(f"✗ Could not click Accept Cookies button via alternative method: {alt_e}")
+
+# Execute the action
+click_accept_cookies()
+time.sleep(1)

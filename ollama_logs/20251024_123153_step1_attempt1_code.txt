@@ -1,0 +1,52 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
+
+# Helper function for safe click
+def safe_click(locator, description, timeout=10):
+    try:
+        element = WebDriverWait(driver, timeout).until(
+            EC.element_to_be_clickable(locator)
+        )
+        element.click()
+        print(f"Clicked on {description}")
+    except (TimeoutException, ElementClickInterceptedException) as e:
+        print(f"Unable to click on {description}: {e}")
+
+# Helper function for safe send_keys
+def safe_send_keys(locator, value, description, timeout=10):
+    try:
+        element = WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located(locator)
+        )
+        element.clear()
+        element.send_keys(value)
+        print(f"Filling field {description} with value {value}")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Unable to fill field {description}: {e}")
+
+# STEP 1 – Select resume method (File upload)
+try:
+    # Click the "From Device" method button to reveal file upload UI
+    safe_click((By.ID, "methodButton--file"), "Resume method – From Device")
+except Exception as e:
+    print(f"Error handling resume method selection: {e}")
+
+# Upload resume PDF
+try:
+    # The actual <input type="file"> is hidden but can receive send_keys directly
+    safe_send_keys((By.ID, "resumeFile"), resume_pdf_path, "Resume file input")
+except Exception as e:
+    print(f"Error uploading resume file: {e}")
+
+# Click the Continue button after file selection
+try:
+    safe_click((By.ID, "uploadFileResume"), "Continue button after file upload")
+except Exception as e:
+    print(f"Error clicking Continue after file upload: {e}")
+
+# NOTE:
+# At this point the form may navigate to the next step (Personal information).
+# If additional fields become visible, similar safe_click / safe_send_keys logic
+# can be applied using the `resume_data` dictionary to map values.

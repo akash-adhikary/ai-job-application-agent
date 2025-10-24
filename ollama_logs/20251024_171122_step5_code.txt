@@ -1,0 +1,18 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    # Locate the Sign In button that belongs to the login form (uses the email input as anchor)
+    sign_in_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//input[@id='input-9']/ancestor::form//button[normalize-space(text())='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_button)
+    sign_in_button.click()
+    print("✓ Clicked Sign In button")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to click Sign In button: {e}")

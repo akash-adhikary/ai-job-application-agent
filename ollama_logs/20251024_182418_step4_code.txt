@@ -1,0 +1,14 @@
+try:
+    # Locate the 'Sign In' button with specific class
+    sign_in_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space(text())='Sign In' and contains(@class, 'css-wkqt22')]")
+        )
+    )
+    # Scroll into view before clicking
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_button)
+    sign_in_button.click()
+    print("✓ Clicked 'Sign In' button (class='css-wkqt22')")
+    time.sleep(1)  # pause after click
+except Exception as e:
+    print(f"✗ Failed to click 'Sign In' button: {e}")

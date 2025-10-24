@@ -1,0 +1,14 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Accept Cookies']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("✓ Clicked 'Accept Cookies' button")
+    time.sleep(1)  # give the page a moment to process the click
+except Exception as e:
+    print(f"✗ Could not click 'Accept Cookies' button: {e}")

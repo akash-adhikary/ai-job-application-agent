@@ -1,0 +1,19 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space(text())='Create Account' and @type='submit']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", create_btn)
+    create_btn.click()
+    print("✓ Clicked 'Create Account' button")
+except Exception as e:
+    print(f"✗ Failed to click 'Create Account' button: {e}")
+
+time.sleep(1)

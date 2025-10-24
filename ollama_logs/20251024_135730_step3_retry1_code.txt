@@ -1,0 +1,46 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Field map provided
+field_map = {
+    "input-7": "akash.adhikary@hotmail.com"
+}
+
+try:
+    # Wait for Email field, scroll into view, fill value from field_map
+    email_elem = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, "input-7"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_elem)
+    time.sleep(0.3)
+    email_elem.clear()
+    email_elem.send_keys(field_map["input-7"])
+except Exception as e:
+    print(f"Error handling email field: {e}")
+
+try:
+    # Wait for Password field, scroll into view, fill value from global PASSWORD
+    password_elem = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, "input-8"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_elem)
+    time.sleep(0.3)
+    password_elem.clear()
+    password_elem.send_keys(PASSWORD)
+except Exception as e:
+    print(f"Error handling password field: {e}")
+
+try:
+    # Locate the Sign In button inside the login form
+    sign_in_btn = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1pluuwy"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(0.3)
+    sign_in_btn.click()
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")
+
+time.sleep(1)

@@ -1,0 +1,255 @@
+try:
+    print("Setting up explicit wait...")
+    wait = WebDriverWait(driver, 15)
+except Exception as e:
+    print(f"Failed to set wait: {e}")
+
+def scroll_into_view(el):
+    driver.execute_script("arguments[0].scrollIntoView(true);", el)
+    time.sleep(1)
+
+def fill_work_experience():
+    experiences = resume_data["work_experience"]
+    for idx, exp in enumerate(experiences):
+        try:
+            print(f"Filling work experience {idx + 1} ({exp['title']} at {exp['company']})...")
+            # Locate the latest set of fields (job title, company, location, dates, description)
+            job_title_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'jobTitle')]")
+            company_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'companyName')]")
+            location_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'location')]")
+            start_month_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'startDate') and @aria-label='Month']")
+            start_year_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'startDate') and @aria-label='Year']")
+            end_month_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'endDate') and @aria-label='Month']")
+            end_year_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'endDate') and @aria-label='Year']")
+            description_areas = driver.find_elements(By.XPATH, "//textarea[contains(@id,'roleDescription')]")
+            
+            # Use the last element in each list (the newest added row)
+            job_el = job_title_inputs[-1]
+            comp_el = company_inputs[-1]
+            loc_el = location_inputs[-1]
+            start_month_el = start_month_inputs[-1]
+            start_year_el = start_year_inputs[-1]
+            end_month_el = end_month_inputs[-1]
+            end_year_el = end_year_inputs[-1]
+            desc_el = description_areas[-1]
+
+            # Fill basic fields
+            scroll_into_view(job_el)
+            job_el.clear()
+            job_el.send_keys(exp["title"])
+
+            scroll_into_view(comp_el)
+            comp_el.clear()
+            comp_el.send_keys(exp["company"])
+
+            scroll_into_view(loc_el)
+            loc_el.clear()
+            loc_el.send_keys(exp["location"])
+
+            # Parse dates (format: "Jul 2023 – Present" or "Jun 2018 – Aug 2018")
+            start_str, end_str = exp["duration"].split("–")
+            start_str = start_str.strip()
+            end_str = end_str.strip()
+
+            # Helper to convert month name to number
+            month_map = {"Jan":"01","Feb":"02","Mar":"03","Apr":"04","May":"05","Jun":"06","Jul":"07","Aug":"08","Sep":"09","Oct":"10","Nov":"11","Dec":"12"}
+            start_month, start_year = start_str.split()
+            start_month_num = month_map.get(start_month[:3], "01")
+            start_year_num = start_year
+
+            # End date may be "Present"
+            if end_str.lower() == "present":
+                end_month_num = time.strftime("%m")  # use current month
+                end_year_num = time.strftime("%Y")
+            else:
+                end_month, end_year = end_str.split()
+                end_month_num = month_map.get(end_month[:3], "01")
+                end_year_num = end_year
+
+            # Fill dates
+            scroll_into_view(start_month_el)
+            start_month_el.clear()
+            start_month_el.send_keys(start_month_num)
+
+            scroll_into_view(start_year_el)
+            start_year_el.clear()
+            start_year_el.send_keys(start_year_num)
+
+            scroll_into_view(end_month_el)
+            end_month_el.clear()
+            end_month_el.send_keys(end_month_num)
+
+            scroll_into_view(end_year_el)
+            end_year_el.clear()
+            end_year_el.send_keys(end_year_num)
+
+            # Fill role description (join responsibilities)
+            scroll_into_view(desc_el)
+            desc_el.clear()
+            desc_el.send_keys(" ".join(exp["responsibilities"]))
+
+            print(f"✓ Filled work experience {idx + 1}")
+
+        except Exception as e:
+            print(f"Error filling work experience {idx + 1}: {e}")
+
+        # Click "Add Another" for all but last entry
+        if idx < len(experiences) - 1:
+            try:
+                print("Clicking 'Add Another' to add next experience entry...")
+                add_another_btn = wait.until(
+                    EC.element_to_be_clickable((By.XPATH, "//button[text()='Add Another']"))
+                )
+                scroll_into_view(add_another_btn)
+                add_another_btn.click()
+                time.sleep(2)  # allow new fields to render
+                print("✓ Clicked 'Add Another'")
+            except Exception as e:
+                print(f"Could not click 'Add Another': {e}")
+
+def fill_education():
+    educations = resume_data["education"]
+    for idx, edu in enumerate(educations):
+        try:
+            print(f"Filling education entry {idx + 1} ({edu.get('degree')})...")
+            # Click the generic "Add" button under Education if needed (first entry may already exist)
+            if idx > 0:
+                add_btn = wait.until(
+                    EC.element_to_be_clickable((By.XPATH, "//button[text()='Add']"))
+                )
+                scroll_into_view(add_btn)
+                add_btn.click()
+                time.sleep(2)
+
+            # Locate latest education fields (they are typically text inputs)
+            # Use contains with labels or placeholders as fallback
+            school_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'school') or contains(@id,'institution')]")
+            degree_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'degree')]")
+            field_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'field') or contains(@id,'major')]")
+            start_month_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'startDate') and @aria-label='Month']")
+            start_year_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'startDate') and @aria-label='Year']")
+            end_month_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'endDate') and @aria-label='Month']")
+            end_year_inputs = driver.find_elements(By.XPATH, "//input[contains(@id,'endDate') and @aria-label='Year']")
+
+            school_el = school_inputs[-1] if school_inputs else None
+            degree_el = degree_inputs[-1] if degree_inputs else None
+            field_el = field_inputs[-1] if field_inputs else None
+            start_month_el = start_month_inputs[-1] if start_month_inputs else None
+            start_year_el = start_year_inputs[-1] if start_year_inputs else None
+            end_month_el = end_month_inputs[-1] if end_month_inputs else None
+            end_year_el = end_year_inputs[-1] if end_year_inputs else None
+
+            if school_el:
+                scroll_into_view(school_el)
+                school_el.clear()
+                school_el.send_keys(edu["institution"])
+
+            if degree_el:
+                scroll_into_view(degree_el)
+                degree_el.clear()
+                degree_el.send_keys(edu.get("degree", ""))
+
+            if field_el:
+                scroll_into_view(field_el)
+                field_el.clear()
+                field_el.send_keys(edu.get("field", ""))
+
+            # Parse dates similar to experience
+            if "duration" in edu:
+                start_str, end_str = edu["duration"].split("–")
+                start_str = start_str.strip()
+                end_str = end_str.strip()
+                start_month, start_year = start_str.split()
+                end_month, end_year = end_str.split()
+                month_map = {"Jan":"01","Feb":"02","Mar":"03","Apr":"04","May":"05","Jun":"06","Jul":"07","Aug":"08","Sep":"09","Oct":"10","Nov":"11","Dec":"12"}
+                start_month_num = month_map.get(start_month[:3], "01")
+                end_month_num = month_map.get(end_month[:3], "01")
+
+                if start_month_el:
+                    scroll_into_view(start_month_el)
+                    start_month_el.clear()
+                    start_month_el.send_keys(start_month_num)
+                if start_year_el:
+                    scroll_into_view(start_year_el)
+                    start_year_el.clear()
+                    start_year_el.send_keys(start_year)
+                if end_month_el:
+                    scroll_into_view(end_month_el)
+                    end_month_el.clear()
+                    end_month_el.send_keys(end_month_num)
+                if end_year_el:
+                    scroll_into_view(end_year_el)
+                    end_year_el.clear()
+                    end_year_el.send_keys(end_year)
+
+            print(f"✓ Filled education entry {idx + 1}")
+
+        except Exception as e:
+            print(f"Error filling education entry {idx + 1}: {e}")
+
+def fill_skills():
+    try:
+        print("Filling skills...")
+        skills_field = wait.until(
+            EC.presence_of_element_located((By.ID, "skills--skills"))
+        )
+        scroll_into_view(skills_field)
+        # Flatten all technical skills into a single list
+        all_skills = []
+        for cat in resume_data["technical_skills"].values():
+            all_skills.extend(cat)
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_skills = [x for x in all_skills if not (x in seen or seen.add(x))]
+        for skill in unique_skills:
+            skills_field.clear()
+            skills_field.send_keys(skill)
+            # Many UI components require pressing ENTER to register the skill
+            skills_field.send_keys("\n")
+            time.sleep(0.5)
+        print("✓ Skills filled")
+    except Exception as e:
+        print(f"Could not fill skills: {e}")
+
+def upload_resume():
+    try:
+        print("Uploading resume PDF...")
+        upload_btn = wait.until(
+            EC.presence_of_element_located((By.ID, "resumeAttachments--attachments"))
+        )
+        scroll_into_view(upload_btn)
+        # The button often wraps a hidden <input type="file">
+        file_input = upload_btn.find_element(By.XPATH, ".//input[@type='file']")
+        file_input.send_keys(resume_pdf_path)
+        time.sleep(2)  # wait for upload to finish
+        print("✓ Resume uploaded")
+    except Exception as e:
+        print(f"Could not upload resume: {e}")
+
+def click_save_and_continue():
+    try:
+        print("Clicking 'Save and Continue'...")
+        save_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Save and Continue']"))
+        )
+        scroll_into_view(save_btn)
+        save_btn.click()
+        print("✓ Clicked 'Save and Continue'")
+    except Exception as e:
+        print(f"Could not click 'Save and Continue': {e}")
+
+# ---- Execution Sequence ----
+fill_work_experience()
+time.sleep(2)
+
+fill_education()
+time.sleep(2)
+
+fill_skills()
+time.sleep(2)
+
+upload_resume()
+time.sleep(2)
+
+click_save_and_continue()
+time.sleep(3)

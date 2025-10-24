@@ -1,0 +1,31 @@
+# Click "Autofill with Resume" link
+try:
+    autofill_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(3) > div > main > div > div > div:nth-of-type(2) > div > div > a")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", autofill_link)
+    autofill_link.click()
+    print("Clicked 'Autofill with Resume'")
+except Exception as e:
+    print(f"Failed to click 'Autofill with Resume': {e}")
+
+# Upload resume file in the dialog
+try:
+    file_input = wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", file_input)
+    file_input.send_keys(RESUME_PATH)
+    print("Resume file uploaded")
+except Exception as e:
+    print(f"Failed to upload resume: {e}")
+
+# Optionally wait for URL change after upload
+try:
+    old_url = driver.current_url
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after resume upload")
+except Exception:
+    pass

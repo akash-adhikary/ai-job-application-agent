@@ -1,0 +1,44 @@
+Traceback (most recent call last):
+  File "job_agent6.py", line 348, in handle_form_step
+    exec(code, exec_globals)
+  File "<string>", line 122, in <module>
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\support\wait.py", line 96, in until
+    value = method(self._driver)
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 363, in _predicate
+    target = driver.find_element(*target)  # grab element at locator
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 770, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSelectorException: Message: invalid selector: Unable to locate an element with the xpath expression //button[contains(translate(text(),'NEXT'),'next')] because of the following error:
+SyntaxError: Failed to execute 'evaluate' on 'Document': The string '//button[contains(translate(text(),'NEXT'),'next')]' is not a valid XPath expression.
+  (Session info: chrome=140.0.7339.208); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalid-selector-exception
+Stacktrace:
+	GetHandleVerifier [0x0x7dc333+65459]
+	GetHandleVerifier [0x0x7dc374+65524]
+	(No symbol) [0x0x5fd973]
+	(No symbol) [0x0x604330]
+	(No symbol) [0x0x606734]
+	(No symbol) [0x0x6067c8]
+	(No symbol) [0x0x646f74]
+	(No symbol) [0x0x647a8b]
+	(No symbol) [0x0x68dea2]
+	(No symbol) [0x0x669e44]
+	(No symbol) [0x0x68b606]
+	(No symbol) [0x0x669bf6]
+	(No symbol) [0x0x63b38e]
+	(No symbol) [0x0x63c274]
+	GetHandleVerifier [0x0xa5eda3+2697763]
+	GetHandleVerifier [0x0xa59ec7+2677575]
+	GetHandleVerifier [0x0x804194+228884]
+	GetHandleVerifier [0x0x7f49f8+165496]
+	GetHandleVerifier [0x0x7fb18d+192013]
+	GetHandleVerifier [0x0x7e47d8+99416]
+	GetHandleVerifier [0x0x7e4972+99826]
+	GetHandleVerifier [0x0x7cebea+10346]
+	BaseThreadInitThunk [0x0x76f17ba9+25]
+	RtlInitializeExceptionChain [0x0x77d4c36b+107]
+	RtlClearBits [0x0x77d4c2ef+191]
+

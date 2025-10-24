@@ -1,0 +1,55 @@
+old_url = driver.current_url
+
+# Fill login fields
+try:
+    email_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[@type='email' or contains(translate(@id,'EMAIL','email'),'email') or contains(translate(@name,'EMAIL','email'),'email') or contains(translate(@placeholder,'EMAIL','email'),'email')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    password_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[@type='password' or contains(translate(@id,'PASSWORD','password'),'password') or contains(translate(@name,'PASSWORD','password'),'password') or contains(translate(@placeholder,'PASSWORD','password'),'password')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+    print("Login fields filled")
+except Exception as e:
+    print(f"Error filling login fields: {e}")
+
+# Click Sign In button
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[contains(translate(text(),'SIGN IN','sign in'),'sign in') or contains(translate(@value,'SIGN IN','sign in'),'sign in')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Sign In button clicked")
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")
+
+# Click primary continuation button after login
+action_keywords = ["next","continue","apply","submit","save","finish","confirm"]
+try:
+    # wait a moment for new elements to load
+    cont_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        f"//button[{' or '.join([f\"contains(translate(text(),'{' '.join(action_keywords).upper()}','{' '.join(action_keywords).lower()}'),'{' + kw + '}')\" for kw in action_keywords])}]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", cont_btn)
+    cont_btn.click()
+    print("Continuation button clicked")
+except Exception as e:
+    print(f"Error clicking continuation button: {e}")
+
+# Wait for URL change indicating navigation forward
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("Navigation to next page confirmed")
+except Exception as e:
+    print(f"URL did not change: {e}")

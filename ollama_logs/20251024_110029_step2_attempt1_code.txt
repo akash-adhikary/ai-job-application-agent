@@ -1,0 +1,114 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementNotInteractableException
+
+wait = WebDriverWait(driver, 20)
+
+def fill_input(field_id, value):
+    try:
+        elem = wait.until(EC.element_to_be_clickable((By.ID, field_id)))
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling field {field_id} with value {value}")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+        print(f"Could not fill field {field_id}: {e}")
+
+def select_option(select_id, visible_text):
+    try:
+        sel_elem = wait.until(EC.element_to_be_clickable((By.ID, select_id)))
+        select = Select(sel_elem)
+        select.select_by_visible_text(visible_text)
+        print(f"Selecting '{visible_text}' in dropdown {select_id}")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+        print(f"Could not select dropdown {select_id}: {e}")
+
+# ---- Personal Information ----
+# First name (legal)
+fill_input("10932", resume_data["personal_info"]["name"].split()[0])
+
+# First name (preferred) - optional, use same as legal
+fill_input("10933", resume_data["personal_info"]["name"])
+
+# Middle name - not provided
+fill_input("10934", "")
+
+# Last name
+fill_input("10935", resume_data["personal_info"]["name"].split()[-1])
+
+# Email
+fill_input("10936", resume_data["personal_info"]["email"])
+
+# Phone
+fill_input("10937", resume_data["personal_info"]["phone"])
+
+# Candidate Photo (upload resume PDF as placeholder for photo)
+try:
+    file_input = wait.until(EC.presence_of_element_located((By.ID, "22980")))
+    file_input.send_keys(resume_pdf_path)
+    print(f"Uploading file to field 22980 from path {resume_pdf_path}")
+except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+    print(f"Could not upload file to 22980: {e}")
+
+# Address line 1 - not in resume_data, leave empty or use placeholder
+fill_input("10939", "N/A")
+
+# Country - infer from location (India)
+select_option("10940", "India")
+
+# There are other visible selects; attempt to set sensible defaults if possible
+# 10941 (likely State/Province) – we will try to select the first non-empty option
+try:
+    sel_elem_10941 = wait.until(EC.element_to_be_clickable((By.ID, "10941")))
+    select_10941 = Select(sel_elem_10941)
+    for opt in select_10941.options:
+        if opt.get_attribute("value"):
+            select_10941.select_by_value(opt.get_attribute("value"))
+            print(f"Selecting first available option in dropdown 10941 ({opt.text})")
+            break
+except Exception as e:
+    print(f"Dropdown 10941 not handled: {e}")
+
+# 17363 – likely "Visa status" or similar; select first available non-placeholder
+try:
+    sel_elem_17363 = wait.until(EC.element_to_be_clickable((By.ID, "17363")))
+    select_17363 = Select(sel_elem_17363)
+    for opt in select_17363.options:
+        if opt.get_attribute("value"):
+            select_17363.select_by_value(opt.get_attribute("value"))
+            print(f"Selecting first available option in dropdown 17363 ({opt.text})")
+            break
+except Exception as e:
+    print(f"Dropdown 17363 not handled: {e}")
+
+# 18586 – likely "Highest Education Level"; select first non-empty
+try:
+    sel_elem_18586 = wait.until(EC.element_to_be_clickable((By.ID, "18586")))
+    select_18586 = Select(sel_elem_18586)
+    for opt in select_18586.options:
+        if opt.get_attribute("value"):
+            select_18586.select_by_value(opt.get_attribute("value"))
+            print(f"Selecting first available option in dropdown 18586 ({opt.text})")
+            break
+except Exception as e:
+    print(f"Dropdown 18586 not handled: {e}")
+
+# 18593 – possibly "Work Authorization"; select first non-empty
+try:
+    sel_elem_18593 = wait.until(EC.element_to_be_clickable((By.ID, "18593")))
+    select_18593 = Select(sel_elem_18593)
+    for opt in select_18593.options:
+        if opt.get_attribute("value"):
+            select_18593.select_by_value(opt.get_attribute("value"))
+            print(f"Selecting first available option in dropdown 18593 ({opt.text})")
+            break
+except Exception as e:
+    print(f"Dropdown 18593 not handled: {e}")
+
+# ---- Click Continue / Save and Continue ----
+try:
+    next_button = wait.until(EC.element_to_be_clickable((By.ID, "10997-save")))
+    next_button.click()
+    print("Clicked 'Save and continue' button")
+except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+    print(f"Could not click 'Save and continue' button: {e}")

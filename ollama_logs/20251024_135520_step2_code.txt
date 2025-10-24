@@ -1,0 +1,24 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# Attempt to click "Sign In" if it appears
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Sign In']")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    sign_in_btn.click()
+    time.sleep(2)
+except Exception:
+    pass  # Sign In not required or already handled
+
+# Click the "Start Your Application" button
+try:
+    start_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Start Your Application']")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", start_btn)
+    start_btn.click()
+    time.sleep(2)
+except Exception as e:
+    raise RuntimeError(f"Failed to click 'Start Your Application' button: {e}")

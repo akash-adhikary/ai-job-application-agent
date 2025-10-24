@@ -1,0 +1,14 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the 'Sign In' button by its visible text
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Sign In']"))
+    )
+    # Scroll into view before clicking
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("✓ Clicked 'Sign In' button")
+    time.sleep(1)  # pause after click
+except Exception as e:
+    print(f"✗ Failed to click 'Sign In' button: {e}")

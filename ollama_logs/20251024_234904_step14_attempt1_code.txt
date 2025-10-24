@@ -1,0 +1,58 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def click_element(element):
+    try:
+        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        time.sleep(0.5)
+        element.click()
+        print("✓ Clicked element (normal click)")
+    except ElementClickInterceptedException:
+        print("⚠️ Click intercepted, trying JavaScript click...")
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element (JavaScript click)")
+    except Exception as e:
+        print(f"✗ Could not click element: {e}")
+
+# --- Select State (Karnataka) ---
+try:
+    state_button = wait.until(EC.element_to_be_clickable((By.ID, "address--countryRegion")))
+    click_element(state_button)
+
+    # Wait for dropdown options to appear and select Karnataka
+    karnataka_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@class, 'dropdown') or @role='listbox']//div[normalize-space()='Karnataka']")
+        )
+    )
+    click_element(karnataka_option)
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ State selection failed: {e}")
+
+time.sleep(1)
+
+# --- Select Phone Device Type (Home) ---
+try:
+    phone_type_button = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--phoneType")))
+    click_element(phone_type_button)
+
+    # Wait for dropdown options to appear and select Home
+    home_option = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@class, 'dropdown') or @role='listbox']//div[normalize-space()='Home']")
+        )
+    )
+    click_element(home_option)
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Phone Device Type selection failed: {e}")
+
+time.sleep(1)

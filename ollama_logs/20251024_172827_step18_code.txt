@@ -1,0 +1,28 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    # Wait for the "How Did You Hear About Us?" input to be present
+    source_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.ID, "source--source"))
+    )
+    # Scroll into view
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_input)
+    time.sleep(1)  # small pause after scrolling
+
+    # Clear any existing text and fill with the desired value
+    source_input.clear()
+    source_input.send_keys("LinkedIn")
+    time.sleep(1)  # allow any on‑change events to fire
+
+    # Verify that the value was set correctly
+    entered_value = source_input.get_attribute("value")
+    if entered_value == "LinkedIn":
+        print("✓ Successfully filled 'How Did You Hear About Us?' with:", entered_value)
+    else:
+        print("✗ Unexpected value after input:", entered_value)
+
+except Exception as e:
+    print("✗ Failed to fill 'How Did You Hear About Us?' field:", e)

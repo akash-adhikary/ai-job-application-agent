@@ -1,0 +1,10 @@
+try:
+    wait = WebDriverWait(driver, 15)
+    source_input = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input#source--source")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_input)
+    source_input.clear()
+    source_input.send_keys("LinkedIn")
+    print("✓ Filled 'How Did You Hear About Us?' field")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Could not fill 'How Did You Hear About Us?' field: {e}")

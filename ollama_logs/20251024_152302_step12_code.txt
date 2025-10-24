@@ -1,0 +1,26 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Open the job search page
+driver.get("https://intel.wd1.myworkdayjobs.com/en-US/External?source=LinkedIn")
+print("Navigated to Intel job search page")
+time.sleep(2)
+
+try:
+    # Wait for the search input to be present
+    search_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.ID, "wioo4"))
+    )
+    # Ensure the element is visible
+    driver.execute_script("arguments[0].scrollIntoView(true);", search_input)
+    # Clear any existing text
+    search_input.clear()
+    # Fill in the job title
+    search_input.send_keys("Senior Data Analytics Engineer")
+    print("✓ Filled the search input with 'Senior Data Analytics Engineer'")
+except Exception as e:
+    print(f"✗ Could not interact with the search input: {e}")
+
+time.sleep(1)

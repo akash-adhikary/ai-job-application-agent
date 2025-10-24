@@ -1,0 +1,99 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+
+# Helper to fill a text field
+def fill_text(field_id, value, description):
+    try:
+        elem = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.ID, field_id))
+        )
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling {description} (id={field_id}) with value: {value}")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Could not fill {description} (id={field_id}): {e}")
+
+# Helper to select a dropdown by visible text
+def select_dropdown(select_id, visible_text, description):
+    try:
+        select_elem = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.ID, select_id))
+        )
+        select_obj = Select(select_elem)
+        select_obj.select_by_visible_text(visible_text)
+        print(f"Selecting {description} (id={select_id}) option: {visible_text}")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Could not select {description} (id={select_id}): {e}")
+
+# ----------- Fill Personal Information -----------------
+personal = resume_data["personal_info"]
+full_name = personal.get("name", "")
+first_name, last_name = "", ""
+if full_name:
+    parts = full_name.strip().split()
+    if len(parts) >= 2:
+        first_name = parts[0]
+        last_name = parts[-1]
+    else:
+        first_name = full_name
+
+# First name (legal) - id 10932
+fill_text("10932", first_name, "First name (legal)")
+
+# First name (preferred) - id 10933
+fill_text("10933", first_name, "First name (preferred)")
+
+# Middle name - id 10934 (optional, leave blank if not in resume)
+fill_text("10934", "", "Middle name")
+
+# Last name - id 10935
+fill_text("10935", last_name, "Last name")
+
+# Email - id 10936
+fill_text("10936", personal.get("email", ""), "Preferred email")
+
+# Phone number - id 10937 (strip spaces/hyphens)
+phone_raw = personal.get("phone", "")
+phone_clean = phone_raw.replace(" ", "").replace("-", "")
+fill_text("10937", phone_clean, "Phone number")
+
+# ----------- Upload Candidate Photo -----------------
+photo_path = resume_data.get("RESUME_PHOTO_PATH")
+if photo_path:
+    try:
+        file_input = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.ID, "22980"))
+        )
+        file_input.send_keys(photo_path)
+        print(f"Uploading candidate photo from: {photo_path}")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Could not upload candidate photo: {e}")
+
+# ----------- Address Information -----------------
+# Assuming only address line 1 field is present (id 10939)
+address_list = personal.get("address", [])
+if address_list:
+    addr = address_list[0]
+    line1 = addr.get("addressline 1", "")
+    fill_text("10939", line1, "Address line 1")
+
+    # Country dropdown - id 10940
+    country_name = addr.get("country", "")
+    if country_name:
+        select_dropdown("10940", country_name, "Country")
+
+# ----------- Click Save and Continue -----------------
+try:
+    next_button = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.ID, "10997-save"))
+    )
+    next_button.click()
+    print("Clicked 'Save and continue' button to proceed to next step.")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"Could not locate or click the next button: {e}")
+
+# Optional: pause shortly to allow next page to load
+time.sleep(2)

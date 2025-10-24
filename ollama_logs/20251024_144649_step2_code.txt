@@ -1,0 +1,75 @@
+url = "https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn"
+driver.get(url)
+wait = WebDriverWait(driver, 15)
+
+# Step 1: Click the initial "Sign In" button
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-14pfav7') and normalize-space()='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("✓ Clicked initial Sign In button")
+except Exception as e:
+    print(f"⚠️ Unable to click initial Sign In: {e}")
+
+# Step 2: Fill Email Address
+try:
+    email_input = wait.until(EC.visibility_of_element_located((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Entered email address")
+except Exception as e:
+    print(f"⚠️ Email field error: {e}")
+
+# Step 3: Fill Password
+try:
+    password_input = wait.until(EC.visibility_of_element_located((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Entered password")
+except Exception as e:
+    print(f"⚠️ Password field error: {e}")
+
+# Step 4: Ensure hidden anti‑bot "website" field remains empty
+try:
+    website_input = driver.find_element(By.NAME, "website")
+    if website_input.get_attribute("value"):
+        driver.execute_script("arguments[0].value='';", website_input)
+        print("⚠️ Cleared hidden website field")
+    else:
+        print("✓ Hidden website field is already empty")
+except NoSuchElementException:
+    print("✓ No hidden website field detected")
+
+# Step 5: Submit the login form (click Sign In / Log In button)
+try:
+    submit_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-14pfav7') and (normalize-space()='Sign In' or @type='submit')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("✓ Submitted login form")
+except Exception as e:
+    print(f"⚠️ Unable to submit login form: {e}")
+
+# Step 6: Verify successful authentication
+login_success = False
+try:
+    # Look for an element that appears only after login (e.g., "My Information" heading)
+    wait.until(EC.presence_of_element_located((By.XPATH, "//h2[contains(text(),'My Information')]")))
+    login_success = True
+    print("✅ Login successful – 'My Information' section visible")
+except Exception:
+    # Fallback: check URL contains expected path after login
+    if "apply" in driver.current_url.lower():
+        login_success = True
+        print("✅ Login likely successful – URL indicates post‑login state")
+if not login_success:
+    print("⚠️ Login may have failed – further verification needed")

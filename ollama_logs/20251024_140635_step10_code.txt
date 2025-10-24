@@ -1,0 +1,38 @@
+# -------- Fill login fields --------
+try:
+    email_input = wait.until(EC.visibility_of_element_located((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    password_input = wait.until(EC.visibility_of_element_located((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+
+    print("Filled login fields")
+except Exception as e:
+    print("Error filling login fields:", e)
+
+# -------- Click Sign In button --------
+try:
+    # Store current URL to detect navigation later
+    old_url = driver.current_url
+
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Sign In' and contains(@class,'css-1pluuwy')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked Sign In button")
+except Exception as e:
+    print("Error clicking Sign In button:", e)
+
+# -------- Wait for URL change --------
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed to:", driver.current_url)
+except Exception as e:
+    print("URL did not change:", e)

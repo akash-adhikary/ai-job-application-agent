@@ -1,0 +1,144 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    ElementNotInteractableException,
+)
+
+wait = WebDriverWait(driver, 20)
+
+def safe_click(locator, description):
+    try:
+        elem = wait.until(EC.element_to_be_clickable(locator))
+        elem.click()
+        print(f"Clicked {description}")
+        return elem
+    except (TimeoutException, ElementNotInteractableException) as e:
+        print(f"Could not click {description}: {e}")
+        return None
+
+def safe_send_keys(locator, value, description):
+    try:
+        elem = wait.until(EC.visibility_of_element_located(locator))
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling {description} with value {value}")
+        return elem
+    except (TimeoutException, ElementNotInteractableException) as e:
+        print(f"Could not fill {description}: {e}")
+        return None
+
+# ---- STEP 1: Choose resume upload method (From Device) ----
+safe_click((By.ID, "methodButton--file"), "Resume upload method 'From Device'")
+
+# ---- STEP 2: Upload resume PDF ----
+# The actual <input type="file"> is hidden; we can send_keys directly to it
+safe_send_keys((By.ID, "resumeFile"), resume_pdf_path, "Resume file input")
+
+# Click the Continue button for the file method
+safe_click((By.ID, "uploadFileResume"), "'Continue' button after file upload")
+
+# ---- STEP 3: Fill Personal Information (if the next step is loaded) ----
+# Helper to split full name
+full_name = resume_data.get("personal_info", {}).get("name", "")
+first_name = ""
+last_name = ""
+if full_name:
+    parts = full_name.strip().split()
+    first_name = parts[0]
+    last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+
+# Mapping of possible field identifiers to resume data
+field_map = {
+    # common ids / names (adjust as needed)
+    "firstName": first_name,
+    "lastName": last_name,
+    "email": resume_data.get("personal_info", {}).get("email", ""),
+    "phone": resume_data.get("personal_info", {}).get("phone", ""),
+    "linkedin": resume_data.get("personal_info", {}).get("linkedin", ""),
+    "github": resume_data.get("personal_info", {}).get("github", ""),
+}
+
+# Attempt to fill any visible text/email/tel inputs
+try:
+    visible_inputs = driver.find_elements(By.XPATH, "//input[(@type='text' or @type='email' or @type='tel') and not(@type='hidden')]")
+    for inp in visible_inputs:
+        try:
+            name_attr = inp.get_attribute("name") or ""
+            id_attr = inp.get_attribute("id") or ""
+            placeholder = inp.get_attribute("placeholder") or ""
+            key = None
+            # Determine which field this input likely represents
+            for possible_key in field_map:
+                if possible_key.lower() in (name_attr + id_attr + placeholder).lower():
+                    key = possible_key
+                    break
+            if key and field_map[key]:
+                safe_send_keys((By.XPATH, f".//input[@id='{id_attr}']" if id_attr else (By.NAME, name_attr)),
+                               field_map[key],
+                               f"input '{key}'")
+        except Exception as inner_e:
+            print(f"Error processing an input field: {inner_e}")
+except Exception as e:
+    print(f"Could not locate personal info inputs: {e}")
+
+# ---- STEP 4: Fill any visible textareas ----
+try:
+    textareas = driver.find_elements(By.XPATH, "//textarea[not(@hidden)]")
+    for ta in textareas:
+        try:
+            name_attr = ta.get_attribute("name") or ""
+            id_attr = ta.get_attribute("id") or ""
+            placeholder = ta.get_attribute("placeholder") or ""
+            # Example: maybe a "Professional Summary" textarea
+            if "summary" in (name_attr + id_attr + placeholder).lower():
+                safe_send_keys((By.XPATH, f".//textarea[@id='{id_attr}']" if id_attr else (By.NAME, name_attr)),
+                               resume_data.get("professional_summary", ""),
+                               "Professional Summary textarea")
+        except Exception as inner_e:
+            print(f"Error filling textarea: {inner_e}")
+except Exception as e:
+    print(f"Could not locate textareas: {e}")
+
+# ---- STEP 5: Handle any dropdowns (select elements) ----
+try:
+    selects = driver.find_elements(By.TAG_NAME, "select")
+    for sel in selects:
+        try:
+            select_obj = Select(sel)
+            # Pick the first enabled option that is not a placeholder
+            for option in select_obj.options:
+                if option.is_enabled() and option.get_attribute("value"):
+                    select_obj.select_by_value(option.get_attribute("value"))
+                    print(f"Selected dropdown option '{option.text}'")
+                    break
+        except Exception as inner_e:
+            print(f"Error interacting with select element: {inner_e}")
+except Exception as e:
+    print(f"Could not locate select elements: {e}")
+
+# ---- STEP 6: Click Next / Continue if available (but not final submit) ----
+# Look for typical next buttons by text
+next_buttons_xpaths = [
+    "//button[contains(translate(text(),'next'), 'next')]",
+    "//button[contains(translate(text(),'continue'), 'continue')]",
+    "//button[contains(translate(text(),'save and continue'), 'save and continue')]",
+    "//input[@type='submit' and (contains(@value,'Next') or contains(@value,'Continue') or contains(@value,'Save'))]",
+]
+clicked_next = False
+for xpath in next_buttons_xpaths:
+    try:
+        btn = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        btn_text = btn.text.strip().lower()
+        if btn_text and "submit" not in btn_text and "finish" not in btn_text:
+            btn.click()
+            print(f"Clicked Next/Continue button with text '{btn_text}'")
+            clicked_next = True
+            break
+    except TimeoutException:
+        continue
+
+if not clicked_next:
+    print("No Next/Continue button found or it may be the final step; proceeding without clicking.")

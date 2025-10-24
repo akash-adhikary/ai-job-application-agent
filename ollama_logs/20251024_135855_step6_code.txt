@@ -1,0 +1,30 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 10)
+
+try:
+    # Email field
+    email_elem = wait.until(EC.element_to_be_clickable((By.ID, "input-7")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_elem)
+    email_elem.clear()
+    email_elem.send_keys("akash.adhikary@hotmail.com")
+    time.sleep(0.5)
+
+    # Password field
+    password_elem = wait.until(EC.element_to_be_clickable((By.ID, "input-8")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_elem)
+    password_elem.clear()
+    password_elem.send_keys(PASSWORD)
+    time.sleep(0.5)
+
+    # Sign In button (inside the form)
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1pluuwy")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    time.sleep(1)
+
+except Exception as e:
+    print(f"Error during login: {e}")

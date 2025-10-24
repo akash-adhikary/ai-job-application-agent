@@ -1,0 +1,67 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def click_and_select(button_id, option_text):
+    try:
+        btn = wait.until(EC.element_to_be_clickable((By.ID, button_id)))
+        driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+        btn.click()
+        time.sleep(1)  # allow dropdown to appear
+        option = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, f"//div[contains(@class, 'dropdown') or contains(@class, 'list')]//span[normalize-space()='{option_text}']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", option)
+        option.click()
+        print(f"✓ Selected '{option_text}' for '{button_id}'")
+    except Exception as e:
+        print(f"✗ Could not select '{option_text}' for '{button_id}': {e}")
+
+def fill_input(input_id, value):
+    try:
+        elem = wait.until(EC.visibility_of_element_located((By.ID, input_id)))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.clear()
+        elem.send_keys(value)
+        print(f"✓ Filled input '{input_id}' with '{value}'")
+    except Exception as e:
+        print(f"✗ Could not fill input '{input_id}': {e}")
+
+def select_radio(name, value):
+    try:
+        radio = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, f"//input[@name='{name}' and @value='{value}']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", radio)
+        radio.click()
+        print(f"✓ Selected radio '{name}' = '{value}'")
+    except Exception as e:
+        print(f"✗ Could not select radio '{name}' = '{value}': {e}")
+
+# Fill text inputs
+fill_input("source--source", "LinkedIn")
+fill_input("address--addressLine1", "671, KPC Layout, Kasasvanahalli")
+fill_input("address--city", "Bangalore")
+fill_input("address--postalCode", "560043")
+fill_input("address--state", "Karnataka")
+fill_input("phoneNumber--phoneNumber", "+91-8420433877")
+fill_input("phoneNumber--countryPhoneCode", "India (+91)")
+
+# Select dropdowns (buttons)
+click_and_select("country--country", "India")
+click_and_select("phoneNumber--phoneType", "Mobile")
+# If there is a separate state dropdown, you can use:
+# click_and_select("address--state", "Karnataka")
+
+# Radio button for previous employment
+select_radio("previouslyEmployed", "No")
+
+# Small pause before proceeding
+time.sleep(2)

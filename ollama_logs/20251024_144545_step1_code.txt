@@ -1,0 +1,24 @@
+try:
+    accept_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Accept Cookies')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("✓ Accepted cookies")
+except Exception as e:
+    print(f"⚠️ Could not accept cookies: {e}")
+
+try:
+    apply_link = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//a[@href='https://intel.wd1.myworkdayjobs.com/en-US/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply/applyManually?source=LinkedIn']",
+            )
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_link)
+    apply_link.click()
+    print("✓ Clicked 'Apply Manually' link")
+except Exception as e:
+    print(f"⚠️ Could not click 'Apply Manually' link: {e}")

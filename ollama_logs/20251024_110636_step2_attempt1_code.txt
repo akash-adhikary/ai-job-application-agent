@@ -1,0 +1,72 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+
+wait = WebDriverWait(driver, 20)
+
+def safe_fill(by, locator, value, description):
+    try:
+        elem = wait.until(EC.visibility_of_element_located((by, locator)))
+        elem.clear()
+        elem.send_keys(value)
+        print(f"Filling {description} with value '{value}'")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Could not fill {description}: {e}")
+
+def safe_select(by, locator, visible_text, description):
+    try:
+        select_elem = wait.until(EC.element_to_be_clickable((by, locator)))
+        Select(select_elem).select_by_visible_text(visible_text)
+        print(f"Selecting {description} with option '{visible_text}'")
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"Could not select {description}: {e}")
+
+# ----- Personal Information -----
+personal = resume_data.get("personal_info", {})
+
+# First name (legal) - already pre‑filled but overwrite for safety
+safe_fill(By.ID, "10932", personal.get("name", "").split()[0], "First name (legal)")
+
+# First name (preferred) - use same as legal if not provided separately
+preferred_name = personal.get("name", "").split()[0]
+safe_fill(By.ID, "10933", preferred_name, "First name (preferred)")
+
+# Middle name – not available, leave blank
+safe_fill(By.ID, "10934", "", "Middle name")
+
+# Last name (legal) – already pre‑filled but ensure correct value
+last_name = personal.get("name", "").split()[-1]
+safe_fill(By.ID, "10935", last_name, "Last name")
+
+# Email
+safe_fill(By.ID, "10936", personal.get("email", ""), "Preferred email")
+
+# Phone number – strip spaces and hyphens, keep country code prefix
+phone_raw = personal.get("phone", "")
+phone_clean = phone_raw.replace(" ", "").replace("-", "")
+safe_fill(By.ID, "10937", phone_clean, "Phone number")
+
+# ----- Address -----
+# Address line 1 is required; use a generic placeholder if not in resume
+address_line1 = "N/A"
+safe_fill(By.ID, "10939", address_line1, "Address line 1")
+
+# Country – map based on resume location (India). Use visible text "India"
+safe_select(By.ID, "10940", "India", "Country")
+
+# ----- Candidate Photo Upload (file input) -----
+try:
+    file_input = wait.until(EC.presence_of_element_located((By.ID, "22980")))
+    file_input.send_keys(resume_pdf_path)
+    print(f"Uploading file to Candidate Photo with path '{resume_pdf_path}'")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"Could not upload file: {e}")
+
+# ----- Click Save and Continue -----
+try:
+    next_button = wait.until(EC.element_to_be_clickable((By.ID, "10997-save")))
+    next_button.click()
+    print("Clicked 'Save and continue' button")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"Could not click next button: {e}")

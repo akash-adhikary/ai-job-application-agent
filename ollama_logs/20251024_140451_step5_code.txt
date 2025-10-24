@@ -1,0 +1,37 @@
+old_url = driver.current_url
+
+# Fill email and password fields
+try:
+    email_el = wait.until(EC.presence_of_element_located((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_el)
+    email_el.clear()
+    email_el.send_keys(EMAIL)
+
+    password_el = wait.until(EC.presence_of_element_located((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_el)
+    password_el.clear()
+    password_el.send_keys(PASSWORD)
+
+    print("Filled email and password fields.")
+except Exception as e:
+    print(f"Error filling credentials: {e}")
+
+# Click the primary Sign In button
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space(text())='Sign In' and @type='submit']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked Sign In button.")
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")
+
+# Wait for URL to change after login
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after login.")
+except Exception as e:
+    print(f"URL did not change: {e}")

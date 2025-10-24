@@ -1,0 +1,44 @@
+try:
+    print("Waiting for Email input field...")
+    wait = WebDriverWait(driver, 15)
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "input-328")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    time.sleep(1)
+    # Verify or fill email (pre‑filled)
+    if not email_input.get_attribute("value"):
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        print("✓ Filled Email field")
+    else:
+        print("✓ Email field already filled")
+except Exception as e:
+    print(f"Could not process Email input: {e}")
+
+try:
+    print("Waiting for Password input field...")
+    password_input = wait.until(EC.presence_of_element_located((By.ID, "input-329")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    time.sleep(1)
+    # Verify or fill password (pre‑filled)
+    if not password_input.get_attribute("value"):
+        password_input.clear()
+        password_input.send_keys(resume_data["password"])
+        print("✓ Filled Password field")
+    else:
+        print("✓ Password field already filled")
+except Exception as e:
+    print(f"Could not process Password input: {e}")
+
+try:
+    print("Clicking the 'Sign In' button to submit credentials...")
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-1pluuwy') and normalize-space()='Sign In']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(1)
+    sign_in_btn.click()
+    print("✓ Clicked 'Sign In' button")
+except Exception as e:
+    print(f"Could not click 'Sign In' button: {e}")

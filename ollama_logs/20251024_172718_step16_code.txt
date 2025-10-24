@@ -1,0 +1,43 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# ----- Set Country Phone Code -----
+try:
+    country_code_input = wait.until(
+        EC.element_to_be_clickable((By.ID, "phoneNumber--countryPhoneCode"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", country_code_input)
+    country_code_input.clear()
+    country_code_input.send_keys("India")
+    time.sleep(1)  # allow suggestions to appear
+
+    # click the suggestion that contains '+91'
+    suggestion = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//div[contains(@class, 'suggestion') and contains(text(), '+91')]")
+        )
+    )
+    suggestion.click()
+    print("✓ Country Phone Code set to India (+91)")
+except Exception as e:
+    print(f"✗ Failed to set Country Phone Code: {e}")
+
+time.sleep(1)
+
+# ----- Update Phone Number -----
+try:
+    phone_input = wait.until(
+        EC.element_to_be_clickable((By.ID, "phoneNumber--phoneNumber"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", phone_input)
+    phone_input.clear()
+    phone_input.send_keys("8420433877")
+    print("✓ Phone Number updated to 8420433877")
+except Exception as e:
+    print(f"✗ Failed to update Phone Number: {e}")
+
+time.sleep(1)

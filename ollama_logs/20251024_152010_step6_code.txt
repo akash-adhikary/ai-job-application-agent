@@ -1,0 +1,16 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the "Create Account" button (type=submit, class contains 'css-1pluuwy')
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Create Account' or @type='submit' and contains(@class, 'css-1pluuwy')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", create_btn)
+    create_btn.click()
+    print("✓ Clicked 'Create Account' button")
+except Exception as e:
+    print(f"✗ Failed to click 'Create Account' button: {e}")
+
+time.sleep(1)

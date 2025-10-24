@@ -1,0 +1,84 @@
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+
+old_url = driver.current_url
+
+# Fill login fields
+try:
+    # locate email/username field
+    email_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[(translate(@type,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='email' or translate(@type,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='text') and " +
+        "(contains(translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'email') or " +
+        "contains(translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'user') or " +
+        "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'email') or " +
+        "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'user'))]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    # locate password field
+    password_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[(translate(@type,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='password') and " +
+        "(contains(translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'pass') or " +
+        "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'pass'))]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+
+    print("Login fields filled")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"Failed to fill login fields: {e}")
+
+# Click Sign In button
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') " +
+        "or @type='submit' and (contains(translate(@value,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in') " +
+        "or contains(translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in'))]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Sign In button clicked")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"Failed to click Sign In button: {e}")
+
+# After login, click next/continue/etc button if present
+try:
+    continue_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[re:test(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), " +
+        "'(next|continue|apply|submit|save|finish|confirm)')]"  # using regex via XPath 2.0 not supported; fallback below
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", continue_btn)
+    continue_btn.click()
+    print("Continuation button clicked")
+except Exception:
+    # fallback: search using contains for each keyword
+    keywords = ["next","continue","apply","submit","save","finish","confirm"]
+    clicked = False
+    for kw in keywords:
+        try:
+            btn = wait.until(EC.element_to_be_clickable((
+                By.XPATH,
+                f"//button[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{kw}')]"
+            )))
+            driver.execute_script("arguments[0].scrollIntoView(true);", btn)
+            btn.click()
+            print(f"Clicked '{kw}' button")
+            clicked = True
+            break
+        except Exception:
+            continue
+    if not clicked:
+        print("No continuation button found")
+
+# Wait for URL change after actions
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed, navigation completed")
+except TimeoutException:
+    print("URL did not change within timeout")

@@ -1,0 +1,37 @@
+# Fill Email field
+try:
+    email_input = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "input-6"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Email filled")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to fill Email: {e}")
+
+# Fill Password field
+try:
+    pwd_input = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "input-7"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Password filled")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to fill Password: {e}")
+
+# Optionally click the "Sign In" button
+try:
+    sign_in_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'css-1ecqfnq') and normalize-space(text())='Sign In']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("✓ Clicked Sign In")
+    time.sleep(2)
+except Exception as e:
+    print(f"✗ Failed to click Sign In: {e}")

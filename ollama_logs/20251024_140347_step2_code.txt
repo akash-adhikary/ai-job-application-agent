@@ -1,0 +1,65 @@
+old_url = driver.current_url
+
+# Accept cookie notice
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(1) > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > div > button")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("Cookie notice accepted")
+except Exception as e:
+    print(f"Failed to accept cookie notice: {e}")
+
+# Click Sign In button
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(2) > div > header > div:nth-of-type(2) > div:nth-of-type(3) > div > div > button")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Sign In button clicked")
+except Exception as e:
+    print(f"Failed to click Sign In button: {e}")
+
+# Fill login credentials and submit
+try:
+    email_input = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//input[contains(@type,'email') or contains(@name,'email') or contains(@id,'email')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    password_input = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//input[contains(@type,'password') or contains(@name,'password') or contains(@id,'password')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+
+    submit_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[@type='submit' or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign') or contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'log in')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("Login credentials submitted")
+except Exception as e:
+    print(f"Failed during login process: {e}")
+
+# Wait for URL change after login
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after login")
+except Exception as e:
+    print(f"URL did not change: {e}")

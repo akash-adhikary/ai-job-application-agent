@@ -1,0 +1,109 @@
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import PyPDF2
+from pdf2image import convert_from_path
+
+resume_pdf_path = 'resume.pdf'
+
+# Read the resume PDF and extract text using PyPDF2
+with open(resume_pdf_path, 'rb') as file:
+    pdf_reader = PyPDF2.PdfReader(file)
+    resume_text = ''
+    for page in range(len(pdf_reader.pages)):
+        resume_text += pdf_reader.pages[page].extract_text()
+
+# Split the text into sections and extract relevant information
+sections = resume_text.split('\n\n')
+resume_data = {}
+for section in sections:
+    if 'Education' in section:
+        info = section.strip().splitlines()
+        institution = info[0]
+        degree = info[1]
+        university = info[2]
+        duration = info[3]
+        resume_data['education'] = {
+            'institution': institution,
+            'degree': degree,
+            'university': university,
+            'duration': duration
+        }
+    elif 'Work Experience' in section:
+        info = section.strip().splitlines()
+        title = info[0]
+        company = info[1]
+        location = info[2]
+        duration = info[3]
+        responsibilities = info[4:]
+        resume_data['work_experience'] = {
+            'title': title,
+            'company': company,
+            'location': location,
+            'duration': duration,
+            'responsibilities': responsibilities
+        }
+    elif 'Publications Research' in section:
+        info = section.strip().splitlines()
+        title = info[0]
+        journal = info[1]
+        volume_issue = info[2]
+        pages = info[3]
+        doi = info[4]
+        resume_data['publications_research'] = {
+            'title': title,
+            'journal': journal,
+            'volume_issue': volume_issue,
+            'pages': pages,
+            'doi': doi
+        }
+    elif 'Awards Achievements' in section:
+        info = section.strip().splitlines()
+        award = info[0]
+        organization = info[1]
+        date = info[2]
+        description = info[3]
+        resume_data['awards_achievements'] = {
+            'award': award,
+            'organization': organization,
+            'date': date,
+            'description': description
+        }
+
+# Convert the PDF to images and extract text from each image
+images = convert_from_path(resume_pdf_path)
+
+resume_text = ''
+for image in images:
+    resume_text += image.read().decode('utf-8')
+
+# Extract relevant information from the text
+sections = resume_text.split('\n\n')
+resume_data['technical_skills'] = [
+    'programming_frameworks',
+    'cloud_platforms',
+    'big_data_analytics',
+    'data_warehousing',
+    'etl_orchestration',
+    'devops_iac',
+    'databases'
+]
+resume_data['professional_summary'] = resume_text.split('\n\n')[0].strip()
+
+# Create a WebDriver instance and navigate to the website
+driver = webdriver.Chrome()
+driver.get('https://www.example.com')  # Replace with the URL of the website
+
+# Fill in the fields with the extracted information
+driver.find_element(By.XPATH, '//*[@id="name"]').send_keys(resume_data['first_name'])
+driver.find_element(By.XPATH, '//*[@id="last_name"]').send_keys(resume_data['last_name'])
+
+# Click the submit button
+driver.find_element(By.XPATH, '//*[@class="submit-btn"]').click()
+
+time.sleep(10)  # Wait for 10 seconds before closing the browser
+
+# Close the WebDriver instance
+driver.quit()

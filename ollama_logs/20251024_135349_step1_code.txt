@@ -1,0 +1,36 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# Accept Cookies
+try:
+    accept_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+        "html > body > div#root > div > div > div:nth-of-type(1) > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > div > button")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    accept_btn.click()
+    time.sleep(1)
+except Exception:
+    pass
+
+# Sign In (if required)
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,
+        "html > body > div#root > div > div > div:nth-of-type(2) > div > header > div:nth-of-type(2) > div:nth-of-type(3) > div > div > button")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    sign_in_btn.click()
+    time.sleep(1)
+except Exception:
+    pass
+
+# Start Your Application
+try:
+    start_app_btn = wait.until(EC.element_to_be_clickable((By.XPATH,
+        "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'start your application')]")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", start_app_btn)
+    start_app_btn.click()
+    time.sleep(2)
+except Exception as e:
+    print(f"Unable to start application: {e}")

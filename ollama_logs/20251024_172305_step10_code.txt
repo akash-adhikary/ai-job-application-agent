@@ -1,0 +1,40 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+try:
+    # Wait for the file input/button to be present
+    file_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.ID, "input-4"))
+    )
+    # Scroll into view
+    driver.execute_script("arguments[0].scrollIntoView(true);", file_input)
+    time.sleep(1)
+
+    # If it's a label/button, find the hidden <input type='file'> associated with it
+    # Try to locate an <input type='file'> sibling or child
+    try:
+        hidden_input = file_input.find_element(By.XPATH, ".//input[@type='file']")
+    except:
+        # Fallback: search globally for a file input that is displayed none
+        hidden_input = driver.find_element(By.XPATH, "//input[@type='file' and (contains(@style,'display:none') or @hidden)]")
+    
+    # Ensure the hidden input is visible for send_keys
+    driver.execute_script("arguments[0].style.display = 'block';", hidden_input)
+    time.sleep(0.5)
+
+    # Upload the resume PDF
+    hidden_input.send_keys(resume_pdf_path)
+    time.sleep(2)
+
+    # Verify upload succeeded
+    uploaded_value = hidden_input.get_attribute("value")
+    if uploaded_value:
+        print(f"✓ File uploaded: {uploaded_value}")
+    else:
+        print("⚠️ FILE UPLOAD MAY HAVE FAILED!")
+except Exception as e:
+    print(f"✗ Exception during file upload: {e}")
+
+time.sleep(1)

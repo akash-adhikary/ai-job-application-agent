@@ -1,0 +1,25 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException
+import time
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Start Your Application')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", button)
+    time.sleep(0.5)
+    button.click()
+    print("✓ Clicked button (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", button)
+    print("✓ Clicked button (JavaScript click)")
+except Exception as e:
+    try:
+        alt_button = driver.find_element(By.XPATH, "//div[@role='button' and contains(., 'Start Your Application')]")
+        driver.execute_script("arguments[0].click();", alt_button)
+        print("✓ Clicked alternative button element")
+    except Exception as e2:
+        print(f"✗ Could not click button: {e2}")

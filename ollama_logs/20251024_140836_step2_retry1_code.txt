@@ -1,0 +1,19 @@
+old_url = driver.current_url
+
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(3) > div > main > div > div > div:nth-of-type(4) > div > div > a")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_link)
+    apply_link.click()
+    print("Clicked 'Apply Manually'")
+except Exception as e:
+    print("Failed to click 'Apply Manually':", e)
+
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed to:", driver.current_url)
+except Exception:
+    print("URL did not change after clicking 'Apply Manually'")

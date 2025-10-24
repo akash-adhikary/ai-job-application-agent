@@ -1,0 +1,29 @@
+try:
+    # Method 1: Normal click with wait
+    wait = WebDriverWait(driver, 15)
+    apply_button = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Apply' or .='Apply']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_button)
+    time.sleep(0.5)
+    apply_button.click()
+    print("✓ Clicked 'Apply' button (normal click)")
+except ElementClickInterceptedException:
+    # Method 2: JavaScript click if intercepted
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", apply_button)
+    print("✓ Clicked 'Apply' button (JavaScript click)")
+except Exception as e:
+    # Method 3: Alternative selector (e.g., div with role=button)
+    try:
+        alt_apply = driver.find_element(
+            By.XPATH, "//div[@role='button' and (contains(.,'Apply') or contains(@aria-label,'Apply'))]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_apply)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_apply)
+        print("✓ Clicked alternative 'Apply' element")
+    except Exception as inner_e:
+        print(f"✗ Could not click 'Apply' button: {inner_e}")

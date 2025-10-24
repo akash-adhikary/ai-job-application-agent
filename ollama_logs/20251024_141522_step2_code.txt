@@ -1,0 +1,31 @@
+
+def safe_click(elem):
+    try:
+        safe_click(elem)
+    except Exception as e:
+        print(f"⚠️ Normal click failed ({e}), trying via JavaScript.")
+        driver.execute_script("arguments[0].click();", elem)
+
+old_url = driver.current_url
+
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(1) > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > div > button")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    try:
+        safe_click(accept_btn)
+        print("Clicked Accept Cookies button")
+    except Exception:
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("JS clicked Accept Cookies button")
+except Exception as e:
+    print(f"Failed to click Accept Cookies: {e}")
+
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after accepting cookies")
+except Exception:
+    pass

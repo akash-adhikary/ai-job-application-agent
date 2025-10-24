@@ -1,0 +1,45 @@
+try:
+    print("Waiting for Email Address field...")
+    wait = WebDriverWait(driver, 15)
+    email_field = wait.until(EC.presence_of_element_located((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_field)
+    time.sleep(1)
+    email_field.clear()
+    email_field.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+except Exception as e:
+    print(f"Could not fill Email Address: {e}")
+
+try:
+    print("Waiting for Password field...")
+    password_field = wait.until(EC.presence_of_element_located((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_field)
+    time.sleep(1)
+    password_field.clear()
+    password_field.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except Exception as e:
+    print(f"Could not fill Password: {e}")
+
+try:
+    print("Waiting for Verify New Password field...")
+    verify_field = wait.until(EC.presence_of_element_located((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", verify_field)
+    time.sleep(1)
+    verify_field.clear()
+    verify_field.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except Exception as e:
+    print(f"Could not fill Verify New Password: {e}")
+
+try:
+    print("Locating 'Create Account' button...")
+    # Try locating by button text
+    create_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[normalize-space(text())='Create Account' or @class='css-1pluuwy']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", create_btn)
+    time.sleep(1)
+    create_btn.click()
+    print("✓ Clicked Create Account button")
+except Exception as e:
+    print(f"Could not click Create Account button: {e}")

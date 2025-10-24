@@ -1,0 +1,122 @@
+# -------------------------------------------------
+# Selenium script to start the Deloitte job application,
+# upload the resume PDF and fill any visible fields.
+# -------------------------------------------------
+
+# Assumed pre‑imported / available objects:
+# driver, By, WebDriverWait, EC, time,
+# resume_data (dict), resume_pdf_path (str)
+
+wait = WebDriverWait(driver, 20)
+
+# ------------------------------------------------------------------
+# 1. Click a method button to start the application (choose "From Device")
+# ------------------------------------------------------------------
+try:
+    print("[STEP 1] Looking for the 'From Device' method button …")
+    from_device_btn = wait.until(
+        EC.element_to_be_clickable((By.ID, "methodButton--file"))
+    )
+    from_device_btn.click()
+    print("[STEP 1] Clicked 'From Device'.")
+except Exception as e:
+    print(f"[ERROR] Could not click 'From Device' button: {e}")
+
+# ------------------------------------------------------------------
+# 2. Upload the resume PDF (input type=file)
+# ------------------------------------------------------------------
+try:
+    print("[STEP 2] Waiting for the hidden file input …")
+    file_input = wait.until(
+        EC.presence_of_element_located((By.ID, "resumeFile"))
+    )
+    # The input is hidden (display:none); Selenium can still send keys to it.
+    file_input.send_keys(resume_pdf_path)
+    print(f"[STEP 2] Uploaded resume PDF from: {resume_pdf_path}")
+except Exception as e:
+    print(f"[ERROR] Could not upload resume PDF: {e}")
+
+# ------------------------------------------------------------------
+# 3. Click the “Continue” button after file upload
+# ------------------------------------------------------------------
+try:
+    print("[STEP 3] Looking for the ‘Continue’ button after file upload …")
+    continue_btn = wait.until(
+        EC.element_to_be_clickable((By.ID, "uploadFileResume"))
+    )
+    continue_btn.click()
+    print("[STEP 3] Clicked ‘Continue’ to move forward.")
+except Exception as e:
+    print(f"[ERROR] Could not click Continue after upload: {e}")
+
+# ------------------------------------------------------------------
+# 4. Fill any visible input fields that appear next (e.g., login form)
+# ------------------------------------------------------------------
+def fill_input_by_id(elem_id, value):
+    try:
+        elem = wait.until(EC.presence_of_element_located((By.ID, elem_id)))
+        elem.clear()
+        elem.send_keys(value)
+        print(f"[INFO] Filled field #{elem_id} with '{value}'.")
+    except Exception as exc:
+        print(f"[WARN] Could not fill field #{elem_id}: {exc}")
+
+try:
+    print("[STEP 4] Attempting to fill visible form fields …")
+    # Example: login fields that are now visible
+    personal = resume_data.get("personal_info", {})
+    email = personal.get("email", "")
+    # Fill email (username) field
+    if email:
+        fill_input_by_id("tpt_loginUsername", email)
+
+    # No password in resume; use a placeholder (user will edit later)
+    placeholder_pwd = "ChangeMe123!"
+    fill_input_by_id("tpt_loginPassword", placeholder_pwd)
+
+    # If other generic inputs appear (text, email, etc.), try to fill them
+    # by matching their name/id with known resume keys
+    generic_fields = driver.find_elements(By.XPATH, "//input[not(@type='hidden') and @type!='submit' and not(@disabled)]")
+    for field in generic_fields:
+        field_id = field.get_attribute("id")
+        field_name = field.get_attribute("name")
+        # Prefer id, fallback to name
+        key = field_id or field_name
+        if not key:
+            continue
+        # Simple heuristic: if key contains a known keyword, fill it
+        key_lower = key.lower()
+        if "email" in key_lower and email:
+            fill_input_by_id(field_id, email)
+        elif "name" in key_lower and personal.get("name"):
+            fill_input_by_id(field_id, personal["name"])
+        elif "phone" in key_lower and personal.get("phone"):
+            fill_input_by_id(field_id, personal["phone"])
+        # Add more mappings as needed…
+
+except Exception as e:
+    print(f"[ERROR] Unexpected error while filling fields: {e}")
+
+# ------------------------------------------------------------------
+# 5. (Optional) Fill any textarea fields (e.g., copy‑paste resume)
+# ------------------------------------------------------------------
+try:
+    print("[STEP 5] Checking for a textarea to paste resume text …")
+    textarea = driver.find_elements(By.TAG_NAME, "textarea")
+    if textarea:
+        # Use professional_summary as a short intro
+        summary = resume_data.get("professional_summary", "")
+        for ta in textarea:
+            try:
+                ta.clear()
+                ta.send_keys(summary)
+                print("[INFO] Filled a textarea with professional summary.")
+                break
+            except Exception as exc_ta:
+                print(f"[WARN] Could not fill textarea: {exc_ta}")
+    else:
+        print("[INFO] No textarea found on the page.")
+except Exception as e:
+    print(f"[ERROR] Error while handling textarea: {e}")
+
+print("[DONE] Script finished – the application form is now populated (but not submitted).")

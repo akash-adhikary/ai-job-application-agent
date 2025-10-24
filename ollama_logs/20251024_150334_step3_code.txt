@@ -1,0 +1,151 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    ElementClickInterceptedException,
+    StaleElementReferenceException,
+)
+import time
+
+wait = WebDriverWait(driver, 15)
+
+def safe_click(locator, description):
+    try:
+        elem = wait.until(EC.element_to_be_clickable(locator))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        elem.click()
+        print(f"✅ Clicked {description}")
+    except (TimeoutException, ElementClickInterceptedException, StaleElementReferenceException) as e:
+        print(f"⚠️ Could not click {description}: {e}")
+
+def safe_send_keys(locator, text, description):
+    try:
+        elem = wait.until(EC.visibility_of_element_located(locator))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", elem)
+        elem.clear()
+        elem.send_keys(text)
+        print(f"✅ Set {description}")
+    except (TimeoutException, StaleElementReferenceException) as e:
+        print(f"⚠️ Could not set {description}: {e}")
+
+# ---------- STEP 1: Verify pre‑populated credentials ----------
+email_input_loc = (By.ID, "input-4")
+password_input_loc = (By.ID, "input-5")
+confirm_input_loc = (By.ID, "input-6")
+website_hidden_loc = (By.ID, "b8114137-41af-4fc8-b46d-c4ff6d869b69")
+
+for loc, name in [(email_input_loc, "Email"), (password_input_loc, "Password"), (confirm_input_loc, "Verify Password")]:
+    try:
+        elem = wait.until(EC.presence_of_element_located(loc))
+        value = elem.get_attribute("value")
+        if value:
+            print(f"✅ {name} field already populated with '{value}'")
+        else:
+            print(f"⚠️ {name} field is empty – will populate now")
+    except TimeoutException:
+        print(f"⚠️ {name} field not found")
+
+# Ensure hidden anti‑bot field is empty
+try:
+    hidden_elem = driver.find_element(*website_hidden_loc)
+    if hidden_elem.get_attribute("value"):
+        driver.execute_script("arguments[0].value = '';", hidden_elem)
+        print("✅ Cleared hidden website field")
+    else:
+        print("✅ Hidden website field already empty")
+except NoSuchElementException:
+    print("⚠️ Hidden website field not found (may not be present)")
+
+# ---------- STEP 2: Click “Sign In” ----------
+sign_in_button_loc = (By.XPATH, "//button[contains(@class,'css-14pfav7') and contains(text(),'Sign In')]")
+safe_click(sign_in_button_loc, "Sign In button")
+
+# ---------- STEP 3: Wait for post‑login page ----------
+try:
+    wait.until(EC.presence_of_element_located((By.XPATH, "//h2[contains(text(),'My Information')]")))
+    print("✅ Logged in and My Information section loaded")
+except TimeoutException:
+    print("⚠️ Login may have failed or My Information section not detected")
+
+# ---------- STEP 4: Fill Personal Information ----------
+personal = resume_data["personal_info"]
+safe_send_keys((By.ID, "input-7"), personal["name"], "Full Name")
+safe_send_keys((By.ID, "input-8"), personal["phone"], "Phone Number")
+safe_send_keys((By.ID, "input-9"), personal["email"], "Email address")
+safe_send_keys((By.ID, "input-10"), personal["linkedin"], "LinkedIn URL")
+safe_send_keys((By.ID, "input-11"), personal["github"], "GitHub URL")
+# Address fields – adjust selectors as needed
+address = personal["address"][0]
+safe_send_keys((By.ID, "input-12"), address["addressline 1"], "Address Line 1")
+safe_send_keys((By.ID, "input-13"), address["addressline 2"], "Address Line 2")
+safe_send_keys((By.ID, "input-14"), address["city"], "City")
+safe_send_keys((By.ID, "input-15"), address["state"], "State")
+safe_send_keys((By.ID, "input-16"), address["zip"], "ZIP Code")
+safe_send_keys((By.ID, "input-17"), address["country"], "Country")
+
+# ---------- STEP 5: Upload Resume PDF ----------
+resume_input_loc = (By.XPATH, "//input[@type='file' and @accept='.pdf']")
+try:
+    resume_input = wait.until(EC.presence_of_element_located(resume_input_loc))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", resume_input)
+    resume_input.send_keys(resume_pdf_path)
+    time.sleep(1)
+    if resume_input.get_attribute("value"):
+        print("✅ Resume PDF uploaded successfully")
+    else:
+        print("⚠️ Resume PDF upload may have failed")
+except TimeoutException:
+    print("⚠️ Resume file input not found")
+
+# ---------- STEP 6: Upload Photo ----------
+photo_input_loc = (By.XPATH, "//input[@type='file' and @accept='image/*']")
+try:
+    photo_input = wait.until(EC.presence_of_element_located(photo_input_loc))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", photo_input)
+    photo_input.send_keys(resume_photo_path)
+    time.sleep(1)
+    if photo_input.get_attribute("value"):
+        print("✅ Photo uploaded successfully")
+    else:
+        print("⚠️ Photo upload may have failed")
+except TimeoutException:
+    print("⚠️ Photo file input not found")
+
+# ---------- STEP 7: Fill Technical Skills ----------
+skill_categories = [
+    resume_data["technical_skills"]["programming_frameworks"],
+    resume_data["technical_skills"]["cloud_platforms"],
+    resume_data["technical_skills"]["big_data_analytics"],
+    resume_data["technical_skills"]["data_warehousing"],
+    resume_data["technical_skills"]["etl_orchestration"],
+    resume_data["technical_skills"]["devops_iac"],
+    resume_data["technical_skills"]["databases"],
+]
+
+# Assume each skill selector has a common searchable input identifiable by a placeholder or aria‑label.
+# Here we locate the first searchable skill input; adjust if multiple distinct inputs exist.
+skill_input_loc = (By.XPATH, "//input[contains(@placeholder,'Search skills') or contains(@aria-label,'skill')]")
+
+for category in skill_categories:
+    for skill in category:
+        try:
+            skill_input = wait.until(EC.element_to_be_clickable(skill_input_loc))
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", skill_input)
+            skill_input.clear()
+            skill_input.send_keys(skill)
+            time.sleep(1)  # Wait for suggestions to appear
+            suggestion_loc = (By.XPATH, f"//li[contains(.,'{skill}')]")
+            suggestion = wait.until(EC.element_to_be_clickable(suggestion_loc))
+            suggestion.click()
+            print(f"✅ Added skill: {skill}")
+            time.sleep(0.5)
+        except (TimeoutException, NoSuchElementException) as e:
+            print(f"⚠️ Could not add skill '{skill}': {e}")
+
+# ---------- STEP 8: Submit Application ----------
+submit_button_loc = (By.XPATH, "//button[contains(@type,'submit') and (contains(text(),'Submit') or contains(text(),'Apply'))]")
+safe_click(submit_button_loc, "Submit/Application button")
+
+print("🚀 Script execution completed")

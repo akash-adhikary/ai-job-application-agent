@@ -1,0 +1,16 @@
+try:
+    # Wait for the Save button to be clickable
+    save_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'btn-add-job') and normalize-space(text())='Save']")
+        )
+    )
+    # Scroll into view before clicking
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_button)
+    time.sleep(1)
+    save_button.click()
+    print("✓ Clicked the 'Save' button.")
+except Exception as e:
+    print(f"✗ Failed to click the 'Save' button: {e}")
+finally:
+    time.sleep(1)

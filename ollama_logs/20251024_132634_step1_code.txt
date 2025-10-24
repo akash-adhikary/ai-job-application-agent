@@ -1,0 +1,27 @@
+try:
+    print("Attempting to handle cookie consent if present...")
+    wait = WebDriverWait(driver, 10)
+    # Try to click 'Accept Cookies' button; ignore if not found
+    accept_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Accept Cookies']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    time.sleep(1)
+    accept_btn.click()
+    print("✓ Accepted cookies")
+except Exception:
+    print("No cookie consent button found or could not click it – continuing...")
+
+try:
+    print("Waiting for the 'Apply Manually' link...")
+    wait = WebDriverWait(driver, 15)
+    apply_manual_link = wait.until(
+        EC.element_to_be_clickable((By.LINK_TEXT, "Apply Manually"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_manual_link)
+    time.sleep(1)
+    apply_manual_link.click()
+    print("✓ Clicked 'Apply Manually' link")
+except Exception as e:
+    print(f"Could not click 'Apply Manually' link: {e}")
+
+# Give the new page a moment to load before any further actions
+time.sleep(3)

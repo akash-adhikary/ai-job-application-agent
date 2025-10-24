@@ -1,0 +1,43 @@
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Strategy 1: try button with known class
+try:
+    create_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", create_btn)
+    print("✓ Clicked 'Create Account' button via class selector")
+    clicked = True
+except Exception as e:
+    print(f"⚠️ Strategy 1 failed: {e}")
+
+# Strategy 2: try button by exact text
+if not clicked:
+    try:
+        create_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(text())='Create Account']")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(0.5)
+        try:
+            create_btn.click()
+            print("✓ Clicked 'Create Account' button via normal click")
+        except Exception:
+            driver.execute_script("arguments[0].click();", create_btn)
+            print("✓ Clicked 'Create Account' button via JavaScript click")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Strategy 2 failed: {e}")
+
+# Strategy 3: generic clickable element containing the text
+if not clicked:
+    try:
+        create_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create Account')][1]")))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", create_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", create_btn)
+        print("✓ Clicked 'Create Account' button via fallback XPath")
+        clicked = True
+    except Exception as e:
+        print(f"✗ All strategies failed to click 'Create Account': {e}")
+
+time.sleep(2)  # allow any post‑click processing to start

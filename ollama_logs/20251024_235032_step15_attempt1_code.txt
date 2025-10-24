@@ -1,0 +1,138 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+# ---------- Helper Functions ----------
+def safe_click(element):
+    try:
+        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        time.sleep(0.5)
+        element.click()
+        print("✓ Clicked element (normal click)")
+    except ElementClickInterceptedException:
+        print("⚠️ Click intercepted, trying JavaScript click...")
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element (JS click)")
+    except Exception as e:
+        print(f"✗ Could not click element: {e}")
+
+def fill_input(by, locator, value, description):
+    try:
+        elem = wait.until(EC.presence_of_element_located((by, locator)))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.clear()
+        elem.send_keys(value)
+        print(f"✓ Filled {description}: {value}")
+    except Exception as e:
+        print(f"✗ Failed to fill {description}: {e}")
+
+# ---------- Data Extraction ----------
+first_name, last_name = resume_data["personal_info"]["name"].split(" ", 1)
+phone_raw = resume_data["personal_info"]["phone"]  # e.g., "+91-8420433877"
+# Extract country code and number
+if phone_raw.startswith("+"):
+    country_code, number = phone_raw[1:].split("-", 1)
+else:
+    country_code, number = "", phone_raw
+address_info = resume_data["personal_info"]["address"][0]
+addr_line1 = address_info["addressline 1"]
+city = address_info["city"]
+postal = address_info["zip"]
+state = address_info["state"]
+country = address_info["country"]  # Expected "India"
+
+# ---------- Fill Form ----------
+# How Did You Hear About Us?
+fill_input(By.ID, "source--source", "LinkedIn", "How Did You Hear About Us?")
+
+# First Name
+fill_input(By.ID, "name--legalName--firstName", first_name, "First Name")
+# Last Name
+fill_input(By.ID, "name--legalName--lastName", last_name, "Last Name")
+
+# Address Line 1
+fill_input(By.ID, "address--addressLine1", addr_line1, "Address Line 1")
+# City
+fill_input(By.ID, "address--city", city, "City")
+# Postal Code
+fill_input(By.ID, "address--postalCode", postal, "Postal Code")
+
+# Country (Button)
+try:
+    country_btn = wait.until(EC.element_to_be_clickable((By.ID, "country--country")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", country_btn)
+    country_btn.click()
+    # select country from dropdown (search then select)
+    search_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Search']")))
+    search_input.send_keys(country)
+    time.sleep(1)  # wait for suggestions
+    suggestion = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, f"//div[contains(@class,'searchResult') and contains(text(),'{country}')]")
+        )
+    )
+    suggestion.click()
+    print(f"✓ Selected country: {country}")
+except Exception as e:
+    print(f"✗ Country selection failed: {e}")
+
+# State (Button)
+try:
+    state_btn = wait.until(EC.element_to_be_clickable((By.ID, "address--countryRegion")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", state_btn)
+    state_btn.click()
+    # type state name to filter suggestions
+    state_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@placeholder='Search']")))
+    state_input.send_keys(state)
+    time.sleep(1)
+    state_suggestion = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, f"//div[contains(@class,'searchResult') and contains(text(),'{state}')]")
+        )
+    )
+    state_suggestion.click()
+    print(f"✓ Selected state: {state}")
+except Exception as e:
+    print(f"✗ State selection failed: {e}")
+
+# Phone Device Type (already Mobile, ensure click)
+try:
+    phone_type_btn = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--phoneType")))
+    safe_click(phone_type_btn)
+except Exception as e:
+    print(f"✗ Phone Device Type selection failed: {e}")
+
+# Country Phone Code
+fill_input(By.ID, "phoneNumber--countryPhoneCode", f"+{country_code}", "Country Phone Code")
+
+# Phone Number
+fill_input(By.ID, "phoneNumber--phoneNumber", number, "Phone Number")
+
+# ---------- Click Save and Continue ----------
+try:
+    save_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(@class,'css-ctezx6')]")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    time.sleep(0.5)
+    save_btn.click()
+    print("✓ Clicked Save and Continue (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Save button intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", save_btn)
+    print("✓ Clicked Save and Continue (JS click)")
+except Exception as e:
+    # fallback alternative selector
+    try:
+        alt_btn = driver.find_element(By.CSS_SELECTOR, "button.css-ctezx6")
+        driver.execute_script("arguments[0].click();", alt_btn)
+        print("✓ Clicked alternative Save button")
+    except Exception as alt_e:
+        print(f"✗ Could not click Save and Continue: {e} | fallback error: {alt_e}")
+
+time.sleep(2)  # give page time to proceed

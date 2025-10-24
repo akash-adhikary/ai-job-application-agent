@@ -1,0 +1,10 @@
+try:
+    # Wait for the "Sign In" button to be clickable
+    sign_in_btn = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[text()='Sign In']"))
+    )
+    # Click using the safe_click_element helper
+    safe_click_element(driver, sign_in_btn, "Sign In button")
+    print("Clicked Sign In button.")
+except (NoSuchElementException, Exception) as e:
+    print(f"Failed to click Sign In button: {e}")

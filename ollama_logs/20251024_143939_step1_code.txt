@@ -1,0 +1,95 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    ElementClickInterceptedException,
+    ElementNotInteractableException,
+)
+
+# Variables (assumed to be defined externally)
+# driver, resume_data, resume_pdf_path, resume_photo_path
+
+wait = WebDriverWait(driver, 15)
+
+def scroll_into_view(element):
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+
+def click_element(locator, description):
+    try:
+        elem = wait.until(EC.element_to_be_clickable(locator))
+        scroll_into_view(elem)
+        elem.click()
+        print(f"✅ Clicked {description}")
+        return elem
+    except (TimeoutException, ElementClickInterceptedException, ElementNotInteractableException) as e:
+        print(f"⚠️ Failed to click {description}: {e}")
+        return None
+
+def type_into_field(locator, text, description):
+    try:
+        field = wait.until(EC.visibility_of_element_located(locator))
+        scroll_into_view(field)
+        field.clear()
+        field.send_keys(text)
+        print(f"✅ Entered {description}")
+        return field
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"⚠️ Failed to type into {description}: {e}")
+        return None
+
+# 1. Dismiss cookie banner
+accept_btn = click_element(
+    (By.XPATH, "//button[contains(text(),'Accept Cookies')]"),
+    "Accept Cookies button"
+)
+if not accept_btn:
+    # fallback to Decline if Accept not found
+    click_element(
+        (By.XPATH, "//button[contains(text(),'Decline')]"),
+        "Decline Cookies button"
+    )
+
+# 2. Open login modal
+sign_in_btn = click_element(
+    (By.XPATH, "//button[contains(text(),'Sign In')]"),
+    "Sign In button"
+)
+
+# 3. Fill login credentials
+email_field = type_into_field(
+    (By.XPATH, "//input[@type='email' or contains(@name,'email') or contains(@id,'email')]"),
+    resume_data["email"],
+    "email"
+)
+
+password_field = type_into_field(
+    (By.XPATH, "//input[@type='password' or contains(@name,'password') or contains(@id,'password')]"),
+    resume_data["password"],
+    "password"
+)
+
+# 4. Submit login form
+submit_btn = click_element(
+    (By.XPATH, "//button[contains(@type,'submit') and (contains(text(),'Sign In') or contains(text(),'Log In') or contains(text(),'Submit'))]"),
+    "Login submit button"
+)
+
+# Wait for post‑login navigation
+time.sleep(3)  # brief pause for possible redirects
+
+# 5. Verify we are still on the job application page or navigate back
+original_job_url = "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn"
+current_url = driver.current_url
+if original_job_url.lower() != current_url.lower():
+    print(f"ℹ️ Redirected to {current_url}. Navigating back to job page.")
+    driver.get(original_job_url)
+    # wait for page load
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+    print("✅ Returned to original job URL")
+else:
+    print("✅ Still on the original job application page")
+
+# At this point login is complete and we are on the job page ready for further actions.

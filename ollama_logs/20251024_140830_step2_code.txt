@@ -1,0 +1,14 @@
+old_url = driver.current_url
+try:
+        EC.element_to_be_clickable((By.XPATH, "//a[normalize-space()='Apply Manually']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_link)
+    apply_link.click()
+    print("Clicked 'Apply Manually'")
+except Exception as e:
+    print(f"Failed to click 'Apply Manually': {e}")
+
+try:
+    print("URL changed after clicking 'Apply Manually'")
+except Exception as e:
+    print(f"URL did not change after click: {e}")

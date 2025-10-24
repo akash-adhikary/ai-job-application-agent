@@ -1,0 +1,217 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, InvalidSelectorException
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+
+# Helper to safely click a button with given possible texts
+def click_next_button():
+    possible_texts = [
+        "next",
+        "continue",
+        "save and continue",
+        "save & continue",
+        "save and continue",
+        "save and continue ",  # sometimes non‑breaking space
+        "save and continue ",  # duplicate for safety
+    ]
+    # Build a single xpath that matches any of the texts (case‑insensitive)
+    xpath_parts = [
+        f"contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{txt}')"
+        for txt in possible_texts
+    ]
+    xpath = f"//button[{' or '.join(xpath_parts)}]"
+    try:
+        button = WebDriverWait(driver, 15).until(
+            EC.element_to_be_clickable((By.XPATH, xpath))
+        )
+        print(f"Clicking button with text: '{button.text.strip()}'")
+        button.click()
+        return True
+    except (TimeoutException, NoSuchElementException, InvalidSelectorException) as e:
+        print("Next/Continue button not found or not clickable:", e)
+        return False
+
+# Fill visible input fields
+def fill_input_fields():
+    inputs = driver.find_elements(By.TAG_NAME, "input")
+    for inp in inputs:
+        try:
+            if not inp.is_displayed() or inp.get_attribute("type") in ["hidden", "submit", "button", "reset"]:
+                continue
+
+            name_attr = (inp.get_attribute("name") or "").lower()
+            placeholder = (inp.get_attribute("placeholder") or "").lower()
+            input_type = (inp.get_attribute("type") or "").lower()
+            value_to_send = None
+
+            # Email field
+            if "email" in name_attr or "email" in placeholder or input_type == "email":
+                value_to_send = resume_data.get("email")
+                field_desc = "Email"
+
+            # Phone field
+            elif any(k in name_attr for k in ["phone", "mobile", "tel"]) or any(k in placeholder for k in ["phone", "mobile", "tel"]):
+                value_to_send = resume_data["personal_info"].get("phone")
+                field_desc = "Phone"
+
+            # First name / Last name (assume separate fields)
+            elif "first" in name_attr or "first" in placeholder:
+                first_name = resume_data["personal_info"]["name"].split()[0]
+                value_to_send = first_name
+                field_desc = "First Name"
+            elif "last" in name_attr or "last" in placeholder:
+                parts = resume_data["personal_info"]["name"].split()
+                last_name = parts[-1] if len(parts) > 1 else ""
+                value_to_send = last_name
+                field_desc = "Last Name"
+
+            # Address lines
+            elif "address" in name_attr or "address" in placeholder:
+                addr = resume_data["personal_info"]["address"][0]
+                if "line 1" in placeholder or "addressline 1" in name_attr:
+                    value_to_send = addr.get("addressline 1", "")
+                    field_desc = "Address Line 1"
+                elif "line 2" in placeholder or "addressline 2" in name_attr:
+                    value_to_send = addr.get("addressline 2", "")
+                    field_desc = "Address Line 2"
+
+            # City
+            elif "city" in name_attr or "city" in placeholder:
+                value_to_send = resume_data["personal_info"]["address"][0].get("city")
+                field_desc = "City"
+
+            # State / Province
+            elif "state" in name_attr or "province" in name_attr or "state" in placeholder:
+                value_to_send = resume_data["personal_info"]["address"][0].get("state")
+                field_desc = "State"
+
+            # Zip / Postal Code
+            elif "zip" in name_attr or "postal" in name_attr or "zip" in placeholder:
+                value_to_send = resume_data["personal_info"]["address"][0].get("zip")
+                field_desc = "Zip"
+
+            # Country
+            elif "country" in name_attr or "country" in placeholder:
+                value_to_send = resume_data["personal_info"]["address"][0].get("country")
+                field_desc = "Country"
+
+            # LinkedIn
+            elif "linkedin" in name_attr or "linkedin" in placeholder:
+                value_to_send = resume_data["personal_info"].get("linkedin")
+                field_desc = "LinkedIn"
+
+            # GitHub
+            elif "github" in name_attr or "github" in placeholder:
+                value_to_send = resume_data["personal_info"].get("github")
+                field_desc = "GitHub"
+
+            # If we determined a value, fill it
+            if value_to_send is not None:
+                print(f"Filling field '{field_desc}' with value '{value_to_send}'")
+                inp.clear()
+                inp.send_keys(value_to_send)
+
+        except Exception as ex:
+            print(f"Error while handling input element: {ex}")
+
+# Fill visible textarea fields
+def fill_textareas():
+    textareas = driver.find_elements(By.TAG_NAME, "textarea")
+    for ta in textareas:
+        try:
+            if not ta.is_displayed():
+                continue
+            name_attr = (ta.get_attribute("name") or "").lower()
+            placeholder = (ta.get_attribute("placeholder") or "").lower()
+            value_to_send = None
+
+            if "summary" in name_attr or "summary" in placeholder:
+                value_to_send = resume_data.get("professional_summary")
+                field_desc = "Professional Summary"
+            elif "skills" in name_attr or "skills" in placeholder:
+                # flatten skills dict into a comma‑separated string
+                skills = []
+                for cat, items in resume_data.get("technical_skills", {}).items():
+                    skills.extend(items)
+                value_to_send = ", ".join(skills)
+                field_desc = "Technical Skills"
+            elif "experience" in name_attr or "experience" in placeholder:
+                # Use concise experience description
+                exp_texts = []
+                for exp in resume_data.get("work_experience", []):
+                    exp_texts.append(f"{exp['title']} at {exp['company']} ({exp['duration']})")
+                value_to_send = " | ".join(exp_texts)
+                field_desc = "Work Experience"
+            else:
+                continue
+
+            if value_to_send:
+                print(f"Filling textarea '{field_desc}'")
+                ta.clear()
+                ta.send_keys(value_to_send)
+
+        except Exception as ex:
+            print(f"Error while handling textarea: {ex}")
+
+# Handle dropdown/select elements
+def fill_selects():
+    selects = driver.find_elements(By.TAG_NAME, "select")
+    for sel_el in selects:
+        try:
+            if not sel_el.is_displayed():
+                continue
+            select_obj = Select(sel_el)
+            name_attr = (sel_el.get_attribute("name") or "").lower()
+            # Simple heuristic: if the select contains options like country names, pick the country from resume
+            if "country" in name_attr:
+                target = resume_data["personal_info"]["address"][0].get("country")
+                if target:
+                    # Find option matching (case‑insensitive)
+                    for opt in select_obj.options:
+                        if opt.text.strip().lower() == target.strip().lower():
+                            print(f"Selecting country '{target}'")
+                            select_obj.select_by_visible_text(opt.text)
+                            break
+            # Add more heuristics here if needed
+        except Exception as ex:
+            print(f"Error while handling select element: {ex}")
+
+# Upload resume if a file input exists
+def upload_resume():
+    try:
+        file_inputs = driver.find_elements(By.XPATH, "//input[@type='file']")
+        if file_inputs:
+            for file_input in file_inputs:
+                if file_input.is_displayed():
+                    print(f"Uploading resume from path: {resume_pdf_path}")
+                    file_input.send_keys(resume_pdf_path)
+                    break
+        else:
+            print("No file input found for resume upload.")
+    except Exception as ex:
+        print(f"Error during resume upload: {ex}")
+
+# Main execution for STEP 1
+def handle_step_one():
+    # Wait for the main content area to be present
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "main"))
+        )
+    except TimeoutException:
+        print("Main content did not load in time.")
+
+    # Fill fields
+    fill_input_fields()
+    fill_textareas()
+    fill_selects()
+    upload_resume()
+
+    # Attempt to click Next / Continue button
+    clicked = click_next_button()
+    if not clicked:
+        print("No navigation button clicked; remaining on current step.")
+
+# Execute the step
+handle_step_one()

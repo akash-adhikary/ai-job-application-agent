@@ -1,0 +1,17 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    wait = WebDriverWait(driver, 15)
+    accept_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Accept Cookies']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("✓ Clicked 'Accept Cookies' button")
+except Exception as e:
+    print(f"✗ Failed to click 'Accept Cookies': {e}")
+
+time.sleep(1)

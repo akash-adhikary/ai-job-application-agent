@@ -1,0 +1,30 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[@type='submit' and normalize-space()='Sign In']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(0.5)
+    sign_in_btn.click()
+    print("✓ Clicked Sign In button (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Click intercepted, trying JavaScript click...")
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (JavaScript click)")
+except Exception as e:
+    try:
+        alt_button = driver.find_element(By.CSS_SELECTOR, "div[role='button'][aria-label*='Sign In']")
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", alt_button)
+        print("✓ Clicked alternative Sign In element")
+    except Exception as e2:
+        print(f"✗ Could not click Sign In button: {e} | {e2}")
+
+time.sleep(1)

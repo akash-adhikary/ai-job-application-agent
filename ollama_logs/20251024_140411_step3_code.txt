@@ -1,0 +1,50 @@
+old_url = driver.current_url
+
+# Click "Sign In" button to open login form
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(2) > div > header > div:nth-of-type(2) > div:nth-of-type(3) > div > div > button")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked Sign In button")
+except Exception as e:
+    print(f"Failed to click Sign In button: {e}")
+
+# Fill email and password, then submit
+try:
+    # email field
+    email_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[@type='email' or contains(translate(@name,'EMAIL','email'),'email') or contains(translate(@id,'EMAIL','email'),'email')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    # password field
+    password_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[@type='password' or contains(translate(@name,'PASSWORD','password'),'password') or contains(translate(@id,'PASSWORD','password'),'password')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+
+    # submit button (contains "sign in", "log in", etc.)
+    submit_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in') or "
+        "contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'log in')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("Submitted login credentials")
+except Exception as e:
+    print(f"Failed during login form interaction: {e}")
+
+# Wait for URL change after login
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after login")
+except Exception as e:
+    print(f"URL did not change after login: {e}")

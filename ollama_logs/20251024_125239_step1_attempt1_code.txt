@@ -1,0 +1,134 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementNotInteractableException
+
+# Helper function to safely find and fill input fields
+def fill_input(xpath, value, description):
+    try:
+        element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        element.clear()
+        element.send_keys(value)
+        print(f"Filling field {description} with value {value}")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+        print(f"Could not fill field {description}: {e}")
+
+# Helper function to select from dropdowns (if any)
+def select_option(xpath, visible_text, description):
+    try:
+        select_elem = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        select = Select(select_elem)
+        select.select_by_visible_text(visible_text)
+        print(f"Selecting {description}: {visible_text}")
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+        print(f"Could not select {description}: {e}")
+
+# 1. Open the manual application page if not already there
+try:
+    apply_manual_btn = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@data-automation-id, 'applyManually') or contains(text(),'Apply Manually')]"))
+    )
+    apply_manual_btn.click()
+    print("Clicked 'Apply Manually' to open the application form.")
+except (TimeoutException, NoSuchElementException):
+    print("Apply Manually button not found – assuming we are already on the form page.")
+
+# Wait a moment for the form to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+
+# 2. Fill Personal Information
+personal = resume_data.get("personal_info", {})
+
+# Split name into first and last (fallback to whole name in first name if split fails)
+full_name = personal.get("name", "")
+name_parts = full_name.split()
+first_name = name_parts[0] if name_parts else ""
+last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+
+fill_input("//input[contains(@placeholder, 'First') or contains(@aria-label,'First') or contains(@name,'first')]", first_name, "First Name")
+if last_name:
+    fill_input("//input[contains(@placeholder, 'Last') or contains(@aria-label,'Last') or contains(@name,'last')]", last_name, "Last Name")
+
+fill_input("//input[contains(@type,'email') or contains(@placeholder,'Email') or contains(@aria-label,'Email')]", personal.get("email",""), "Email")
+fill_input("//input[contains(@type,'tel') or contains(@placeholder,'Phone') or contains(@aria-label,'Phone')]", personal.get("phone",""), "Phone")
+
+# Address fields (assuming a typical address block)
+address_list = personal.get("address", [])
+if address_list:
+    addr = address_list[0]
+    fill_input("//input[contains(@placeholder,'Address') or contains(@aria-label,'Address') or contains(@name,'address1')]", addr.get("addressline 1",""), "Address Line 1")
+    fill_input("//input[contains(@placeholder,'Address') or contains(@aria-label,'Address') or contains(@name,'address2')]", addr.get("addressline 2",""), "Address Line 2")
+    fill_input("//input[contains(@placeholder,'City') or contains(@aria-label,'City') or contains(@name,'city')]", addr.get("city",""), "City")
+    fill_input("//input[contains(@placeholder,'State') or contains(@aria-label,'State') or contains(@name,'state')]", addr.get("state",""), "State")
+    fill_input("//input[contains(@placeholder,'ZIP') or contains(@aria-label,'ZIP') or contains(@name,'zip')]", addr.get("zip",""), "ZIP")
+    fill_input("//input[contains(@placeholder,'Country') or contains(@aria-label,'Country') or contains(@name,'country')]", addr.get("country",""), "Country")
+
+# LinkedIn and GitHub (if form has fields for them)
+fill_input("//input[contains(@placeholder,'LinkedIn') or contains(@aria-label,'LinkedIn') or contains(@name,'linkedin')]", personal.get("linkedin",""), "LinkedIn URL")
+fill_input("//input[contains(@placeholder,'GitHub') or contains(@aria-label,'GitHub') or contains(@name,'github')]", personal.get("github",""), "GitHub URL")
+
+# 3. Professional Summary (textarea)
+summary = resume_data.get("professional_summary","")
+fill_input("//textarea[contains(@placeholder,'Summary') or contains(@aria-label,'Summary') or contains(@name,'summary')]", summary, "Professional Summary")
+
+# 4. Technical Skills – often a multi‑select or text area; try to fill as free text
+skills_text = []
+tech = resume_data.get("technical_skills", {})
+for category, items in tech.items():
+    skills_text.append(f"{category.replace('_',' ').title()}: {', '.join(items)}")
+skills_blob = "\n".join(skills_text)
+fill_input("//textarea[contains(@placeholder,'Skills') or contains(@aria-label,'Skills') or contains(@name,'skills')]", skills_blob, "Technical Skills")
+
+# 5. Work Experience – many platforms have repeatable sections; attempt to fill first experience fields
+if resume_data.get("work_experience"):
+    exp = resume_data["work_experience"][0]
+    fill_input("//input[contains(@placeholder,'Job Title') or contains(@aria-label,'Job Title') or contains(@name,'title')]", exp.get("title",""), "Job Title")
+    fill_input("//input[contains(@placeholder,'Company') or contains(@aria-label,'Company') or contains(@name,'company')]", exp.get("company",""), "Company")
+    fill_input("//input[contains(@placeholder,'Location') or contains(@aria-label,'Location') or contains(@name,'location')]", exp.get("location",""), "Location")
+    fill_input("//input[contains(@placeholder,'Duration') or contains(@aria-label,'Duration') or contains(@name,'duration')]", exp.get("duration",""), "Duration")
+    # Responsibilities – often a textarea or list; concatenate
+    responsibilities = "\n".join(exp.get("responsibilities", []))
+    fill_input("//textarea[contains(@placeholder,'Responsibilities') or contains(@aria-label,'Responsibilities') or contains(@name,'responsibilities')]", responsibilities, "Responsibilities")
+
+# 6. Education – fill first education entry
+if resume_data.get("education"):
+    edu = resume_data["education"][0]
+    fill_input("//input[contains(@placeholder,'Institution') or contains(@aria-label,'Institution') or contains(@name,'institution')]", edu.get("institution",""), "Institution")
+    fill_input("//input[contains(@placeholder,'Degree') or contains(@aria-label,'Degree') or contains(@name,'degree')]", edu.get("degree",""), "Degree")
+    fill_input("//input[contains(@placeholder,'Field') or contains(@aria-label,'Field') or contains(@name,'field')]", edu.get("field",""), "Field of Study")
+    fill_input("//input[contains(@placeholder,'University') or contains(@aria-label,'University') or contains(@name,'university')]", edu.get("university",""), "University")
+    fill_input("//input[contains(@placeholder,'Duration') or contains(@aria-label,'Duration') or contains(@name,'duration')]", edu.get("duration",""), "Education Duration")
+
+# 7. Upload Resume PDF (if a file input exists)
+try:
+    file_input = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='file' or contains(@accept,'.pdf')]"))
+    )
+    file_input.send_keys(resume_pdf_path)
+    print(f"Uploaded resume PDF from path: {resume_pdf_path}")
+except (TimeoutException, NoSuchElementException):
+    print("Resume file input not found – skipping file upload.")
+
+# 8. Click Next / Continue / Save and Continue button
+next_btn = None
+btn_xpaths = [
+    "//button[contains(translate(text(),'NEXT'),'next')]",
+    "//button[contains(translate(text(),'CONTINUE'),'continue')]",
+    "//button[contains(translate(text(),'SAVE AND CONTINUE'),'save and continue')]",
+    "//button[contains(@data-automation-id,'next') or contains(@data-automation-id,'continue')]"
+]
+for xpath in btn_xpaths:
+    try:
+        next_btn = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        break
+    except TimeoutException:
+        continue
+
+if next_btn:
+    try:
+        next_btn.click()
+        print("Clicked the Next/Continue button to proceed to the next step.")
+    except Exception as e:
+        print(f"Failed to click the Next button: {e}")
+else:
+    print("No Next/Continue button detected – form filled without proceeding.")

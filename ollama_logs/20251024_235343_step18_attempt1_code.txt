@@ -1,0 +1,32 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    wait = WebDriverWait(driver, 15)
+    source_input = wait.until(EC.visibility_of_element_located((By.ID, "source--source")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_input)
+    source_input.clear()
+    source_input.send_keys("LinkedIn")
+    print("✓ Filled 'How Did You Hear About Us?' with 'LinkedIn'")
+except Exception as e:
+    print(f"✗ Could not fill source field: {e}")
+
+# Optionally submit the form after filling the required field
+try:
+    save_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'css-ctezx6') and normalize-space()='Save and Continue']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    time.sleep(0.5)
+    try:
+        save_btn.click()
+        print("✓ Clicked Save and Continue")
+    except ElementClickInterceptedException:
+        driver.execute_script("arguments[0].click();", save_btn)
+        print("✓ Clicked Save and Continue via JavaScript")
+except Exception as e:
+    print(f"✗ Could not click Save and Continue: {e}")

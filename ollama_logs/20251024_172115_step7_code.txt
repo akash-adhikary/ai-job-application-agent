@@ -1,0 +1,16 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the "Autofill with Resume" button by its visible text
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Autofill with Resume']")
+        )
+    )
+    # Scroll into view before clicking
+    driver.execute_script("arguments[0].scrollIntoView(true);", autofill_btn)
+    autofill_btn.click()
+    print("✓ Clicked 'Autofill with Resume' button")
+    time.sleep(2)  # allow any subsequent processing to start
+except Exception as e:
+    print(f"✗ Failed to click 'Autofill with Resume' button: {e}")

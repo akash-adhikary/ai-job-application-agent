@@ -1,0 +1,57 @@
+# STEP 1 – Choose a resume method and upload the PDF resume
+
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException
+
+def click_element(locator, description, timeout=15):
+    try:
+        elem = WebDriverWait(driver, timeout).until(
+            EC.element_to_be_clickable(locator)
+        )
+        elem.click()
+        print(f"Clicked {description}.")
+        return elem
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+        print(f"Unable to click {description}: {e}")
+        return None
+
+def fill_file_input(locator, file_path, description, timeout=15):
+    try:
+        # The <input type="file"> may be hidden; we can still send_keys directly
+        elem = WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located(locator)
+        )
+        elem.send_keys(file_path)
+        print(f"Filling {description} with file {file_path}.")
+        return elem
+    except (TimeoutException, NoSuchElementException, ElementNotInteractableException) as e:
+        print(f"Unable to fill {description}: {e}")
+        return None
+
+# 1️⃣ Click the "From Device" resume method button
+method_button = click_element(
+    (By.ID, "methodButton--file"),
+    "resume method button 'From Device'"
+)
+
+# If the method button was not clickable (maybe already selected), try to locate the fieldset directly
+if not method_button:
+    print("Proceeding assuming 'From Device' method is already active.")
+
+# 2️⃣ Upload the resume PDF
+file_input = fill_file_input(
+    (By.ID, "resumeFile"),
+    resume_pdf_path,
+    "resume file input"
+)
+
+# 3️⃣ Click the "Continue" button for the file upload method
+continue_btn = click_element(
+    (By.ID, "uploadFileResume"),
+    "'Continue' button for file upload"
+)
+
+# If the "Continue" button is not found, log but do not raise
+if not continue_btn:
+    print("Continue button not found; form may require additional interaction.")
+else:
+    print("Step 1 completed – resume uploaded and Continue clicked.")

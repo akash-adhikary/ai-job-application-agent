@@ -1,0 +1,38 @@
+try:
+    # Wait for the 'Select file' button to be present and scroll into view
+    select_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button#input-4"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", select_btn)
+    print("✓ 'Select file' button located")
+    # Click the button to ensure any hidden file input is rendered
+    select_btn.click()
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to locate or click 'Select file' button: {e}")
+
+try:
+    # Locate the hidden <input type='file'> element (commonly present after button click)
+    file_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", file_input)
+    print("✓ File input element found")
+except Exception as e:
+    print(f"✗ File input element not found: {e}")
+    file_input = None
+
+if file_input:
+    try:
+        # Upload the resume PDF
+        file_input.send_keys(resume_pdf_path)
+        time.sleep(2)  # allow upload processing
+        uploaded_value = file_input.get_attribute("value")
+        if uploaded_value:
+            print(f"✓ File uploaded successfully: {uploaded_value}")
+        else:
+            print("⚠️ FILE UPLOAD MAY HAVE FAILED! No value attribute set.")
+    except Exception as e:
+        print(f"✗ Failed to upload file: {e}")
+
+time.sleep(1)  # short pause before next actions

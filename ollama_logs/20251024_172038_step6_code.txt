@@ -1,0 +1,19 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    # Wait for the Apply button to be clickable
+    apply_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Apply' or @type='submit' and (contains(.,'Apply') or @aria-label='Apply')]"))
+    )
+    # Scroll into view
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_btn)
+    time.sleep(1)  # brief pause after scrolling
+    apply_btn.click()
+    print("✓ Clicked the Apply button")
+except Exception as e:
+    print(f"✗ Failed to click Apply button: {e}")
+
+time.sleep(2)  # allow any navigation or modal to load after click

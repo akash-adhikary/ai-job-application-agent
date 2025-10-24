@@ -1,0 +1,45 @@
+wait = WebDriverWait(driver, 15)
+
+def fill_by_id(element_id, value):
+    try:
+        elem = wait.until(EC.element_to_be_clickable((By.ID, element_id)))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.clear()
+        if value is not None:
+            elem.send_keys(value)
+        print(f"✓ Filled {element_id} with '{value}'")
+    except Exception as e:
+        print(f"✗ Could not fill {element_id}: {e}")
+
+# Job Title
+fill_by_id("workExperience-4--jobTitle", "Senior Data Engineer")
+time.sleep(1)
+
+# Company
+fill_by_id("workExperience-4--companyName", "ThoughtSpot")
+time.sleep(1)
+
+# Start Date Month
+fill_by_id("workExperience-4--startDate-dateSectionMonth-input", "07")
+time.sleep(1)
+
+# Start Date Year
+fill_by_id("workExperience-4--startDate-dateSectionYear-input", "2023")
+time.sleep(1)
+
+# End Date Month (Present)
+fill_by_id("workExperience-4--endDate-dateSectionMonth-input", "Present")
+time.sleep(1)
+
+# End Date Year (leave blank)
+fill_by_id("workExperience-4--endDate-dateSectionYear-input", "")
+time.sleep(1)
+
+# Role Description (textarea)
+role_desc = (
+    "Leading end-to-end data platform initiatives across Finance, GTM, HR, Security, and CloudOps using GCP, Snowflake, Python, Databricks, and Matillion to deliver real-time analytics and cost‑saving solutions. "
+    "Designed scalable ingestion pipelines for 20+ systems via APIs and file‑based ingestion, reducing data latency by 70%. "
+    "Developed modular ETL frameworks in PySpark, cutting onboarding time for new sources by 60%."
+)
+fill_by_id("workExperience-4--roleDescription", role_desc)
+time.sleep(1)

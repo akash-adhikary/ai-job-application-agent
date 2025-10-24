@@ -1,0 +1,89 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+import time
+
+driver = webdriver.Chrome()
+wait = WebDriverWait(driver, 15)
+
+driver.get("https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn")
+
+# Accept cookies if the button appears
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(text(),'Accept Cookies') or contains(text(),'Accept')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", accept_btn)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Accepted cookies")
+    time.sleep(1)
+except Exception:
+    pass
+
+clicked = False
+
+# Strategy 1: link with data-automation-id or role=button
+try:
+    apply_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "a[data-automation-id*='apply'], a[data-automation-id*='Apply'], a[role='button']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_link)
+    time.sleep(1)
+    driver.execute_script("arguments[0].click();", apply_link)
+    print("✓ Clicked Apply link (JavaScript)")
+    clicked = True
+except Exception:
+    pass
+
+# Strategy 2: visible button with text
+if not clicked:
+    try:
+        button = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(text(),'Apply') or contains(text(),'Next') or contains(text(),'Continue')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", button)
+        time.sleep(0.5)
+        try:
+            button.click()
+            print("✓ Clicked button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", button)
+            print("✓ Clicked button (JavaScript click)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 3: div with role=button
+if not clicked:
+    try:
+        div_button = driver.find_element(By.CSS_SELECTOR, "div[role='button'][data-automation-id*='button']")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", div_button)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", div_button)
+        print("✓ Clicked div button (JavaScript)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 4: any element containing the text
+if not clicked:
+    try:
+        element = driver.find_element(By.XPATH, "//*[contains(text(),'Apply') or contains(text(),'Next')][1]")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", element)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", element)
+        print("✓ Clicked element by text (JavaScript)")
+        clicked = True
+    except Exception as e:
+        print(f"✗ Could not click any button: {e}")
+
+time.sleep(3)
+driver.quit()

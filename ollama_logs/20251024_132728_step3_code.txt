@@ -1,0 +1,41 @@
+try:
+    print("Waiting for Email input field...")
+    wait = WebDriverWait(driver, 15)
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "input-4")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    time.sleep(1)
+    print("✓ Email field is present")
+except Exception as e:
+    print(f"Could not locate Email field: {e}")
+
+try:
+    print("Waiting for Password input field...")
+    password_input = wait.until(EC.presence_of_element_located((By.ID, "input-5")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    time.sleep(1)
+    print("✓ Password field is present")
+except Exception as e:
+    print(f"Could not locate Password field: {e}")
+
+try:
+    print("Waiting for Verify Password input field...")
+    verify_input = wait.until(EC.presence_of_element_located((By.ID, "input-6")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", verify_input)
+    time.sleep(1)
+    print("✓ Verify Password field is present")
+except Exception as e:
+    print(f"Could not locate Verify Password field: {e}")
+
+try:
+    print("Clicking 'Create Account' button...")
+    create_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Create Account']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", create_btn)
+    time.sleep(1)
+    create_btn.click()
+    print("✓ Clicked 'Create Account' button")
+except Exception as e:
+    print(f"Could not click 'Create Account' button: {e}")

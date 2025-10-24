@@ -1,0 +1,153 @@
+try:
+    print("Preparing data from resume...")
+    # Split full name into first and last
+    full_name = resume_data["personal_info"]["name"]
+    name_parts = full_name.strip().split()
+    first_name = name_parts[0]
+    last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+    # Address details (taking the first address entry)
+    addr = resume_data["personal_info"]["address"][0]
+    address_line1 = addr.get("addressline 1", "")
+    city = addr.get("city", "")
+    postal_code = addr.get("zip", "")
+    # Phone parsing (+91-8420433877)
+    raw_phone = resume_data["personal_info"]["phone"]
+    import re
+    phone_match = re.search(r"\+?(\d+)[-‑]?(\d+)", raw_phone)
+    country_code = phone_match.group(1) if phone_match else ""
+    phone_number = phone_match.group(2) if phone_match else ""
+    print("Data prepared.")
+except Exception as e:
+    print(f"Error preparing data: {e}")
+
+wait = WebDriverWait(driver, 15)
+
+# ----- Fill Given Name(s) -----
+try:
+    print("Filling Given Name(s) field...")
+    first_name_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "name--legalName--firstName"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", first_name_elem)
+    time.sleep(1)
+    first_name_elem.clear()
+    first_name_elem.send_keys(first_name)
+    print("✓ Given Name(s) filled")
+except Exception as e:
+    print(f"Could not fill Given Name(s): {e}")
+
+# ----- Fill Family Name -----
+try:
+    print("Filling Family Name field...")
+    last_name_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "name--legalName--lastName"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", last_name_elem)
+    time.sleep(1)
+    last_name_elem.clear()
+    last_name_elem.send_keys(last_name)
+    print("✓ Family Name filled")
+except Exception as e:
+    print(f"Could not fill Family Name: {e}")
+
+# ----- Fill Address Line 1 -----
+try:
+    print("Filling Address Line 1 field...")
+    addr1_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "address--addressLine1"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", addr1_elem)
+    time.sleep(1)
+    addr1_elem.clear()
+    addr1_elem.send_keys(address_line1)
+    print("✓ Address Line 1 filled")
+except Exception as e:
+    print(f"Could not fill Address Line 1: {e}")
+
+# ----- Fill City -----
+try:
+    print("Filling City field...")
+    city_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "address--city"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", city_elem)
+    time.sleep(1)
+    city_elem.clear()
+    city_elem.send_keys(city)
+    print("✓ City filled")
+except Exception as e:
+    print(f"Could not fill City: {e}")
+
+# ----- Fill Postal Code -----
+try:
+    print("Filling Postal Code field...")
+    postal_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "address--postalCode"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", postal_elem)
+    time.sleep(1)
+    postal_elem.clear()
+    postal_elem.send_keys(postal_code)
+    print("✓ Postal Code filled")
+except Exception as e:
+    print(f"Could not fill Postal Code: {e}")
+
+# ----- Select "How Did You Hear About Us?" -----
+try:
+    print('Selecting "How Did You Hear About Us?" option...')
+    source_btn = wait.until(
+        EC.element_to_be_clickable((By.ID, "source--source"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_btn)
+    time.sleep(1)
+    source_btn.click()
+    # Wait for the dropdown options to appear and click the one containing "LinkedIn"
+    option_xpath = "//div[contains(@role, 'option') and contains(translate(., 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 'LINKEDIN')]"
+    source_option = wait.until(
+        EC.element_to_be_clickable((By.XPATH, option_xpath))
+    )
+    source_option.click()
+    print('✓ "How Did You Hear About Us?" selected')
+except Exception as e:
+    print(f'Could not select "How Did You Hear About Us?": {e}')
+
+# ----- Fill Phone Country Code -----
+try:
+    print("Filling Phone Country Code field...")
+    country_code_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "phoneNumber--countryPhoneCode"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", country_code_elem)
+    time.sleep(1)
+    country_code_elem.clear()
+    country_code_elem.send_keys(country_code)
+    print("✓ Phone Country Code filled")
+except Exception as e:
+    print(f"Could not fill Phone Country Code: {e}")
+
+# ----- Fill Phone Number -----
+try:
+    print("Filling Phone Number field...")
+    phone_elem = wait.until(
+        EC.element_to_be_clickable((By.ID, "phoneNumber--phoneNumber"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", phone_elem)
+    time.sleep(1)
+    phone_elem.clear()
+    phone_elem.send_keys(phone_number)
+    print("✓ Phone Number filled")
+except Exception as e:
+    print(f"Could not fill Phone Number: {e}")
+
+# ----- Click "Save and Continue" -----
+try:
+    print('Clicking "Save and Continue" button...')
+    save_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'css-1axiqvj') and normalize-space()='Save and Continue']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    time.sleep(1)
+    save_btn.click()
+    print("✓ Clicked Save and Continue")
+except Exception as e:
+    print(f"Could not click Save and Continue: {e}")

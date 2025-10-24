@@ -1,0 +1,16 @@
+try:
+    # Wait for the "Start Your Application" button to be clickable
+    start_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'start your application')]")
+        )
+    )
+    # Scroll into view
+    driver.execute_script("arguments[0].scrollIntoView(true);", start_btn)
+    time.sleep(0.5)
+    # Click the button
+    start_btn.click()
+    print("✓ Clicked 'Start Your Application' button")
+    time.sleep(1)  # allow next page to load
+except Exception as e:
+    print(f"✗ Failed to click 'Start Your Application' button: {e}")

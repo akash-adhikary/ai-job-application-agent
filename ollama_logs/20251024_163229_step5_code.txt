@@ -1,0 +1,17 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    job_title_input = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "workExperience-18--jobTitle"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", job_title_input)
+    job_title_input.clear()
+    job_title_input.send_keys("Senior Data Engineer")
+    print("✓ Filled Job Title")
+except Exception as e:
+    print(f"✗ Could not fill Job Title: {e}")
+
+time.sleep(1)

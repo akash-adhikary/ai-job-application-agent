@@ -1,0 +1,58 @@
+# ---- Click the initial "Sign In" button ----
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Sign In')]")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked initial Sign In button")
+except Exception as e:
+    print(f"Failed to click initial Sign In button: {e}")
+
+# ---- Fill email and password fields ----
+try:
+    # wait for email field
+    email_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[contains(@type, 'email') or contains(@name, 'email') or contains(@name, 'user') or contains(@placeholder, 'email')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    # wait for password field
+    password_input = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//input[contains(@type, 'password') or contains(@name, 'pass') or contains(@placeholder, 'password')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+
+    print("Entered email and password")
+except Exception as e:
+    print(f"Failed to fill login fields: {e}")
+
+# ---- Click the final login/submit button ----
+try:
+    submit_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') or "
+        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') or "
+        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'submit') or "
+        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'continue') or "
+        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply') or "
+        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next') or "
+        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'confirm')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", submit_btn)
+    submit_btn.click()
+    print("Clicked login submit button")
+except Exception as e:
+    print(f"Failed to click login submit button: {e}")
+
+# ---- Wait for URL change (login success) ----
+try:
+    old_url = driver.current_url
+    wait.until(lambda d: d.current_url != old_url)
+    print("Login successful, URL changed")
+except Exception as e:
+    print(f"URL did not change after login: {e}")

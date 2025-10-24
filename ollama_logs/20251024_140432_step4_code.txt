@@ -1,0 +1,49 @@
+# Click the initial "Sign In" button to open the login form
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(text(),'Sign In')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    sign_in_btn.click()
+    print("Clicked initial Sign In button")
+except Exception as e:
+    print(f"Failed to click initial Sign In button: {e}")
+
+# Fill login credentials and submit
+try:
+    # Wait for email/username field
+    email_input = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//input[@type='email' or contains(@name,'email') or contains(@id,'email') or contains(@placeholder,'email')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(EMAIL)
+
+    # Wait for password field
+    password_input = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//input[@type='password' or contains(@name,'pass') or contains(@id,'pass') or contains(@placeholder,'Password')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView(true);", password_input)
+    password_input.clear()
+    password_input.send_keys(PASSWORD)
+
+    # Find and click the submit/login button (text contains typical keywords)
+    submit_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') or "
+                   "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') or "
+                   "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'submit') or "
+                   "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'continue')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("Submitted login credentials")
+except Exception as e:
+    print(f"Failed during login process: {e}")
+
+# Optional: wait for URL to change after login
+try:
+    old_url = driver.current_url
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after login")
+except Exception:
+    pass

@@ -1,0 +1,87 @@
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
+
+# Assume driver, resume_data, resume_pdf_path, resume_photo_path are already defined
+
+wait = WebDriverWait(driver, 15)
+
+def fill_and_submit_signup():
+    try:
+        # Ensure we are on the signup page
+        wait.until(EC.presence_of_element_located((By.XPATH, "//h2[contains(text(),'Create Account')]")))
+        print("✅ Signup page loaded")
+    except TimeoutException:
+        print("⚠️ Signup page not found")
+        return
+
+    # Fill Email
+    try:
+        email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+        email_input.clear()
+        email_input.send_keys(resume_data["email"])
+        print(f"✓ Email entered: {resume_data['email']}")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("❌ Failed to locate or fill Email field:", e)
+        return
+
+    # Fill Password
+    try:
+        pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", pwd_input)
+        pwd_input.clear()
+        pwd_input.send_keys(resume_data["password"])
+        print("✓ Password entered")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("❌ Failed to locate or fill Password field:", e)
+        return
+
+    # Fill Verify New Password
+    try:
+        pwd_verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+        driver.execute_script("arguments[0].scrollIntoView(true);", pwd_verify_input)
+        pwd_verify_input.clear()
+        pwd_verify_input.send_keys(resume_data["password"])
+        print("✓ Verify Password entered")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("❌ Failed to locate or fill Verify Password field:", e)
+        return
+
+    # Ensure hidden anti‑bot field is empty (do NOT fill)
+    try:
+        hidden_input = driver.find_element(By.ID, "b8114137-41af-4fc8-b46d-c4ff6d869b69")
+        hidden_value = hidden_input.get_attribute("value")
+        if hidden_value:
+            print("⚠️ Hidden anti‑bot field is not empty, clearing it")
+            driver.execute_script("arguments[0].value = '';", hidden_input)
+        else:
+            print("✅ Hidden anti‑bot field already empty")
+    except NoSuchElementException:
+        print("✅ No hidden anti‑bot field found (as expected)")
+
+    # Click "Create Account"
+    try:
+        create_btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class,'css-1pluuwy') and contains(text(),'Create Account')]")
+        ))
+        driver.execute_script("arguments[0].scrollIntoView(true);", create_btn)
+        create_btn.click()
+        print("🟢 Clicked 'Create Account' button")
+    except (NoSuchElementException, TimeoutException) as e:
+        print("❌ Create Account button not found:", e)
+        return
+    except ElementClickInterceptedException as e:
+        print("❌ Click intercepted, attempting JS click:", e)
+        driver.execute_script("arguments[0].click();", create_btn)
+
+    # Wait for possible navigation to sign‑in page
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, "//h2[contains(text(),'Sign In')]")))
+        print("✅ Navigated to Sign In page after account creation")
+    except TimeoutException:
+        print("ℹ️ Sign In page not detected yet – may need further handling")
+
+fill_and_submit_signup()

@@ -1,0 +1,189 @@
+# Accept cookies if presented
+try:
+    accept_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("✓ Accepted cookies")
+    time.sleep(1)
+except Exception:
+    print("ℹ️ Cookie acceptance not needed or not found")
+
+# Click the primary "Apply" button (if any)
+try:
+    apply_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')] | //a[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", apply_btn)
+    apply_btn.click()
+    print("✓ Clicked Apply")
+    time.sleep(2)
+except Exception as e:
+    print(f"✗ Apply button not found: {e}")
+    # If no Apply button, exit script
+    raise SystemExit("Cannot proceed without Apply button")
+
+# ---------- LOGIN ----------
+# Some Verizon pages require login before showing application form
+try:
+    email_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='email' or contains(@name, 'email')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Entered email")
+except Exception:
+    print("ℹ️ Email field not present (maybe already logged in)")
+
+try:
+    password_input = driver.find_element(By.XPATH, "//input[@type='password' or contains(@name, 'password')]")
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Entered password")
+except Exception:
+    print("ℹ️ Password field not present")
+
+# Submit login if button exists
+try:
+    login_btn = driver.find_element(By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') or contains(., 'Log In')]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", login_btn)
+    login_btn.click()
+    print("✓ Submitted login")
+    time.sleep(3)
+except Exception:
+    print("ℹ️ Login button not found, assuming already authenticated")
+
+# ---------- APPLICATION FORM ----------
+# First Name / Last Name
+try:
+    name_parts = resume_data["personal_info"]["name"].split()
+    first_name = name_parts[0]
+    last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+    first_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//input[contains(@name, 'first') or contains(@placeholder, 'First')]"))
+    )
+    last_input = driver.find_element(By.XPATH, "//input[contains(@name, 'last') or contains(@placeholder, 'Last')]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", first_input)
+    first_input.clear()
+    first_input.send_keys(first_name)
+    print(f"✓ First name: {first_name}")
+
+    driver.execute_script("arguments[0].scrollIntoView(true);", last_input)
+    last_input.clear()
+    last_input.send_keys(last_name)
+    print(f"✓ Last name: {last_name}")
+except Exception as e:
+    print(f"✗ Name fields issue: {e}")
+
+# Email
+try:
+    email_field = driver.find_element(By.XPATH, "//input[contains(@type, 'email') or contains(@name, 'email')]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_field)
+    email_field.clear()
+    email_field.send_keys(resume_data["personal_info"]["email"])
+    print("✓ Filled email")
+except Exception as e:
+    print(f"✗ Email field issue: {e}")
+
+# Phone
+try:
+    phone_field = driver.find_element(By.XPATH, "//input[contains(@name, 'phone') or contains(@placeholder, 'Phone')]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", phone_field)
+    phone_field.clear()
+    phone_field.send_keys(resume_data["personal_info"]["phone"])
+    print("✓ Filled phone")
+except Exception as e:
+    print(f"✗ Phone field issue: {e}")
+
+# Upload Resume PDF
+try:
+    resume_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@type='file' and (contains(@accept, '.pdf') or contains(@name, 'resume'))]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", resume_input)
+    resume_input.send_keys(resume_pdf_path)
+    time.sleep(2)
+    uploaded_val = resume_input.get_attribute("value")
+    if uploaded_val:
+        print(f"✓ Resume uploaded: {uploaded_val}")
+    else:
+        print("⚠️ Resume upload may have failed")
+except Exception as e:
+    print(f"✗ Resume upload element issue: {e}")
+
+# Upload Photo (if required)
+try:
+    photo_input = driver.find_element(By.XPATH, "//input[@type='file' and (contains(@accept, 'image') or contains(@name, 'photo'))]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", photo_input)
+    photo_input.send_keys(resume_photo_path)
+    time.sleep(2)
+    photo_val = photo_input.get_attribute("value")
+    if photo_val:
+        print(f"✓ Photo uploaded: {photo_val}")
+    else:
+        print("⚠️ Photo upload may have failed")
+except Exception:
+    print("ℹ️ Photo upload not required or not found")
+
+# ---------- SKILLS ----------
+# Flatten skill list and add up to 5
+try:
+    skill_lists = resume_data["technical_skills"].values()
+    flat_skills = [skill for sublist in skill_lists for skill in sublist]
+    # Remove duplicates while preserving order
+    seen = set()
+    skills_to_add = []
+    for s in flat_skills:
+        if s not in seen:
+            seen.add(s)
+            skills_to_add.append(s)
+        if len(skills_to_add) >= 5:
+            break
+
+    # Locate the skill search/input box (example assumption)
+    skill_input = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, "//input[contains(@placeholder, 'Skill') or contains(@aria-label, 'Skill')]"))
+    )
+    for skill in skills_to_add:
+        try:
+            driver.execute_script("arguments[0].scrollIntoView(true);", skill_input)
+            skill_input.clear()
+            skill_input.send_keys(skill)
+            time.sleep(1.5)
+            suggestion = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, f"//div[contains(@class, 'suggestion') and contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{skill.lower()}')]"))
+            )
+            suggestion.click()
+            print(f"✓ Added skill: {skill}")
+            time.sleep(0.5)
+        except Exception as se:
+            print(f"✗ Could not add skill {skill}: {se}")
+except Exception as e:
+    print(f"✗ Skill selection error: {e}")
+
+# ---------- COVER LETTER / OPTIONAL TEXTAREA ----------
+try:
+    cover_textarea = driver.find_element(By.XPATH, "//textarea[contains(@name, 'cover') or contains(@placeholder, 'Cover')]")
+    driver.execute_script("arguments[0].scrollIntoView(true);", cover_textarea)
+    cover_textarea.clear()
+    cover_textarea.send_keys("I am excited to apply for the Engineer II - Data Engineering role at Verizon. My extensive background in building large‑scale data platforms, real‑time analytics, and cloud‑native solutions aligns with the responsibilities described. I look forward to contributing to Verizon's innovative data products.")
+    print("✓ Filled cover letter")
+except Exception:
+    print("ℹ️ Cover letter textarea not found")
+
+# ---------- SUBMIT APPLICATION ----------
+try:
+    submit_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'submit') or contains(., 'Apply') or contains(., 'Send') or contains(., 'Finish')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
+    print("✓ Application submitted")
+    time.sleep(5)
+except Exception as e:
+    print(f"✗ Submit button issue: {e}")
+
+# End of script
+print("✅ Script execution completed")

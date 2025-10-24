@@ -1,0 +1,10 @@
+try:
+    # Wait for the "Sign In" button to be clickable
+    sign_in_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-16vlq4s"))
+    )
+    # Click using the safe click helper
+    safe_click_element(driver, sign_in_btn, "Sign In button")
+    print("Clicked Sign In button successfully.")
+except Exception as e:
+    print(f"Error clicking Sign In button: {e}")

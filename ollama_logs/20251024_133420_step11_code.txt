@@ -1,0 +1,98 @@
+try:
+    print("Uploading resume PDF...")
+    wait = WebDriverWait(driver, 15)
+    upload_btn = wait.until(
+        EC.presence_of_element_located((By.ID, "resumeAttachments--attachments"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", upload_btn)
+    time.sleep(1)
+    # Some buttons are actually <input type="file"> hidden behind a label; send_keys works if element accepts files
+    upload_btn.send_keys(resume_pdf_path)
+    print("✓ Resume PDF uploaded")
+except Exception as e:
+    print(f"Could not upload resume PDF: {e}")
+
+time.sleep(2)
+
+# ---------- Fill Role Description textareas ----------
+role_ids = [
+    "workExperience-4--roleDescription",
+    "workExperience-43--roleDescription",
+    "workExperience-80--roleDescription",
+    "workExperience-121--roleDescription",
+]
+
+experiences = resume_data.get("work_experience", [])
+for idx, textarea_id in enumerate(role_ids):
+    try:
+        print(f"Filling Role Description for experience #{idx + 1}...")
+        wait = WebDriverWait(driver, 15)
+        textarea = wait.until(
+            EC.presence_of_element_located((By.ID, textarea_id))
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", textarea)
+        time.sleep(1)
+        # Get responsibilities for the corresponding experience, fallback to empty string
+        responsibilities = []
+        if idx < len(experiences):
+            responsibilities = experiences[idx].get("responsibilities", [])
+        # Join responsibilities into a single string (each on a new line)
+        role_text = "\n".join(responsibilities)
+        textarea.clear()
+        textarea.send_keys(role_text)
+        print(f"✓ Filled Role Description for experience #{idx + 1}")
+    except Exception as e:
+        print(f"Could not fill Role Description for experience #{idx + 1}: {e}")
+
+time.sleep(2)
+
+# ---------- Populate Skills field ----------
+try:
+    print("Populating Skills field...")
+    wait = WebDriverWait(driver, 15)
+    skills_input = wait.until(
+        EC.presence_of_element_located((By.ID, "skills--skills"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", skills_input)
+    time.sleep(1)
+    # Flatten technical skills into a unique list
+    technical_skills = resume_data.get("technical_skills", {})
+    skill_set = set()
+    for category, skill_list in technical_skills.items():
+        for skill in skill_list:
+            skill_set.add(skill.strip())
+    # Add any additional relevant skills (example list)
+    extra_skills = ["Python", "PySpark", "SQL", "GCP", "Snowflake", "Databricks",
+                    "Matillion", "Airflow"]
+    for skill in extra_skills:
+        skill_set.add(skill)
+    # Enter each skill and press ENTER (common for tokenized fields)
+    from selenium.webdriver.common.keys import Keys
+
+    for skill in skill_set:
+        skills_input.send_keys(skill)
+        skills_input.send_keys(Keys.ENTER)
+        time.sleep(0.3)  # slight pause between entries
+    print("✓ Skills populated")
+except Exception as e:
+    print(f"Could not populate Skills field: {e}")
+
+time.sleep(2)
+
+# ---------- Click Save and Continue ----------
+try:
+    print("Clicking 'Save and Continue' button...")
+    wait = WebDriverWait(driver, 15)
+    save_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(text(),'Save and Continue')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    time.sleep(1)
+    save_btn.click()
+    print("✓ Clicked 'Save and Continue'")
+except Exception as e:
+    print(f"Could not click 'Save and Continue' button: {e}")
+
+time.sleep(3)

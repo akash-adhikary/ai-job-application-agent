@@ -1,0 +1,44 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# Accept cookies if the banner appears
+try:
+    accept_cookies = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Accept Cookies')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_cookies)
+    accept_cookies.click()
+    print("✓ Accepted cookies")
+    time.sleep(1)
+except Exception:
+    print("ℹ️ No cookie banner found")
+
+# Dismiss privacy message if it appears
+try:
+    decline_privacy = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Decline')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", decline_privacy)
+    decline_privacy.click()
+    print("✓ Declined privacy message")
+    time.sleep(1)
+except Exception:
+    print("ℹ️ No privacy modal found")
+
+# Click the "Apply" button
+try:
+    apply_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Apply' or (contains(@type,'submit') and contains(.,'Apply'))]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+    apply_btn.click()
+    print("✓ Clicked 'Apply' button")
+    time.sleep(2)
+except Exception as e:
+    print(f"✗ Could not click 'Apply' button: {e}")

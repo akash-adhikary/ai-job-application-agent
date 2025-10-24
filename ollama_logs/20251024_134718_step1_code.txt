@@ -1,0 +1,139 @@
+import os
+import time
+import sys
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def main():
+    # ==== Setup ====
+    url = "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn"
+    driver_path = os.getenv("CHROMEDRIVER_PATH", "chromedriver")  # adjust if needed
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # remove if you want a visible browser
+    options.add_argument("--disable-gpu")
+    driver = webdriver.Chrome(service=ChromeService(driver_path), options=options)
+    wait = WebDriverWait(driver, 15)
+
+    try:
+        driver.get(url)
+        print("[INFO] Navigated to page")
+    except Exception as e:
+        print(f"[ERROR] Could not load URL: {e}")
+        driver.quit()
+        return
+
+    # ==== Accept Cookies ====
+    try:
+        accept_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR,
+                 "html > body > div#root > div > div > div:nth-of-type(1) > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > div > button")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+        accept_btn.click()
+        print("[INFO] Accepted cookies")
+    except Exception as e:
+        print(f"[WARN] Accept Cookies button not found or not clickable: {e}")
+    time.sleep(1.5)
+
+    # ==== Click Sign In ====
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR,
+                 "html > body > div#root > div > div > div:nth-of-type(2) > div > header > div:nth-of-type(2) > div:nth-of-type(3) > div > div > button")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+        sign_in_btn.click()
+        print("[INFO] Clicked Sign In")
+    except Exception as e:
+        print(f"[ERROR] Sign In button not found or not clickable: {e}")
+        driver.quit()
+        return
+    time.sleep(2)
+
+    # ==== Load credentials ====
+    email = os.getenv("WD_EMAIL")
+    password = os.getenv("WD_PASSWORD")
+
+    if not email or not password:
+        print("[INFO] Email and/or password not provided. Set WD_EMAIL and WD_PASSWORD environment variables.")
+        driver.quit()
+        return
+
+    # ==== Fill Email ====
+    try:
+        email_field = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//input[@type='email' or @name='username' or @name='email']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", email_field)
+        email_field.clear()
+        email_field.send_keys(email)
+        print("[INFO] Entered email")
+    except Exception as e:
+        print(f"[ERROR] Could not locate or fill email field: {e}")
+        driver.quit()
+        return
+    time.sleep(1)
+
+    # ==== Fill Password ====
+    try:
+        password_field = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//input[@type='password' or @name='password']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", password_field)
+        password_field.clear()
+        password_field.send_keys(password)
+        print("[INFO] Entered password")
+    except Exception as e:
+        print(f"[ERROR] Could not locate or fill password field: {e}")
+        driver.quit()
+        return
+    time.sleep(1)
+
+    # ==== Submit Login Form ====
+    try:
+        # Look for a button with typical login text
+        submit_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'continue')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+        submit_btn.click()
+        print("[INFO] Submitted login form")
+    except Exception as e:
+        print(f"[WARN] Could not locate a specific login button: {e}")
+        # Fallback: try pressing Enter in password field
+        try:
+            password_field.send_keys(u'\ue007')
+            print("[INFO] Submitted login form via Enter key")
+        except Exception as e2:
+            print(f"[ERROR] Unable to submit login form: {e2}")
+            driver.quit()
+            return
+
+    # ==== Wait for navigation after login ====
+    try:
+        previous_url = url
+        wait.until(lambda d: d.current_url != previous_url)
+        print(f"[INFO] Navigation detected, new URL: {driver.current_url}")
+    except Exception as e:
+        print(f"[WARN] URL did not change after login attempt: {e}")
+
+    # ==== Clean up ====
+    time.sleep(2)
+    driver.quit()
+    print("[INFO] Script finished")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "job_agent8.py", line 497, in main
+    exec(code, exec_globals)
+  File "<string>", line 8, in <module>
+NameError: name 'wait' is not defined

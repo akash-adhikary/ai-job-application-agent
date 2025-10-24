@@ -1,0 +1,23 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    # Wait for the Sign In button to be present and clickable
+    sign_in_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Sign In' or contains(@class, 'css-wkqt22')]")
+        )
+    )
+    # Scroll into view in case it's off-screen
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_btn)
+    time.sleep(1)  # slight pause after scrolling
+
+    # Click the button
+    sign_in_btn.click()
+    print("✓ Clicked 'Sign In' button")
+except Exception as e:
+    print(f"✗ Failed to click 'Sign In' button: {e}")
+
+time.sleep(2)  # give the next page/time for any navigation to start

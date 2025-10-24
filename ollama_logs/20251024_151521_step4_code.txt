@@ -1,0 +1,43 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Fill Email Address (id: input-4)
+try:
+    email_input = WebDriverWait(driver, 15).until(
+        EC.visibility_of_element_located((By.ID, "input-4"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_input)
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Filled Email Address")
+except Exception as e:
+    print(f"✗ Could not fill Email Address: {e}")
+time.sleep(1)
+
+# Fill Password (id: input-5)
+try:
+    pwd_input = WebDriverWait(driver, 15).until(
+        EC.visibility_of_element_located((By.ID, "input-5"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", pwd_input)
+    pwd_input.clear()
+    pwd_input.send_keys(resume_data["password"])
+    print("✓ Filled Password")
+except Exception as e:
+    print(f"✗ Could not fill Password: {e}")
+time.sleep(1)
+
+# Fill Verify New Password (id: input-6)
+try:
+    verify_input = WebDriverWait(driver, 15).until(
+        EC.visibility_of_element_located((By.ID, "input-6"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", verify_input)
+    verify_input.clear()
+    verify_input.send_keys(resume_data["password"])
+    print("✓ Filled Verify New Password")
+except Exception as e:
+    print(f"✗ Could not fill Verify New Password: {e}")
+time.sleep(1)

@@ -1,0 +1,25 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Wait for the "How Did You Hear About Us?" input to be present and visible
+try:
+    source_input = WebDriverWait(driver, 15).until(
+        EC.visibility_of_element_located((By.ID, "source--source"))
+    )
+    # Scroll the element into view
+    driver.execute_script("arguments[0].scrollIntoView(true);", source_input)
+    time.sleep(1)
+
+    # Clear any pre-filled text (if any) and fill the required value
+    source_input.clear()
+    source_input.send_keys("LinkedIn")  # Example source; adjust as needed
+    time.sleep(1)
+
+    print("✓ Filled 'How Did You Hear About Us?' field with 'LinkedIn'")
+except Exception as e:
+    print(f"✗ Could not fill 'How Did You Hear About Us?' field: {e}")
+
+# Optional: small pause before next actions
+time.sleep(1)

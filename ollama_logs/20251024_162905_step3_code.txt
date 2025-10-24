@@ -1,0 +1,66 @@
+wait = WebDriverWait(driver, 15)
+
+# --- Helper to fill a text field ---
+def fill_field(by, locator, value, description):
+    try:
+        elem = wait.until(EC.element_to_be_clickable((by, locator)))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.clear()
+        elem.send_keys(value)
+        print(f"✓ Filled {description}")
+        time.sleep(1)
+    except Exception as e:
+        print(f"✗ Could not fill {description}: {e}")
+
+# --- Parse resume data ---
+full_name = resume_data["personal_info"]["name"]
+first_name, last_name = (full_name.split()[0], " ".join(full_name.split()[1:])) if " " in full_name else (full_name, "")
+first_name_local = first_name  # assuming same as given name
+address_info = resume_data["personal_info"]["address"][0]
+addr_line1 = address_info.get("addressline 1", "")
+city = address_info.get("city", "")
+postal = address_info.get("zip", "")
+state = address_info.get("state", "")
+phone_raw = resume_data["personal_info"]["phone"]  # e.g. +91-8420433877
+# Extract country code and number
+import re
+phone_match = re.search(r"\+?(\d+)[-]?(\d+)", phone_raw)
+country_code = phone_match.group(1) if phone_match else ""
+phone_number = phone_match.group(2) if phone_match else ""
+
+# --- Fill fields ---
+fill_field(By.ID, "name--legalName--firstName", first_name, "First Name")
+fill_field(By.ID, "name--legalName--lastName", last_name, "Last Name")
+fill_field(By.ID, "name--legalName--firstNameLocal", first_name_local, "First Name (Local)")
+
+fill_field(By.ID, "address--addressLine1", addr_line1, "Address Line 1")
+fill_field(By.ID, "address--city", city, "City")
+fill_field(By.ID, "address--postalCode", postal, "Postal Code")
+fill_field(By.ID, "address--stateRegion", state, "State/Region")
+
+# Country Phone Code – this field is a searchable dropdown; send country code then select first suggestion
+try:
+    country_elem = wait.until(EC.element_to_be_clickable((By.ID, "phoneNumber--countryPhoneCode")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", country_elem)
+    country_elem.clear()
+    country_elem.send_keys(country_code)
+    time.sleep(2)  # wait for suggestions to appear
+    # click the suggestion that contains the entered code
+    suggestion = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, f"//div[contains(@class,'suggestion') and contains(text(), '{country_code}')]")
+    ))
+    suggestion.click()
+    print("✓ Selected Country Phone Code")
+except Exception as e:
+    print(f"✗ Could not set Country Phone Code: {e}")
+
+fill_field(By.ID, "phoneNumber--phoneNumber", phone_number, "Phone Number")
+
+# --- Click Save and Continue ---
+try:
+    save_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(@class,'css-lxsxnr') and normalize-space()='Save and Continue']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    save_btn.click()
+    print("✓ Clicked Save and Continue")
+except Exception as e:
+    print(f"✗ Could not click Save and Continue: {e}")

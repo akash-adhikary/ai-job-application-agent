@@ -1,0 +1,54 @@
+old_url = driver.current_url
+
+# Fill credentials
+try:
+    email_elem = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//input[contains(@type,'email') or contains(@name,'email') or contains(@id,'email') or contains(@placeholder,'email')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", email_elem)
+    email_elem.clear()
+    email_elem.send_keys(EMAIL)
+
+    pwd_elem = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//input[@type='password' or contains(@name,'pass') or contains(@id,'pass') or contains(@placeholder,'pass')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", pwd_elem)
+    pwd_elem.clear()
+    pwd_elem.send_keys(PASSWORD)
+
+    print("Filled email and password")
+except Exception as e:
+    print(f"Error filling credentials: {e}")
+
+# Click login/submit button
+try:
+    button = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH,
+             "//button[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'continue') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'submit') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'save') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'finish') "
+             "or contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'confirm')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", button)
+    button.click()
+    print("Clicked login button")
+except Exception as e:
+    print(f"Error clicking login button: {e}")
+
+# Wait for URL change
+try:
+    wait.until(lambda d: d.current_url != old_url)
+    print("URL changed after login")
+except Exception as e:
+    print(f"URL did not change: {e}")

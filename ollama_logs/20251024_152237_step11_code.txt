@@ -1,0 +1,13 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the "Search for Jobs" button by its visible text
+    search_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(text())='Search for Jobs']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", search_btn)
+    search_btn.click()
+    print("✓ Clicked 'Search for Jobs' button")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to click 'Search for Jobs' button: {e}")

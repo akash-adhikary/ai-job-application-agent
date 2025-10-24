@@ -1,0 +1,29 @@
+# Click the "Autofill with Resume" button
+try:
+    wait = WebDriverWait(driver, 15)
+    # Locate button by visible text
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(normalize-space(.), 'Autofill with Resume')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", autofill_btn)
+    time.sleep(0.5)
+    autofill_btn.click()
+    print("✓ Clicked 'Autofill with Resume' button (normal click)")
+except ElementClickInterceptedException:
+    print("⚠️ Click intercepted, trying JavaScript click for 'Autofill with Resume'...")
+    driver.execute_script("arguments[0].click();", autofill_btn)
+    print("✓ Clicked 'Autofill with Resume' button (JavaScript click)")
+except Exception as e:
+    # Fallback: try a generic clickable element that may act as the button
+    try:
+        alt_btn = driver.find_element(
+            By.XPATH,
+            "//div[@role='button' and contains(., 'Autofill with Resume')]"
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", alt_btn)
+        driver.execute_script("arguments[0].click();", alt_btn)
+        print("✓ Clicked alternative 'Autofill with Resume' element")
+    except Exception as fallback_e:
+        print(f"✗ Could not click 'Autofill with Resume' button: {e} | fallback error: {fallback_e}")

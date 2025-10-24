@@ -1,0 +1,74 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+import time
+
+wait = WebDriverWait(driver, 15)
+
+# Data to fill
+company_name = "ThoughtSpot"
+start_month = "07"
+start_year = "2023"
+end_month = ""  # leave blank
+end_year = ""   # leave blank
+role_description = ("Leading end-to-end data platform initiatives across Finance, GTM, HR, Security, and CloudOps "
+                    "using GCP, Snowflake, Python, Databricks, and Matillion to deliver real-time analytics and "
+                    "cost-saving solutions. Designed scalable ingestion pipelines for 20+ systems (Salesforce, "
+                    "NetSuite, Coupa, Workday, Jira, Tenable) via APIs and file-based ingestion – reduced data "
+                    "latency by 70%. Developed modular ETL frameworks in PySpark, cutting onboarding time for new "
+                    "sources by 60%. Engineered customer usage analytics platform enabling usage‑based pricing and "
+                    "recovering 12% revenue leakage. Built cloud cost analytics platform Cloud Brain on GCP "
+                    "achieving 30% reduction in cloud spend. Partnered with InfoSec to centralize security KPIs and "
+                    "audit data. Modeled critical KPIs in Snowflake improving planning accuracy by 25%. Delivered "
+                    "executive dashboards via ThoughtSpot, reducing reporting effort and improving decision velocity by 90%.")
+
+def fill_input_by_id(element_id, value):
+    try:
+        elem = wait.until(EC.element_to_be_clickable((By.ID, element_id)))
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.clear()
+        if value:
+            elem.send_keys(value)
+            print(f"✓ Filled '{element_id}' with '{value}'")
+        else:
+            print(f"ℹ️ Left '{element_id}' empty as per data")
+        time.sleep(1)
+    except (NoSuchElementException, TimeoutException) as e:
+        print(f"✗ Could not interact with element ID '{element_id}': {e}")
+
+# Fill Company Name
+fill_input_by_id("workExperience-18--companyName", company_name)
+
+# Fill Start Date - Month
+fill_input_by_id("workExperience-18--startDate-dateSectionMonth-input", start_month)
+
+# Fill Start Date - Year
+fill_input_by_id("workExperience-18--startDate-dateSectionYear-input", start_year)
+
+# Fill End Date - Month (optional, leave blank)
+fill_input_by_id("workExperience-18--endDate-dateSectionMonth-input", end_month)
+
+# Fill End Date - Year (optional, leave blank)
+fill_input_by_id("workExperience-18--endDate-dateSectionYear-input", end_year)
+
+# Fill Role Description (textarea)
+try:
+    role_elem = wait.until(EC.element_to_be_clickable((By.ID, "workExperience-18--roleDescription")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", role_elem)
+    role_elem.clear()
+    role_elem.send_keys(role_description)
+    print("✓ Filled role description.")
+    time.sleep(1)
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not fill role description: {e}")
+
+# Optional: Click "Save and Continue" to proceed after filling
+try:
+    save_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(@class,'css-lxsxnr') and text()='Save and Continue']")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", save_btn)
+    save_btn.click()
+    print("✓ Clicked 'Save and Continue'.")
+    time.sleep(2)
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"✗ Could not click 'Save and Continue' button: {e}")

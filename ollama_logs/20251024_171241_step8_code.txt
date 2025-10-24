@@ -1,0 +1,33 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the label containing the consent text
+    consent_label = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//label[contains(.,'Yes, I have read and consent to the terms and conditions')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", consent_label)
+    # Click the associated checkbox (input) if present; otherwise click the label itself
+    try:
+        # Attempt to find a sibling checkbox input
+        checkbox = consent_label.find_element(By.XPATH, ".//preceding-sibling::input[@type='checkbox']")
+    except:
+        try:
+            checkbox = consent_label.find_element(By.XPATH, ".//input[@type='checkbox']")
+        except:
+            checkbox = None
+
+    if checkbox:
+        driver.execute_script("arguments[0].scrollIntoView(true);", checkbox)
+        if not checkbox.is_selected():
+            checkbox.click()
+            print("✓ Consent checkbox selected via input element")
+        else:
+            print("✓ Consent checkbox already selected")
+    else:
+        # Fallback: click the label itself which may toggle the checkbox
+        consent_label.click()
+        print("✓ Consent checkbox toggled via label click")
+except Exception as e:
+    print(f"✗ Failed to interact with consent checkbox: {e}")
+
+time.sleep(1)

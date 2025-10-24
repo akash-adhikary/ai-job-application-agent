@@ -1,0 +1,115 @@
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+
+# ---------- CONFIG ----------
+URL = "https://intel.wd1.myworkdayjobs.com/External/job/India-Bangalore/Senior-Data-Analytics-Engineer_JR0276446/apply?source=LinkedIn"
+RESUME_PATH = r"/full/path/to/your/resume.pdf"   # <-- update this path
+# -------------------------
+
+options = webdriver.ChromeOptions()
+options.add_argument("--start-maximized")
+driver = webdriver.Chrome(options=options)
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    driver.get(URL)
+except Exception as e:
+    print(f"[ERROR] Could not navigate to {URL}: {e}")
+    driver.quit()
+    exit()
+
+# ----- 1. Accept cookies if the banner appears -----
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(1) > div > div > div > div:nth-of-type(2) > div:nth-of-type(3) > div > button")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", accept_btn)
+    accept_btn.click()
+    print("[INFO] Accepted cookies.")
+    time.sleep(2)
+except (TimeoutException, NoSuchElementException):
+    print("[INFO] Accept Cookies button not found – assuming no consent needed.")
+except ElementClickInterceptedException:
+    print("[WARN] Could not click Accept Cookies button (maybe already handled).")
+
+# ----- 2. Click "Autofill with Resume" -----
+try:
+    autofill_link = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "html > body > div#root > div > div > div:nth-of-type(3) > div > main > div > div > div:nth-of-type(2) > div > div > a")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", autofill_link)
+    autofill_link.click()
+    print("[INFO] Clicked 'Autofill with Resume'.")
+    time.sleep(2)
+except (TimeoutException, NoSuchElementException):
+    print("[ERROR] 'Autofill with Resume' link not found.")
+    driver.quit()
+    exit()
+except ElementClickInterceptedException:
+    print("[WARN] Could not click 'Autofill with Resume' (maybe overlay).")
+
+# ----- 3. Upload resume PDF -----
+# Assuming a standard <input type="file"> appears after clicking the link
+try:
+    file_input = wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", file_input)
+    file_input.send_keys(RESUME_PATH)
+    print(f"[INFO] Uploaded resume from {RESUME_PATH}.")
+    time.sleep(2)
+except (TimeoutException, NoSuchElementException):
+    print("[ERROR] File input for resume not found.")
+    driver.quit()
+    exit()
+except Exception as e:
+    print(f"[ERROR] Unexpected error while uploading resume: {e}")
+    driver.quit()
+    exit()
+
+# ----- 4. Submit the application -----
+# Look for any button or link containing typical submit keywords
+submit_clicked = False
+keywords = ["next", "continue", "apply", "submit", "save", "finish", "confirm"]
+for kw in keywords:
+    try:
+        # Search both <button> and <a> elements
+        elem = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, f"//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), '{kw}')]|"
+                           f"//a[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'), '{kw}')]")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+        elem.click()
+        print(f"[INFO] Clicked element containing keyword '{kw}'.")
+        submit_clicked = True
+        time.sleep(2)
+        break
+    except (TimeoutException, NoSuchElementException):
+        continue
+    except ElementClickInterceptedException:
+        print(f"[WARN] Element with keyword '{kw}' found but not clickable.")
+        continue
+
+if not submit_clicked:
+    print("[WARN] No submit-like button/link was found. You may need to finish the process manually.")
+
+# ----- 5. Wait for URL change (application submission) -----
+try:
+    previous_url = driver.current_url
+    wait.until(lambda d: d.current_url != previous_url)
+    print("[INFO] URL changed, likely submission succeeded.")
+except TimeoutException:
+    print("[INFO] Timeout waiting for URL change; script finished.")
+
+driver.quit()

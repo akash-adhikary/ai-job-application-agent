@@ -1,0 +1,63 @@
+# Fill "I currently work here" (set To date as Present)
+try:
+    # Locate the "I currently work here" checkbox/label
+    current_checkbox = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, "//label[contains(., 'I currently work here')]//input[@type='checkbox']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", current_checkbox)
+    if not current_checkbox.is_selected():
+        current_checkbox.click()
+        print("✓ Checked 'I currently work here'")
+    else:
+        print("✓ 'I currently work here' already checked")
+except Exception as e:
+    print(f"✗ Could not set current work checkbox: {e}")
+
+time.sleep(1)
+
+# Fill Education - School/University
+try:
+    school_input = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "education-19--schoolName"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", school_input)
+    school_input.clear()
+    school_input.send_keys(resume_data["education"][0]["institution"])
+    print(f"✓ Filled School/University: {resume_data['education'][0]['institution']}")
+except Exception as e:
+    print(f"✗ Could not fill School/University: {e}")
+
+time.sleep(1)
+
+# Fill Education - Degree (dropdown)
+try:
+    degree_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "education-19--degree"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", degree_button)
+    degree_button.click()
+    print("✓ Opened Degree dropdown")
+    # Wait for option with desired degree text
+    degree_option = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, f"//div[contains(@class, 'option') and normalize-space(.)='{resume_data['education'][0]['degree']}']"))
+    )
+    degree_option.click()
+    print(f"✓ Selected Degree: {resume_data['education'][0]['degree']}")
+except Exception as e:
+    print(f"✗ Could not select Degree: {e}")
+
+time.sleep(1)
+
+# Fill Education - Field of Study
+try:
+    field_input = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.ID, "education-19--fieldOfStudy"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", field_input)
+    field_input.clear()
+    field_input.send_keys(resume_data["education"][0]["field"])
+    print(f"✓ Filled Field of Study: {resume_data['education'][0]['field']}")
+except Exception as e:
+    print(f"✗ Could not fill Field of Study: {e}")
+
+time.sleep(1)

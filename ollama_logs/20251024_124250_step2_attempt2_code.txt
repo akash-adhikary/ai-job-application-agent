@@ -1,0 +1,72 @@
+# STEP 2 – Fill visible fields and proceed to the next step
+
+wait = WebDriverWait(driver, 20)
+
+try:
+    # ---- 1. Email ----
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-4")))
+    email_value = resume_data["personal_info"]["email"]
+    email_input.clear()
+    email_input.send_keys(email_value)
+    print(f"Filling field Email with value {email_value}")
+except Exception as e:
+    print(f"Could not fill Email: {e}")
+
+try:
+    # ---- 2. Password ----
+    # No password provided in resume_data; use a generic strong password
+    password_value = "SecurePass123!"
+    pwd_input = wait.until(EC.element_to_be_clickable((By.ID, "input-5")))
+    pwd_input.clear()
+    pwd_input.send_keys(password_value)
+    print(f"Filling field Password with value {password_value}")
+except Exception as e:
+    print(f"Could not fill Password: {e}")
+
+try:
+    # ---- 3. Verify Password ----
+    verify_input = wait.until(EC.element_to_be_clickable((By.ID, "input-6")))
+    verify_input.clear()
+    verify_input.send_keys(password_value)
+    print(f"Filling field Verify Password with value {password_value}")
+except Exception as e:
+    print(f"Could not fill Verify Password: {e}")
+
+# ---- 4. (Optional) Anti‑bot website field – leave blank (do nothing) ----
+# It is already empty; we just note that we are skipping it.
+print("Skipping anti‑bot website field (left blank)")
+
+# ---- 5. Click the visible “Create Account” button (div with data-automation-id="click_filter") ----
+try:
+    create_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "div[data-automation-id='click_filter']"))
+    )
+    create_btn.click()
+    print("Clicked visible Create Account button to proceed")
+except Exception as e:
+    print(f"Could not click Create Account button: {e}")
+
+# ---- 6. After account creation, attempt to click the generic “Next” / “Continue” button if present ----
+# Some flows expose a button with text like “Next”, “Continue”, or “Save and Continue”.
+# We try a few common selectors.
+next_btn = None
+button_text_options = ["Next", "Continue", "Save and Continue", "Save & Continue"]
+for txt in button_text_options:
+    try:
+        next_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, f"//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{txt.lower()}')]")
+            )
+        )
+        break
+    except Exception:
+        continue
+
+if next_btn:
+    try:
+        next_btn.click()
+        print("Clicked Next/Continue button to move to the following step")
+    except Exception as e:
+        print(f"Failed to click Next/Continue button: {e}")
+else:
+    print("No Next/Continue button found; form filling completed for this step")

@@ -1,0 +1,22 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+try:
+    wait = WebDriverWait(driver, 15)
+    autofill_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//button[contains(., 'Autofill with Resume')] | //a[contains(., 'Autofill with Resume')]"
+            )
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView(true);", autofill_btn)
+    time.sleep(1)
+    autofill_btn.click()
+    print("✓ Clicked 'Autofill with Resume' button")
+    time.sleep(1)
+except Exception as e:
+    print(f"✗ Failed to click 'Autofill with Resume' button: {e}")
