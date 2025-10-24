@@ -62,6 +62,16 @@ def load_resume_details(json_path):
 
 def create_page_signature(page_info):
     """Create a unique signature for a page based on its structure."""
+    # Get button texts for differentiation
+    button_texts = []
+    buttons = page_info.get('buttons', [])
+    for i, b in enumerate(buttons):
+        if i >= 5:  # Only take first 5 buttons
+            break
+        text = b.get('text', '')
+        if text:
+            button_texts.append(text[:20])
+
     sig_elements = [
         page_info.get('url', '').split('?')[0],  # Base URL without query params
         len(page_info.get('inputs', [])),
@@ -69,7 +79,7 @@ def create_page_signature(page_info):
         len(page_info.get('selects', [])),
         len(page_info.get('file_inputs', [])),
         # Include some button texts for better differentiation
-        tuple(sorted([b.get('text', '')[:20] for b in page_info.get('buttons', [])[:5]))
+        tuple(sorted(button_texts))
     ]
     sig_str = json.dumps(sig_elements, sort_keys=True)
     return hashlib.md5(sig_str.encode()).hexdigest()
