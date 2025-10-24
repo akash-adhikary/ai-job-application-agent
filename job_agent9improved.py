@@ -705,7 +705,7 @@ try:
     email_field = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")))
     email_field.clear()
     # Handle the nested dictionary safely
-    personal_info = resume_data.get('personal_info', {}) if resume_data else {}
+    personal_info = resume_data.get('personal_info', {}) if resume_data else {}  # type: dict
     email = personal_info.get('email', '')
     email_field.send_keys(email)
     print("✓ Filled email")
@@ -767,7 +767,7 @@ if not clicked:
 2. **GENERAL BUTTON CLICKING**:
 ```python
 # Always use JavaScript click for reliability
-driver.execute_script("arguments[0].scrollIntoView({{block: 'center'}});", element)
+driver.execute_script("arguments[0].scrollIntoView({{{{block: 'center'}}}});", element)
 time.sleep(0.5)
 driver.execute_script("arguments[0].click();", element)
 ```
@@ -778,7 +778,7 @@ file_input.send_keys(resume_pdf_path)
 time.sleep(2)
 uploaded_value = file_input.get_attribute("value")
 if uploaded_value:
-    print(f"✓ File uploaded: {{uploaded_value}}")
+    print(f"✓ File uploaded: {{{{uploaded_value}}}}")
 else:
     print("⚠️ FILE UPLOAD MAY HAVE FAILED!")
 ```
