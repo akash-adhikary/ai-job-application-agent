@@ -10,6 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
@@ -329,20 +330,49 @@ def extract_page_info(driver):
             "file_inputs": [],
             "page_text": "",
             "modals_detected": False,
-            "modal_content": ""
+            "modal_content": "",
+            "sign_in_modal": False,
+            "click_interceptors": []
         }
 
-        # Check for modals/popups/dialogs
+        # Enhanced modal detection - including aria-modal and high z-index elements
         try:
-            modals = driver.find_elements(By.CSS_SELECTOR, "div[role='dialog'], div[class*='modal'], div[class*='popup'], div[class*='overlay']")
-            visible_modals = [m for m in modals if m.is_displayed()]
+            # Check for dialogs with aria-modal
+            aria_modals = driver.find_elements(By.CSS_SELECTOR, "[aria-modal='true'], [role='dialog']")
+
+            # Check for common modal patterns
+            css_modals = driver.find_elements(By.CSS_SELECTOR, "div[class*='modal'], div[class*='popup'], div[class*='overlay'], div[class*='dialog']")
+
+            # Check for sign-in specific modals
+            sign_in_modals = driver.find_elements(By.CSS_SELECTOR, "[data-automation-id*='signIn'], [data-automation-id*='auth']")
+
+            all_modals = aria_modals + css_modals + sign_in_modals
+            visible_modals = [m for m in all_modals if m.is_displayed()]
 
             if visible_modals:
                 info["modals_detected"] = True
                 try:
-                    info["modal_content"] = visible_modals[0].text[:1000]
+                    modal_text = visible_modals[0].text[:1000]
+                    info["modal_content"] = modal_text
+
+                    # Check if it's a sign-in modal
+                    if any(keyword in modal_text.lower() for keyword in ['sign in', 'login', 'password', 'email address']):
+                        info["sign_in_modal"] = True
                 except:
                     pass
+
+            # Check for click interceptors (transparent overlays)
+            try:
+                interceptors = driver.find_elements(By.CSS_SELECTOR, "[data-automation-id='click_filter'], div[class*='overlay'][style*='z-index']")
+                for interceptor in interceptors:
+                    if interceptor.is_displayed():
+                        info["click_interceptors"].append({
+                            "id": interceptor.get_attribute("id"),
+                            "class": interceptor.get_attribute("class"),
+                            "data_automation_id": interceptor.get_attribute("data-automation-id")
+                        })
+            except:
+                pass
         except:
             pass
 
@@ -359,30 +389,64 @@ def extract_page_info(driver):
         # Extract form elements (buttons, inputs, etc.)
         # [Similar extraction code as original, abbreviated for space]
 
-        # Buttons
+        # Buttons - Enhanced detection for modals and sign-in buttons
         try:
             if info.get("modals_detected"):
-                modal_buttons = driver.find_elements(By.CSS_SELECTOR, "div[role='dialog'] button, div[class*='modal'] button")
-                for btn in modal_buttons[:20]:
+                # Look for buttons specifically in modal/dialog contexts
+                modal_button_selectors = [
+                    "[aria-modal='true'] button",
+                    "[role='dialog'] button",
+                    "div[class*='modal'] button",
+                    "[data-automation-id='signInSubmitButton']",
+                    "button[class*='sign'][class*='in']",
+                    "button[class*='login']"
+                ]
+
+                for selector in modal_button_selectors:
                     try:
-                        if btn.is_displayed() and btn.text.strip():
-                            info["buttons"].append({
-                                "text": btn.text.strip(),
-                                "type": btn.get_attribute("type"),
-                                "id": btn.get_attribute("id"),
-                                "class": btn.get_attribute("class"),
-                                "aria_label": btn.get_attribute("aria-label"),
-                                "data_automation_id": btn.get_attribute("data-automation-id"),
-                                "in_modal": True
-                            })
+                        modal_buttons = driver.find_elements(By.CSS_SELECTOR, selector)
+                        for btn in modal_buttons[:10]:
+                            try:
+                                # Check various display properties
+                                is_visible = btn.is_displayed()
+                                is_enabled = btn.is_enabled()
+
+                                # Some buttons might be hidden behind overlays but still "displayed"
+                                # Check if button has negative tabindex (often used to hide from keyboard nav)
+                                tabindex = btn.get_attribute("tabindex")
+                                aria_hidden = btn.get_attribute("aria-hidden")
+
+                                # Include button even if it has negative tabindex (common for Workday)
+                                if is_visible or (is_enabled and tabindex == "-2"):
+                                    button_info = {
+                                        "text": btn.text.strip() or btn.get_attribute("aria-label") or "Submit",
+                                        "type": btn.get_attribute("type"),
+                                        "id": btn.get_attribute("id"),
+                                        "class": btn.get_attribute("class"),
+                                        "aria_label": btn.get_attribute("aria-label"),
+                                        "data_automation_id": btn.get_attribute("data-automation-id"),
+                                        "tabindex": tabindex,
+                                        "aria_hidden": aria_hidden,
+                                        "in_modal": True,
+                                        "selector_used": selector
+                                    }
+
+                                    # Avoid duplicates
+                                    if not any(b.get('data_automation_id') == button_info['data_automation_id']
+                                             and b.get('class') == button_info['class']
+                                             for b in info["buttons"] if b.get('data_automation_id')):
+                                        info["buttons"].append(button_info)
+                            except:
+                                continue
                     except:
                         continue
 
+            # Regular page buttons
             buttons = driver.find_elements(By.TAG_NAME, "button")
             for btn in buttons[:25]:
                 try:
                     if btn.is_displayed() and btn.text.strip():
-                        info["buttons"].append({
+                        button_info = {
                             "text": btn.text.strip(),
                             "type": btn.get_attribute("type"),
                             "id": btn.get_attribute("id"),
@@ -390,7 +454,13 @@ def extract_page_info(driver):
                             "aria_label": btn.get_attribute("aria-label"),
                             "data_automation_id": btn.get_attribute("data-automation-id"),
                             "in_modal": False
-                        })
+                        }
+
+                        # Avoid duplicates
+                        if not any(b.get('data_automation_id') == button_info['data_automation_id']
+                                 and b.get('class') == button_info['class']
+                                 for b in info["buttons"] if b.get('data_automation_id')):
+                            info["buttons"].append(button_info)
                 except:
                     continue
         except:
@@ -464,8 +534,12 @@ def print_page_summary(info, memory=None, page_signature=None):
     # Alert if modal detected
     if info.get("modals_detected"):
         print("\n🔔 MODAL/POPUP DETECTED!")
+        if info.get("sign_in_modal"):
+            print("   📝 Type: SIGN-IN MODAL")
         if info.get("modal_content"):
-            print(f"Modal content preview: {info.get('modal_content')[:200]}...")
+            print(f"   Content preview: {info.get('modal_content')[:200]}...")
+        if info.get("click_interceptors"):
+            print(f"   ⚠️ Click interceptors detected: {len(info['click_interceptors'])}")
 
     # Count filled vs unfilled
     inputs = info.get('inputs', [])
@@ -619,17 +693,75 @@ DOMAIN KNOWLEDGE:
 
 CRITICAL RULES BASED ON PAST EXPERIENCE:
 
-1. **SIGN IN BUTTONS** - For Workday specifically:
+1. **SIGN IN BUTTONS** - For Workday and modals with click interceptors:
 ```python
-# PROVEN WORKING SELECTOR for Workday sign in:
+# IMPORTANT: Workday often has transparent overlays that intercept clicks
+# The real button might have tabindex="-2" and aria-hidden="true"
+
+wait = WebDriverWait(driver, 15)
+
+# First, fill the form fields if they exist
 try:
-    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")))
-    driver.execute_script("arguments[0].click();", sign_in_btn)
-    print("✓ Clicked Sign In (known selector)")
+    email_field = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")))
+    email_field.clear()
+    # Handle the nested dictionary safely
+    personal_info = resume_data.get('personal_info', {}) if resume_data else {}
+    email = personal_info.get('email', '')
+    email_field.send_keys(email)
+    print("✓ Filled email")
+
+    password_field = driver.find_element(By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']")
+    password_field.clear()
+    password_field.send_keys("YOUR_PASSWORD")  # You'll need to provide this
+    print("✓ Filled password")
+    time.sleep(1)
 except:
-    # Fallback to class-based selector
-    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj")))
+    pass
+
+# Now handle the sign-in button with multiple strategies
+clicked = False
+
+# Strategy 1: Try the actual button (might be hidden by overlay)
+try:
+    sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+    # Force click with JavaScript even if it has tabindex="-2"
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
     driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button directly")
+    clicked = True
+except:
+    pass
+
+# Strategy 2: Click the overlay/filter that might be intercepting
+if not clicked:
+    try:
+        click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked through click filter overlay")
+        clicked = True
+    except:
+        pass
+
+# Strategy 3: Submit the form directly
+if not clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form[data-automation-id*='signIn'], form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted form directly")
+        clicked = True
+    except:
+        pass
+
+# Strategy 4: Press Enter in password field
+if not clicked:
+    try:
+        password_field = driver.find_element(By.CSS_SELECTOR, "input[type='password']")
+        password_field.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except:
+        pass
 ```
 
 2. **GENERAL BUTTON CLICKING**:
@@ -661,7 +793,7 @@ for skill in skills[:5]:
 ```
 
 Available variables:
-- driver, By, resume_data, resume_pdf_path, resume_photo_path
+- driver, By, Keys, resume_data, resume_pdf_path, resume_photo_path
 - time, WebDriverWait, EC, NoSuchElementException, ElementClickInterceptedException
 
 Generate ONLY Python code (no markdown, no explanations):"""
@@ -757,6 +889,7 @@ def execute_single_step(driver, resume_data, step_num, memory, session):
             exec_globals = {
                 "driver": driver,
                 "By": By,
+                "Keys": Keys,
                 "resume_data": resume_data,
                 "resume_pdf_path": RESUME_PDF_PATH,
                 "resume_photo_path": RESUME_PHOTO_PATH,
