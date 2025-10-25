@@ -1,0 +1,9 @@
+❌ FATAL ERROR: 'element_selectors'
+Traceback (most recent call last):
+  File "job_agent9improved.py", line 1167, in main
+    action = decide_action(page_info, resume_data, memory, page_signature, user_guidance)
+  File "job_agent9improved.py", line 569, in decide_action
+    known_selectors = get_known_selectors(memory, page_signature)  File "job_agent9improved.py", line 216, in get_known_selectors
+    return memory["element_selectors"].get(page_signature, [])
+KeyError: 'element_selectors'
+⚠️ Could not save memory: 'success_sequences'
