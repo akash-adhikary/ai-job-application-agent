@@ -1,4 +1,3 @@
-
 """
 Job Application Automation Agent - Clean Architecture
 =====================================================
@@ -124,16 +123,23 @@ class MemoryManager:
         self.data = self._load()
 
     def _load(self) -> dict:
+        default_data = {
+            "pages_seen": {},
+            "successful_actions": [],
+            "failed_actions": [],
+            "signed_in": False
+        }
+
         try:
             with open(self.filepath, 'r') as f:
-                return json.load(f)
+                loaded_data = json.load(f)
+                # Ensure all required keys exist
+                for key, value in default_data.items():
+                    if key not in loaded_data:
+                        loaded_data[key] = value
+                return loaded_data
         except:
-            return {
-                "pages_seen": {},
-                "successful_actions": [],
-                "failed_actions": [],
-                "signed_in": False
-            }
+            return default_data
 
     def save(self):
         try:
@@ -143,8 +149,13 @@ class MemoryManager:
             pass
 
     def remember_page(self, url: str, action: str, success: bool):
+        # Ensure pages_seen exists
+        if "pages_seen" not in self.data:
+            self.data["pages_seen"] = {}
+
         if url not in self.data["pages_seen"]:
             self.data["pages_seen"][url] = []
+
         self.data["pages_seen"][url].append({
             "action": action,
             "success": success
