@@ -1,0 +1,79 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# Ensure the sign‑in modal is present
+try:
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[aria-modal='true']")))
+except:
+    pass
+
+# Fill email if needed
+try:
+    email_field = driver.find_element(By.CSS_SELECTOR, "input[id='input-11'], input[data-automation-id='email'], input[type='email']")
+    email_field.clear()
+    email_field.send_keys(resume_data["email"])
+    print("✓ Email filled")
+except Exception as e:
+    print(f"⚠️ Email field not found: {e}")
+
+# Fill password if needed
+try:
+    password_field = driver.find_element(By.CSS_SELECTOR, "input[id='input-12'], input[data-automation-id='password'], input[type='password']")
+    password_field.clear()
+    password_field.send_keys(resume_data["password"])
+    print("✓ Password filled")
+except Exception as e:
+    print(f"⚠️ Password field not found: {e}")
+
+clicked = False
+
+# Strategy 1: Direct click on the known button selector
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton'], button.css-1ru62dj")))
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (direct)")
+    clicked = True
+except Exception as e:
+    print(f"⚠️ Direct click failed: {e}")
+
+# Strategy 2: Click click_filter overlay if present
+if not clicked:
+    try:
+        click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", click_filter)
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked click_filter overlay")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ click_filter not usable: {e}")
+
+# Strategy 3: Submit the enclosing form
+if not clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted sign‑in form directly")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Form submission failed: {e}")
+
+# Strategy 4: Press Enter in password field
+if not clicked:
+    try:
+        password_field = driver.find_element(By.CSS_SELECTOR, "input[type='password']")
+        password_field.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Enter key press failed: {e}")
+
+if not clicked:
+    print("❌ Unable to trigger Sign In action")

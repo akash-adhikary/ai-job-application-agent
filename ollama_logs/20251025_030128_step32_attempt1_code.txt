@@ -1,0 +1,55 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Try direct click on the Sign In button using known selectors
+for selector in ["button[data-automation-id='signInSubmitButton']", "button.css-1ru62dj"]:
+    try:
+        btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+        driver.execute_script("arguments[0].removeAttribute('tabindex');", btn)
+        driver.execute_script("arguments[0].removeAttribute('aria-hidden');", btn)
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+        driver.execute_script("arguments[0].click();", btn)
+        print(f"✓ Clicked Sign In button with selector: {selector}")
+        clicked = True
+        break
+    except Exception:
+        pass
+
+# Fallback 1: click possible overlay that intercepts clicks
+if not clicked:
+    try:
+        overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", overlay)
+        print("✓ Clicked click_filter overlay")
+        clicked = True
+    except Exception:
+        pass
+
+# Fallback 2: submit the form directly
+if not clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted sign‑in form directly")
+        clicked = True
+    except Exception:
+        pass
+
+# Fallback 3: press ENTER in the password field
+if not clicked:
+    try:
+        pwd = driver.find_element(By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']")
+        pwd.send_keys(Keys.RETURN)
+        print("✓ Submitted by pressing Enter in password field")
+        clicked = True
+    except Exception:
+        pass
+
+if not clicked:
+    print("⚠️ Unable to click the Sign In button")

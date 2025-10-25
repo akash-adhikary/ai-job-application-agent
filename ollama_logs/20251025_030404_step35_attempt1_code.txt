@@ -1,0 +1,22 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Wait for the Accept Cookies button to be present in the DOM
+    accept_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='legalNoticeAcceptButton']"))
+    )
+    # Scroll into view and click via JavaScript for reliability
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Clicked 'Accept Cookies' button")
+except Exception as e:
+    # Fallback: try locating by text if data-automation-id failed
+    try:
+        accept_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Accept Cookies']"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked 'Accept Cookies' button via text fallback")
+    except Exception as fallback_e:
+        print(f"⚠️ Could not click 'Accept Cookies' button: {fallback_e}")

@@ -1,0 +1,42 @@
+# Previous error: unexpected indent (<string>, line 2)
+# Adjusting approach...
+
+wait = WebDriverWait(driver, 20)
+
+# 1. Accept cookies if a banner is present (common on Workday)
+try:
+    cookie_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept') or contains(@data-automation-id,'accept')]")
+    ))
+    driver.execute_script("arguments[0].click();", cookie_btn)
+    print("✓ Accepted cookies")
+except Exception:
+    pass  # No cookie banner
+
+# 2. Ensure the modal dialog with “Apply Manually” is present
+apply_btn = None
+try:
+    apply_btn = wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//div[@role='dialog']//button[normalize-space()='Apply Manually']")
+    ))
+except Exception as e:
+    print("⚠️ Apply Manually button not found immediately:", e)
+
+# 3. Click the button using robust strategies
+if apply_btn:
+    try:
+        # Scroll into view first
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+        time.sleep(0.5)
+        # Try normal click
+        apply_btn.click()
+        print("✓ Clicked Apply Manually (normal click)")
+    except Exception:
+        try:
+            # Fallback to JavaScript click
+            driver.execute_script("arguments[0].click();", apply_btn)
+            print("✓ Clicked Apply Manually (JS click)")
+        except Exception as e_js:
+            print("❌ Failed to click Apply Manually:", e_js)
+else:
+    print("❌ Apply Manually button could not be located.")

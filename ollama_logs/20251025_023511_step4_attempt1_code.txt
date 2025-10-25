@@ -1,0 +1,22 @@
+try:
+    # Wait for sign‑in button within the modal using the primary data‑automation‑id selector
+    sign_in_btn = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In (primary selector)")
+except Exception as e_primary:
+    print(f"⚠️ Primary sign‑in selector failed: {e_primary}")
+    try:
+        # Fallback to class‑based selector (contains css‑1ru62dj)
+        sign_in_btn = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In (fallback selector)")
+    except Exception as e_fallback:
+        print(f"❌ Unable to click Sign In button: {e_fallback}")

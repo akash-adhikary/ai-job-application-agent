@@ -1,0 +1,102 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+# --- Ensure credentials are filled (in case they are not) ---
+try:
+    email_field = wait.until(
+        EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")
+        )
+    )
+    email_field.clear()
+    email = resume_data.get("personal_info", {}).get("email", "")
+    email_field.send_keys(email)
+    print("✓ Email filled")
+except Exception as e:
+    print(f"⚠️ Email field not located: {e}")
+
+try:
+    password_field = driver.find_element(
+        By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']"
+    )
+    password_field.clear()
+    password = resume_data.get("password", "")
+    password_field.send_keys(password)
+    print("✓ Password filled")
+except Exception as e:
+    print(f"⚠️ Password field not located: {e}")
+
+# --- Click Sign‑In button with multiple strategies ---
+clicked = False
+
+# Strategy 1: Direct click via data‑automation‑id
+try:
+    sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+    # Remove possible attributes that block click
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (data-automation-id)")
+    clicked = True
+except Exception as e:
+    print(f"⚠️ Strategy 1 failed: {e}")
+
+# Strategy 2: Click via class selector (css‑1ru62dj)
+if not clicked:
+    try:
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button.css-1ru62dj")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class css-1ru62dj)")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Strategy 2 failed: {e}")
+
+# Strategy 3: Click the overlay/filter that may intercept clicks
+if not clicked:
+    try:
+        click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked click_filter overlay")
+        # Retry the sign‑in after removing overlay
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In after clearing overlay")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Strategy 3 failed: {e}")
+
+# Strategy 4: Submit the surrounding form
+if not clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted sign‑in form directly")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Strategy 4 failed: {e}")
+
+# Strategy 5: Press Enter in password field
+if not clicked:
+    try:
+        password_field = driver.find_element(
+            By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']"
+        )
+        password_field.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Strategy 5 failed: {e}")
+
+if not clicked:
+    print("❌ Unable to click Sign In button with any strategy.")

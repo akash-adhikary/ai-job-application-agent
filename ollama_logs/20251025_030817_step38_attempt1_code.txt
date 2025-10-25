@@ -1,0 +1,51 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+import time
+
+wait = WebDriverWait(driver, 20)
+
+def click_apply_manually():
+    try:
+        # Wait for the modal dialog to be present
+        modal = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role='dialog']")))
+    except TimeoutException:
+        print("⚠️ Modal dialog not found.")
+        return
+
+    # Try locating the button by its visible text
+    try:
+        apply_btn = modal.find_element(By.XPATH, ".//button[normalize-space()='Apply Manually']")
+    except NoSuchElementException:
+        # Fallback to a broader selector if exact text match fails
+        try:
+            apply_btn = modal.find_element(By.XPATH, ".//button[contains(.,'Apply Manually')]")
+        except NoSuchElementException:
+            print("⚠️ 'Apply Manually' button not found.")
+            return
+
+    # Attempt a normal click first
+    try:
+        apply_btn.click()
+        print("✓ Clicked 'Apply Manually' button (normal click).")
+        return
+    except ElementClickInterceptedException:
+        print("🔎 Click intercepted, will use JavaScript click.")
+    except Exception as e:
+        print(f"⚠️ Unexpected error on click: {e}")
+
+    # Scroll into view and use JS click as fallback
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", apply_btn)
+        print("✓ Clicked 'Apply Manually' button (JS click).")
+    except Exception as e:
+        print(f"❌ Failed to click 'Apply Manually' button via JavaScript: {e}")
+
+click_apply_manually()

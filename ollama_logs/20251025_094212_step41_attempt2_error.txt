@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "job_agent9improved.py", line 900, in execute_single_step
+    exec(code, exec_globals)
+  File "<string>", line 2
+    from disconnected: not connected to DevTools
+                     ^
+SyntaxError: invalid syntax

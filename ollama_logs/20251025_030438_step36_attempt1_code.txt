@@ -1,0 +1,112 @@
+driver.get("https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn")
+wait = WebDriverWait(driver, 30)
+
+# --- 1. Accept cookies if a banner appears ---
+try:
+    accept_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", accept_btn)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Cookies banner accepted")
+except Exception:
+    pass  # No cookie banner
+
+# --- 2. Sign‑in flow (Workday) if login is required ---
+def perform_sign_in():
+    try:
+        # Fill email
+        email_field = wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")
+        ))
+        email_field.clear()
+        email = resume_data.get("personal_info", {}).get("email", "")
+        email_field.send_keys(email)
+        print("✓ Email entered")
+    except Exception as e:
+        print(f"⚠️ Email field not found: {e}")
+        return False
+
+    try:
+        # Fill password
+        pwd_field = driver.find_element(
+            By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']"
+        )
+        pwd_field.clear()
+        pwd_field.send_keys(resume_data.get("password", ""))
+        print("✓ Password entered")
+    except Exception as e:
+        print(f"⚠️ Password field not found: {e}")
+        return False
+
+    # Attempt several click strategies for the Sign‑In button
+    clicked = False
+    strategies = [
+        (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']"),
+        (By.XPATH, "//button[contains(.,'Sign In') or contains(.,'Sign in')]"),
+    ]
+    for by, locator in strategies:
+        try:
+            btn = driver.find_element(by, locator)
+            driver.execute_script("arguments[0].removeAttribute('tabindex');", btn)
+            driver.execute_script("arguments[0].removeAttribute('aria-hidden');", btn)
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+            driver.execute_script("arguments[0].click();", btn)
+            print("✓ Sign‑In button clicked via JS")
+            clicked = True
+            break
+        except Exception:
+            continue
+
+    if not clicked:
+        try:
+            pwd_field.send_keys(Keys.RETURN)
+            print("✓ Sign‑In submitted via ENTER")
+            clicked = True
+        except Exception as e:
+            print(f"⚠️ Unable to submit sign‑in form: {e}")
+
+    return clicked
+
+# Detect if a sign‑in modal or page is present
+sign_in_needed = False
+try:
+    wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//input[@type='email' or @data-automation-id='email']")
+    ))
+    sign_in_needed = True
+except Exception:
+    pass
+
+if sign_in_needed:
+    print("ℹ️ Sign‑in required, attempting...")
+    if perform_sign_in():
+        # Wait for post‑login page to settle
+        time.sleep(5)
+    else:
+        print("⚠️ Sign‑in failed – proceeding may not work")
+
+# --- 3. Click the "Apply" button ---
+def click_apply():
+    try:
+        apply_btn = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Apply'] | //a[normalize-space()='Apply']")
+        ))
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", apply_btn)
+        print("✓ 'Apply' button clicked")
+        return True
+    except Exception as e:
+        print(f"⚠️ Could not click 'Apply': {e}")
+        return False
+
+if not click_apply():
+    # Fallback: try a broader search for elements containing the word Apply
+    try:
+        fallback = driver.find_element(By.XPATH, "//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'apply')]")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", fallback)
+        driver.execute_script("arguments[0].click();", fallback)
+        print("✓ Fallback click on element containing 'Apply'")
+    except Exception as e:
+        print(f"❌ Final attempt failed: {e}")

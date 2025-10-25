@@ -1,0 +1,13 @@
+wait = WebDriverWait(driver, 15)
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='utilityButtonSignIn']")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button")
+except (NoSuchElementException, ElementClickInterceptedException) as e:
+    try:
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='utilityButtonSignIn']")
+        sign_in_btn.click()
+        print("✓ Clicked Sign In button (fallback click)")
+    except Exception as ex:
+        print(f"⚠️ Failed to click Sign In button: {ex}")

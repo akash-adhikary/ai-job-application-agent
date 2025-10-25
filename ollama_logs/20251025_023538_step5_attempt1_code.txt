@@ -1,0 +1,44 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (NoSuchElementException,
+                                        ElementClickInterceptedException,
+                                        TimeoutException)
+
+wait = WebDriverWait(driver, 20)
+
+# ---- Accept cookies pop‑up if present ----
+try:
+    accept_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept')]")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", accept_btn)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Accepted cookies")
+except (TimeoutException, NoSuchElementException):
+    print("ℹ️ No cookies banner detected")
+
+# ---- Click Workday Sign‑In button inside modal ----
+clicked = False
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+    ))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In (data‑automation‑id selector)")
+    clicked = True
+except (TimeoutException, NoSuchElementException, ElementClickInterceptedException):
+    print("⚠️ data‑automation‑id selector failed or not clickable")
+
+if not clicked:
+    # Fallback to class‑based selector
+    try:
+        sign_in_fallback = wait.until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button.css-1ru62dj")
+        ))
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_fallback)
+        driver.execute_script("arguments[0].click();", sign_in_fallback)
+        print("✓ Clicked Sign In (class fallback selector)")
+    except (TimeoutException, NoSuchElementException, ElementClickInterceptedException) as e:
+        print(f"❌ Unable to click Sign In button: {e}")

@@ -1,0 +1,79 @@
+# Previous error: Message: no such element: Unable to locate element: {"method":"xpath","selector":".//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply manually')]"}
+  (S
+# Adjusting approach...
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 20)
+
+# 1. Dismiss cookie banner if it appears (common text)
+try:
+    cookie_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept')]")
+        )
+    )
+    driver.execute_script("arguments[0].click();", cookie_btn)
+    print("✓ Cookie banner dismissed")
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# 2. Ensure modal dialog is present
+try:
+    modal = wait.until(
+        EC.presence_of_element_located((By.XPATH, "//*[contains(@role, 'dialog')]"))
+    )
+except TimeoutException:
+    print("⚠️ Modal dialog not found – proceeding anyway")
+
+# 3. Locate the 'Apply Manually' button inside the modal
+apply_btn = None
+try:
+    apply_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//div[contains(@role, 'dialog')]//button[normalize-space()='Apply Manually']",
+            )
+        )
+    )
+except TimeoutException:
+    # Fallback: search globally for the button text
+    try:
+        apply_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Apply Manually']")
+            )
+        )
+    except TimeoutException:
+        print("❌ 'Apply Manually' button not found")
+        raise
+
+# 4. Click using JavaScript (handles interceptors)
+try:
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_btn)
+    driver.execute_script("arguments[0].click();", apply_btn)
+    print("✓ Clicked 'Apply Manually' button")
+except Exception as e:
+    print(f"⚠️ JavaScript click failed: {e}")
+    # Fallback to Selenium click with retry
+    try:
+        apply_btn.click()
+        print("✓ Clicked with Selenium click")
+    except ElementClickInterceptedException:
+        # Attempt to click overlay then retry
+        try:
+            overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+            driver.execute_script("arguments[0].click();", overlay)
+            apply_btn.click()
+            print("✓ Clicked after removing overlay")
+        except Exception as e2:
+            print(f"❌ Final click attempt failed: {e2}")
+            raise

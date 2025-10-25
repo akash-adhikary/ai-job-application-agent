@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "job_agent9improved.py", line 910, in execute_single_step
+    if driver.current_url != current_url:
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 474, in current_url
+    return self.execute(Command.GET_CURRENT_URL)["value"]
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 384, in execute
+    self.error_handler.check_response(response)
+  File "D:\Workspace\jobs-apply\venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id
+Stacktrace:
+	GetHandleVerifier [0x0x43c333+65459]
+	GetHandleVerifier [0x0x43c374+65524]
+	(No symbol) [0x0x25d7c0]
+	(No symbol) [0x0x29a663]
+	(No symbol) [0x0x2c9cb6]
+	(No symbol) [0x0x2c555e]
+	(No symbol) [0x0x2c4ad3]
+	(No symbol) [0x0x22e73d]
+	(No symbol) [0x0x22ecbe]
+	(No symbol) [0x0x22f15d]
+	GetHandleVerifier [0x0x6beda3+2697763]
+	GetHandleVerifier [0x0x6b9ec7+2677575]
+	GetHandleVerifier [0x0x464194+228884]
+	GetHandleVerifier [0x0x4549f8+165496]
+	GetHandleVerifier [0x0x45b18d+192013]
+	(No symbol) [0x0x22e3f2]
+	(No symbol) [0x0x22db72]
+	GetHandleVerifier [0x0x81340c+4092044]
+	BaseThreadInitThunk [0x0x76f17ba9+25]
+	RtlInitializeExceptionChain [0x0x77d4c36b+107]
+	RtlClearBits [0x0x77d4c2ef+191]
+

@@ -1,0 +1,52 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# Accept cookies if the popup appears
+try:
+    cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept')]")))
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", cookie_btn)
+    driver.execute_script("arguments[0].click();", cookie_btn)
+    print("✓ Accepted cookies")
+except Exception:
+    pass  # No cookie banner
+
+# Ensure the modal dialog is present
+try:
+    modal = wait.until(EC.presence_of_element_located((By.XPATH, "//div[@role='dialog' or @aria-modal='true']")))
+    print("✓ Modal dialog detected")
+except Exception as e:
+    print(f"⚠️ Modal not found: {e}")
+    raise
+
+# Locate the 'Apply Manually' button inside the modal
+apply_btn = None
+try:
+    apply_btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, ".//button[normalize-space()='Apply Manually' or contains(.,'Apply Manually')]")
+    ))
+except Exception:
+    # Fallback to searching by partial text within the dialog
+    try:
+        apply_btn = modal.find_element(By.XPATH, ".//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply manually')]")
+    except Exception as e:
+        print(f"⚠️ 'Apply Manually' button not found: {e}")
+        raise
+
+# Click the button using JavaScript for reliability
+try:
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", apply_btn)
+    print("✓ Clicked 'Apply Manually' button")
+except Exception as e:
+    print(f"⚠️ Click failed, attempting fallback: {e}")
+    try:
+        apply_btn.click()
+        print("✓ Clicked with standard Selenium click")
+    except Exception as e2:
+        print(f"❌ Unable to click 'Apply Manually' button: {e2}")
+        raise

@@ -1,0 +1,63 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+clicked = False
+
+# Strategy 1: Direct JS click on the Sign In button
+try:
+    sign_in_btn = wait.until(
+        EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button via direct JS")
+    clicked = True
+except (NoSuchElementException, TimeoutException) as e:
+    print(f"⚠️ Sign In button not found directly: {e}")
+
+# Strategy 2: Click possible overlay/filter that intercepts clicks
+if not clicked:
+    try:
+        click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", click_filter)
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked click_filter overlay")
+        clicked = True
+    except NoSuchElementException:
+        print("⚠️ click_filter overlay not present")
+
+# Strategy 3: Submit the form programmatically
+if not clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted sign‑in form directly")
+        clicked = True
+    except NoSuchElementException:
+        print("⚠️ No form element found for submission")
+
+# Strategy 4: Press Enter in the password field as a fallback
+if not clicked:
+    try:
+        pwd_field = driver.find_element(By.CSS_SELECTOR, "input[type='password']")
+        pwd_field.send_keys(Keys.RETURN)
+        print("✓ Submitted via Enter key in password field")
+        clicked = True
+    except NoSuchElementException:
+        print("⚠️ Password field not found for Enter key fallback")
+
+if not clicked:
+    print("❌ Failed to click Sign In button using all strategies")

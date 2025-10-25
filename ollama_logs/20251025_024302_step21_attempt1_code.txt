@@ -1,0 +1,37 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+wait = WebDriverWait(driver, 20)
+
+def click_workday_signin():
+    try:
+        # Primary selector using data-automation-id
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In (data-automation-id selector)")
+        return True
+    except Exception as e_primary:
+        print(f"⚠️ Primary sign‑in click failed: {e_primary}")
+        try:
+            # Fallback selector using class pattern
+            fallback_btn = wait.until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, "button.css-1ru62dj")
+                )
+            )
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", fallback_btn)
+            driver.execute_script("arguments[0].click();", fallback_btn)
+            print("✓ Clicked Sign In (fallback class selector)")
+            return True
+        except Exception as e_fallback:
+            print(f"❌ Fallback sign‑in click also failed: {e_fallback}")
+            return False
+
+# Execute the action
+click_workday_signin()

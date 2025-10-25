@@ -1,0 +1,62 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+# Ensure the sign‑in button is present (modal may take a moment)
+try:
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")))
+except Exception:
+    pass
+
+# Strategy 1: Direct JavaScript click (remove possible intercept attributes)
+if not clicked:
+    try:
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+        driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button via JS")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Direct JS click failed: {e}")
+
+# Strategy 2: Click through possible overlay filter then retry button
+if not clicked:
+    try:
+        overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", overlay)
+        print("✓ Clicked overlay filter")
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In after removing overlay")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Overlay click strategy failed: {e}")
+
+# Strategy 3: Submit the sign‑in form directly
+if not clicked:
+    try:
+        form = driver.find_element(By.XPATH, "//form[.//button[@data-automation-id='signInSubmitButton']]")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted sign‑in form via JS")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Form submission failed: {e}")
+
+# Strategy 4: Press Enter in the password field
+if not clicked:
+    try:
+        pwd_field = driver.find_element(By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']")
+        pwd_field.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Enter key press failed: {e}")
+
+if not clicked:
+    print("❌ Unable to click Sign In button by any strategy")

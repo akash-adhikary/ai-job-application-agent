@@ -1,0 +1,26 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+wait = WebDriverWait(driver, 15)
+
+# Wait for the sign‑in modal button to become clickable and click it
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (data-automation-id selector)")
+except Exception as e:
+    print(f"⚠️ Primary selector failed: {e}")
+    # Fallback to class‑based selector
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class selector fallback)")
+    except Exception as e2:
+        print(f"❌ Failed to click Sign In button: {e2}")

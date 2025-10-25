@@ -1,0 +1,47 @@
+{
+  "learnings": [
+    {
+      "timestamp": "2025-10-25T03:06:50.606639",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Error on attempt 1: Message: no such element: Unable to locate element: {\"method\":\"xpath\",\"selector\":\".//button[contains",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T03:07:02.093211",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Error on attempt 2: unexpected indent (<string>, line 2)",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T09:42:08.518262",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Error on attempt 1: Message: invalid session id: session deleted as the browser has closed the connection\nfrom disconnec",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T09:42:12.603090",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Error on attempt 2: invalid syntax (<string>, line 2)",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T09:42:18.676982",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Failed after 3 attempts: Message: invalid session id\nStacktrace:\n\tGetHandleVerifier [0x0x43c333+65459]\n\tGetHandleVerifier [0x",
+      "success": false
+    }
+  ],
+  "domain_knowledge": {
+    "first action": "accept cookies pop-up if present, to avoid blocking further actions.",
+    "second action": "if a login/ sign in prompt appears, log in/sign in using stored credentials before proceeding., prefer sign in over sign up/ create account",
+    "page analysis": "analyse complete page at one go and try to fill everything and click next for the first iteration itself",
+    "skill_selectors": "For searchable skill dropdowns: type ONE skill, wait 1 sec, click suggestion. Repeat for each skill.",
+    "file_uploads": "ALWAYS verify file upload: after send_keys(), check if value attribute is set. Print confirmation.",
+    "multi_select": "Add items one by one: type, wait, select, repeat. Never paste comma-separated list.",
+    "button_clicks": "If normal click fails with 'element click intercepted', use JavaScript click: driver.execute_script('arguments[0].click();', element)",
+    "sign in button": "Use data-automation-id='signInSubmitButton' or class containing 'css-1ru62dj' for Workday sign in",
+    "modal dialogs": "Always check for modal dialogs after page loads or actions. If present, handle them before proceeding."
+  },
+  "action_history": [
+  ]
+}

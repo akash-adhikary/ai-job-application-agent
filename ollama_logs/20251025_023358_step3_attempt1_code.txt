@@ -1,0 +1,68 @@
+driver.get("https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn")
+wait = WebDriverWait(driver, 20)
+
+# ----- Wait for sign‑in modal to appear -----
+try:
+    modal = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div[role='dialog']")))
+except Exception:
+    print("⚠️ Sign‑in modal not detected; attempting to open it.")
+    # Fallback: click the utility sign‑in button to trigger modal
+    try:
+        utility_signin = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='utilityButtonSignIn']")))
+        driver.execute_script("arguments[0].click();", utility_signin)
+        modal = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div[role='dialog']")))
+    except Exception as e:
+        print("❌ Unable to open sign‑in modal:", e)
+        raise
+
+# ----- Fill Email -----
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-9")))
+    email_input.clear()
+    email_input.send_keys(resume_data["email"])
+    print("✓ Email entered")
+except Exception as e:
+    print("❌ Failed to locate/email input:", e)
+    raise
+
+# ----- Fill Password -----
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-10")))
+    password_input.clear()
+    password_input.send_keys(resume_data["password"])
+    print("✓ Password entered")
+except Exception as e:
+    print("❌ Failed to locate/password input:", e)
+    raise
+
+# ----- Click Sign In (Workday specific selector) -----
+try:
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In (primary selector)")
+except Exception:
+    # Fallback to class‑based selector
+    try:
+        sign_in_btn = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.css-1ru62dj"))
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In (fallback selector)")
+    except Exception as e:
+        print("❌ Unable to click Sign In button:", e)
+        raise
+
+# ----- Wait for post‑login state (e.g., user avatar or dashboard) -----
+try:
+    wait.until(EC.invisibility_of_element_located((By.ID, "input-9")))
+    print("✅ Sign‑in process completed")
+except Exception:
+    print("⚠️ Sign‑in modal still present after attempt")
