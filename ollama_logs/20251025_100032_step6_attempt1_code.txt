@@ -1,0 +1,41 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+def click_sign_in():
+    try:
+        # Wait for the button to be present in DOM
+        btn = wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "button[data-automation-id='utilityButtonSignIn']")))
+    except TimeoutException:
+        print("⚠️ Sign In button not found within timeout.")
+        return False
+
+    # Try normal click first
+    try:
+        btn.click()
+        print("✓ Clicked Sign In button (normal click).")
+        return True
+    except (ElementClickInterceptedException, NoSuchElementException):
+        pass
+
+    # Fallback: JavaScript click after scrolling into view
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", btn)
+        driver.execute_script("arguments[0].click();", btn)
+        print("✓ Clicked Sign In button via JavaScript.")
+        return True
+    except Exception as e:
+        print(f"⚠️ JS click failed: {e}")
+        return False
+
+clicked = click_sign_in()
+if not clicked:
+    print("❌ Unable to click the Sign In button.")

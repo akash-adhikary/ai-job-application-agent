@@ -1,0 +1,13 @@
+wait = WebDriverWait(driver, 15)
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "[data-automation-id='legalNoticeAcceptButton']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Clicked Accept Cookies")
+except Exception as e:
+    print(f"⚠️ Could not click Accept Cookies button: {e}")

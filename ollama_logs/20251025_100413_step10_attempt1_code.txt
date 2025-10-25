@@ -1,0 +1,60 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# Ensure sign‑in modal is visible
+try:
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[aria-modal='true']")))
+except Exception as e:
+    print(f"⚠️ Modal not detected: {e}")
+
+# Fill Email
+try:
+    email_input = wait.until(EC.element_to_be_clickable((By.ID, "input-11")))
+    email_input.clear()
+    email_input.send_keys(resume_data.get("email", ""))
+    print("✓ Email filled")
+except Exception as e:
+    print(f"⚠️ Failed to fill email: {e}")
+
+# Fill Password
+try:
+    password_input = wait.until(EC.element_to_be_clickable((By.ID, "input-12")))
+    password_input.clear()
+    password_input.send_keys(resume_data.get("password", ""))
+    print("✓ Password filled")
+except Exception as e:
+    print(f"⚠️ Failed to fill password: {e}")
+
+# Attempt to click Sign In button
+clicked = False
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    clicked = True
+    print("✓ Clicked Sign In via primary button")
+except Exception as e:
+    print(f"⚠️ Primary sign‑in click failed: {e}")
+
+if not clicked:
+    try:
+        alt_btn = driver.find_element(By.CSS_SELECTOR, "button.css-1ru62dj")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", alt_btn)
+        driver.execute_script("arguments[0].click();", alt_btn)
+        clicked = True
+        print("✓ Clicked Sign In via alternative selector")
+    except Exception as e:
+        print(f"⚠️ Alternative sign‑in click failed: {e}")
+
+# Fallback: press Enter in password field
+if not clicked:
+    try:
+        password_input.send_keys(Keys.RETURN)
+        print("✓ Submitted form by pressing Enter")
+    except Exception as e:
+        print(f"⚠️ Fallback submission failed: {e}")

@@ -1,0 +1,114 @@
+# Previous error: Validation failed: No meaningful change detected - action likely failed
+# Adjusting approach...
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 20)
+
+# --- Wait for the Sign‑In modal to appear ---
+try:
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "[aria-modal='true']")))
+except TimeoutException:
+    print("⚠️ Sign‑In modal not found.")
+    raise
+
+# --- Fill Email ---
+try:
+    email_input = wait.until(
+        EC.presence_of_element_located((By.ID, "input-11"))
+    )
+    email_input.clear()
+    email = resume_data.get("email", "")
+    email_input.send_keys(email)
+    print("✓ Email entered")
+except (NoSuchElementException, TimeoutException) as e:
+    print("❌ Email field not found:", e)
+    raise
+
+# --- Fill Password ---
+try:
+    password_input = wait.until(
+        EC.presence_of_element_located((By.ID, "input-12"))
+    )
+    password_input.clear()
+    pwd = resume_data.get("password", "")
+    password_input.send_keys(pwd)
+    print("✓ Password entered")
+except (NoSuchElementException, TimeoutException) as e:
+    print("❌ Password field not found:", e)
+    raise
+
+# --- Click Sign In button (multiple strategies) ---
+clicked = False
+
+# Strategy 1: Direct button using data‑automation-id
+try:
+    sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (direct)")
+    clicked = True
+except Exception:
+    pass
+
+# Strategy 2: Button by class pattern
+if not clicked:
+    try:
+        btn = driver.find_element(By.CSS_SELECTOR, "button.css-1ru62dj")
+        driver.execute_script("arguments[0].click();", btn)
+        print("✓ Clicked Sign In button (class selector)")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 3: Click through possible overlay filter
+if not clicked:
+    try:
+        overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", overlay)
+        print("✓ Clicked overlay filter")
+        # retry button after overlay cleared
+        btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        driver.execute_script("arguments[0].click();", btn)
+        print("✓ Clicked Sign In after clearing overlay")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 4: Submit the form via Enter key
+if not clicked:
+    try:
+        password_input.send_keys(Keys.RETURN)
+        print("✓ Submitted form with ENTER key")
+        clicked = True
+    except Exception:
+        pass
+
+# Strategy 5: Fallback – submit the enclosing form element
+if not clicked:
+    try:
+        form = driver.find_element(By.XPATH, "//form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted form via JS")
+        clicked = True
+    except Exception:
+        pass
+
+if not clicked:
+    print("❌ Failed to trigger Sign In action.")
+else:
+    # optional: wait for post‑login indicator (e.g., disappearance of modal)
+    try:
+        wait.until(EC.invisibility_of_element_located((By.CSS_SELECTOR, "[aria-modal='true']")))
+        print("✓ Sign‑In modal closed, login likely successful")
+    except TimeoutException:
+        print("⚠️ Modal still visible after login attempt")

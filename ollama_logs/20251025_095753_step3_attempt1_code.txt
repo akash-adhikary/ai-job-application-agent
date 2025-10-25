@@ -1,0 +1,23 @@
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Locate the visible "Sign In" button using its data-automation-id
+    sign_in_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button[data-automation-id='utilityButtonSignIn']")
+        )
+    )
+    # Scroll into view and click via JavaScript for robustness
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button")
+except Exception as e:
+    print(f"⚠️ Initial click attempt failed: {e}")
+    # Fallback: try a plain JS click without waiting for clickability
+    try:
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='utilityButtonSignIn']")
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button via fallback JS")
+    except Exception as e2:
+        print(f"❌ Unable to click Sign In button: {e2}")

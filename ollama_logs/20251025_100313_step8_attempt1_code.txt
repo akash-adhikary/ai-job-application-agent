@@ -1,0 +1,32 @@
+# Click the "Accept Cookies" button if it is present
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Wait for the button to be present in the DOM
+    accept_btn = wait.until(
+        EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "button[data-automation-id='legalNoticeAcceptButton']")
+        )
+    )
+    # Ensure the button is visible and enabled
+    if accept_btn.is_displayed() and accept_btn.is_enabled():
+        try:
+            # Try a normal click first
+            accept_btn.click()
+            print("✓ Clicked 'Accept Cookies' button (normal click).")
+        except (ElementClickInterceptedException, Exception):
+            # Fallback to JavaScript click if normal click fails
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+            driver.execute_script("arguments[0].click();", accept_btn)
+            print("✓ Clicked 'Accept Cookies' button (JS click).")
+except (NoSuchElementException, TimeoutException):
+    print("⚠️ 'Accept Cookies' button not found; it may have already been accepted or not present.")

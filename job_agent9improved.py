@@ -18,7 +18,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # ---------- CONFIG ----------
 OLLAMA_MODEL = "gpt-oss:120b-cloud"
-MAX_RETRIES = 3
+MAX_RETRIES = 10
 MAX_STEPS = 50
 HTML_LIMIT = 4000000
 SCREENSHOT_DIR = "screenshots"

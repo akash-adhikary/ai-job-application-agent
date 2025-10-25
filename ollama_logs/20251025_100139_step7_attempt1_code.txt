@@ -1,0 +1,104 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+# ---------- Fill Email ----------
+try:
+    email_input = wait.until(
+        EC.presence_of_element_located((By.ID, "input-11"))
+    )
+    email_input.clear()
+    email = resume_data.get("email", "")
+    email_input.send_keys(email)
+    print("✓ Email filled")
+except (TimeoutException, NoSuchElementException) as e:
+    print("⚠️ Email input not found:", e)
+
+# ---------- Fill Password ----------
+try:
+    password_input = driver.find_element(By.ID, "input-12")
+    password_input.clear()
+    password = resume_data.get("password", "")
+    password_input.send_keys(password)
+    print("✓ Password filled")
+except NoSuchElementException as e:
+    print("⚠️ Password input not found:", e)
+
+# ---------- Click Sign‑In ----------
+clicked = False
+
+# Strategy 1: Direct button via data‑automation-id
+try:
+    sign_in_btn = driver.find_element(
+        By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']"
+    )
+    # Remove possible overlay attributes
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Clicked Sign In button (direct)")
+    clicked = True
+except NoSuchElementException:
+    pass
+except Exception as e:
+    print("⚠️ Direct click failed:", e)
+
+# Strategy 2: Button via class pattern (css-1ru62dj)
+if not clicked:
+    try:
+        sign_in_btn = driver.find_element(
+            By.CSS_SELECTOR, "button.css-1ru62dj"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (class fallback)")
+        clicked = True
+    except NoSuchElementException:
+        pass
+    except Exception as e:
+        print("⚠️ Class fallback click failed:", e)
+
+# Strategy 3: Click possible click‑filter overlay
+if not clicked:
+    try:
+        click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked click_filter overlay")
+        clicked = True
+    except NoSuchElementException:
+        pass
+    except Exception as e:
+        print("⚠️ click_filter click failed:", e)
+
+# Strategy 4: Submit the form directly
+if not clicked:
+    try:
+        form = driver.find_element(By.XPATH, "//form[.//input[@id='input-11']]")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted sign‑in form directly")
+        clicked = True
+    except NoSuchElementException:
+        pass
+    except Exception as e:
+        print("⚠️ Form submit failed:", e)
+
+# Strategy 5: Press Enter in password field
+if not clicked:
+    try:
+        password_input.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except Exception as e:
+        print("⚠️ Enter key press failed:", e)
+
+if not clicked:
+    print("❌ Unable to trigger Sign In action")
