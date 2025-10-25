@@ -26,10 +26,10 @@ import re
 
 # Configuration
 CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY", "your-api-key-here")
-RESUME_JSON_PATH = "resume_data.json"
+RESUME_JSON_PATH = "akash_profile.json"
 MEMORY_FILE = "agent_memory_final.json"
 SESSION_FILE = "session_state.json"
-MAX_RETRIES = 10
+MAX_RETRIES = 2
 INTERACTIVE_MODE = False
 AUTO_CONTINUE_TIMEOUT = 10
 SCREENSHOT_DIR = "screenshots"
@@ -488,7 +488,7 @@ if not clicked:
 # Strategy 6: Execute form submission via JavaScript
 if not clicked:
     try:
-        driver.execute_script("""
+        driver.execute_script(""
             var forms = document.querySelectorAll('form');
             for(var form of forms) {
                 if(form.querySelector('input[type="password"]')) {
@@ -497,7 +497,7 @@ if not clicked:
                 }
             }
             return false;
-        """)
+        "")
         print("✓ Submitted form via JavaScript")
         clicked = True
         time.sleep(2)

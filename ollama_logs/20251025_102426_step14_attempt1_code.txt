@@ -1,0 +1,32 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Wait for the Accept Cookies button to be present in DOM
+    accept_btn = wait.until(
+        EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "button[data-automation-id='legalNoticeAcceptButton']")
+        )
+    )
+    # Scroll into view for safety
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", accept_btn)
+    # Attempt normal click first
+    try:
+        accept_btn.click()
+        print("✓ Clicked Accept Cookies button (normal click)")
+    except (ElementClickInterceptedException, NoSuchElementException):
+        # Fallback to JavaScript click if intercepted
+        driver.execute_script("arguments[0].click();", accept_btn)
+        print("✓ Clicked Accept Cookies button (JS click)")
+except TimeoutException:
+    print("⚠️ Accept Cookies button not found within timeout")
+except Exception as e:
+    print(f"⚠️ Unexpected error while clicking Accept Cookies: {e}")

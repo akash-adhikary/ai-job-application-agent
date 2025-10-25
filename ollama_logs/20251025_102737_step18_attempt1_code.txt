@@ -1,0 +1,104 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 20)
+
+# 1. Accept cookies if the banner is present
+try:
+    cookie_btn = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept')]"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", cookie_btn)
+    driver.execute_script("arguments[0].click();", cookie_btn)
+    print("✓ Cookies accepted")
+except (TimeoutException, NoSuchElementException):
+    pass  # No cookie banner found
+
+# 2. Ensure any sign‑in modal is handled before interacting with the page
+def handle_sign_in():
+    try:
+        email_field = wait.until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")
+            )
+        )
+        email_field.clear()
+        email_field.send_keys(resume_data.get("personal_info", {}).get("email", ""))
+        print("✓ Email filled")
+
+        password_field = driver.find_element(
+            By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']"
+        )
+        password_field.clear()
+        password_field.send_keys(resume_data.get("password", ""))
+        print("✓ Password filled")
+
+        # Try several strategies to click the sign‑in button
+        clicked = False
+        try:
+            sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+            driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+            driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            clicked = True
+            print("✓ Sign‑in button clicked (JS)")
+        except Exception:
+            pass
+
+        if not clicked:
+            try:
+                # Fallback: press Enter in password field
+                password_field.send_keys("\ue007")  # Keys.ENTER
+                clicked = True
+                print("✓ Sign‑in submitted via ENTER")
+            except Exception:
+                pass
+
+        if not clicked:
+            print("⚠️ Unable to trigger sign‑in; proceeding may fail.")
+    except (TimeoutException, NoSuchElementException):
+        pass  # Sign‑in modal not present
+
+handle_sign_in()
+
+# 3. Close any generic modal that might obscure the target button
+def close_generic_modal():
+    try:
+        close_btn = driver.find_element(By.CSS_SELECTOR, "[role='dialog'] button")
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", close_btn)
+        driver.execute_script("arguments[0].click();", close_btn)
+        print("✓ Generic modal closed")
+    except NoSuchElementException:
+        pass
+
+close_generic_modal()
+
+# 4. Click the "Apply Manually" button inside the application modal
+try:
+    apply_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Apply Manually' or .='Apply Manually']")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+    driver.execute_script("arguments[0].click();", apply_btn)
+    print("✓ 'Apply Manually' button clicked")
+except (TimeoutException, NoSuchElementException, ElementClickInterceptedException) as e:
+    print(f"⚠️ Failed to click 'Apply Manually': {e}")
+
+# Optional: verify that the application form is now displayed
+try:
+    form_header = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//*[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'application') and contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'form')]")
+        )
+    )
+    print("✓ Application form is now visible")
+except TimeoutException:
+    print("⚠️ Application form not detected after clicking 'Apply Manually'")

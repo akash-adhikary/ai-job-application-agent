@@ -1,0 +1,53 @@
+wait = WebDriverWait(driver, 20)
+
+# Wait for the modal to appear and the "Apply Manually" button to be present
+apply_btn = None
+try:
+    apply_btn = wait.until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//button[contains(., 'Apply Manually')]")
+        )
+    )
+except Exception as e:
+    print(f"⚠️ Apply Manually button not found: {e}")
+
+if apply_btn:
+    clicked = False
+    # Strategy 1: Normal click
+    try:
+        apply_btn.click()
+        print("✓ Clicked 'Apply Manually' button with normal click")
+        clicked = True
+    except (ElementClickInterceptedException, Exception):
+        print("⚠️ Normal click failed, trying JavaScript click")
+
+    # Strategy 2: JavaScript click (with scroll into view)
+    if not clicked:
+        try:
+            driver.execute_script(
+                "arguments[0].scrollIntoView({block: 'center'});", apply_btn
+            )
+            time.sleep(0.5)
+            driver.execute_script("arguments[0].click();", apply_btn)
+            print("✓ Clicked 'Apply Manually' button via JavaScript")
+            clicked = True
+        except Exception as e:
+            print(f"⚠️ JavaScript click failed: {e}")
+
+    # Strategy 3: Remove possible overlay attributes and retry JS click
+    if not clicked:
+        try:
+            driver.execute_script(
+                "arguments[0].removeAttribute('tabindex'); arguments[0].removeAttribute('aria-hidden');",
+                apply_btn,
+            )
+            driver.execute_script("arguments[0].click();", apply_btn)
+            print("✓ Clicked after removing overlay attributes")
+            clicked = True
+        except Exception as e:
+            print(f"⚠️ Click after attribute removal failed: {e}")
+
+    if not clicked:
+        print("❌ Unable to click the 'Apply Manually' button after all attempts")
+else:
+    print("❌ 'Apply Manually' button element not located; cannot proceed")

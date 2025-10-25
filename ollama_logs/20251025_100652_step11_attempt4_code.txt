@@ -1,0 +1,100 @@
+# Previous error: Validation failed: No meaningful change detected - action likely failed
+# Adjusting approach...
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+wait = WebDriverWait(driver, 20)
+
+# 1. Close any cookie banner if present
+try:
+    cookie_close = wait.until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='closeCookieBanner'], button[aria-label='Close']"))
+    )
+    driver.execute_script("arguments[0].click();", cookie_close)
+    print("✓ Cookie banner closed")
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# 2. Locate and fill the email field
+email_filled = False
+try:
+    email_input = wait.until(
+        EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input#input-22, input[data-automation-id='email'], input[type='email']")
+        )
+    )
+    email_input.clear()
+    email = resume_data.get("email", "")
+    email_input.send_keys(email)
+    print("✓ Email filled")
+    email_filled = True
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"⚠️ Email field not found: {e}")
+
+# 3. Locate and fill the password field
+pwd_filled = False
+try:
+    pwd_input = driver.find_element(By.CSS_SELECTOR, "input#input-23, input[data-automation-id='password'], input[type='password']")
+    pwd_input.clear()
+    password = resume_data.get("password", "")
+    pwd_input.send_keys(password)
+    print("✓ Password filled")
+    pwd_filled = True
+except NoSuchElementException as e:
+    print(f"⚠️ Password field not found: {e}")
+
+# 4. Attempt to click the Sign In button using multiple strategies
+sign_in_clicked = False
+
+# Strategy 1: Direct button with data-automation-id
+if email_filled and pwd_filled:
+    try:
+        sign_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton'], button.css-1ru62dj")
+        # Remove possible intercepting attributes
+        driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_btn)
+        driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_btn)
+        driver.execute_script("arguments[0].click();", sign_btn)
+        print("✓ Sign In button clicked (direct)")
+        sign_in_clicked = True
+    except (NoSuchElementException, ElementClickInterceptedException):
+        pass
+
+# Strategy 2: Click overlay filter that may be intercepting
+if not sign_in_clicked:
+    try:
+        overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", overlay)
+        print("✓ Clicked overlay filter")
+        sign_in_clicked = True
+    except NoSuchElementException:
+        pass
+
+# Strategy 3: Submit the form via JavaScript
+if not sign_in_clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Form submitted via JS")
+        sign_in_clicked = True
+    except NoSuchElementException:
+        pass
+
+# Strategy 4: Press Enter in password field
+if not sign_in_clicked:
+    try:
+        pwd_input.send_keys(Keys.RETURN)
+        print("✓ Enter key sent to password field")
+        sign_in_clicked = True
+    except Exception:
+        pass
+
+if not sign_in_clicked:
+    print("❌ Unable to trigger Sign In action")

@@ -113,6 +113,174 @@
       "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
       "lesson": "Successful action: fill_form - Page content changed",
       "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:05:47.768448",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:06:05.476456",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:06:39.998654",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:07:15.590000",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: fill_form - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:07:42.154163",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:08:13.299654",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:08:31.415465",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:08:44.958385",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:09:19.327727",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:09:34.062774",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:09:49.101651",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:10:02.831937",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:10:17.562235",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:10:33.574774",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:10:49.150353",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:24:30.124397",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:24:57.824883",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:25:45.593648",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:26:00.450886",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: fill_form - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:26:23.808885",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: fill_form - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:27:11.363675",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:29:01.245700",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:30:52.469516",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: click_button - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:31:29.766733",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
+    },
+    {
+      "timestamp": "2025-10-25T10:32:17.664321",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Action executed but had no effect: click_button - No meaningful change detected - action likely failed",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:32:46.594736",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Error on attempt 2: Message: no such element: Unable to locate element: {\"method\":\"xpath\",\"selector\":\"//button[contains(",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:32:54.740903",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Failed after 3 attempts: unexpected indent (<string>, line 2)",
+      "success": false
+    },
+    {
+      "timestamp": "2025-10-25T10:33:42.766554",
+      "context": "https://fractal.wd1.myworkdayjobs.com/Careers/job/Bengaluru/GCP-Engineer_SR-20029?source=LinkedIn",
+      "lesson": "Successful action: click_button - Page content changed",
+      "success": true
     }
   ],
   "domain_knowledge": {
@@ -325,6 +493,438 @@
       "code_snippet": "from selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# Ensure sign\u2011in modal is visible\ntry:\n    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, \"[aria-modal='true']\")))\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Modal not detected: {e}\")\n\n# Fill Email\ntry:\n    email_input = wait.unti",
       "success": true,
       "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:05:47.768448",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any further interaction. We have stored email and password, and previous success on this page was achieved by filling the sign\u2011in form.",
+        "target": "sign-in modal (email and password fields)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "email = resume_data.get(\"email\", \"\")\npassword = resume_data.get(\"password\", \"\")\n\nwait = WebDriverWait(driver, 20)\n\n# Wait for the sign\u2011in modal to be visible\ntry:\n    modal = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, \"[aria-modal='true']\")))\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Sign\u2011in modal not found: {e}\")\n    raise\n\n# Fill Email\ntry:\n    email_field = wait.until(\n        EC.presence_of_element_located(\n            (By.CSS_SELECTOR, \"input#input-22, input[data-automation-i",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:06:05.476456",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any further interaction. We have stored email and password, and previous success on this page was achieved by filling the sign\u2011in form.",
+        "target": "sign-in modal (email and password fields)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# ---------- Fill Email ----------\ntry:\n    email_field = wait.until(\n        EC.presence_of_element_located(\n            (By",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:06:39.998654",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any further interaction. We have stored email and password, and previous success on this page was achieved by filling the sign\u2011in form.",
+        "target": "sign-in modal (email and password fields)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# ---------- Locate and fill Email ----------\ntry:\n    email_field = wait.until(\n        EC.presence_of_element_located(\n            (By.CSS_SELECTOR, \"input[id='input-22'], input[data-automation-id='email'], input[type='email']\")\n        )\n    )\n    email_field.clear()\n    email = resume_data.get(\"email\", \"\")\n    email_field.send_keys(email)\n    pr",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:07:15.590000",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any further interaction. We have stored email and password, and previous success on this page was achieved by filling the sign\u2011in form.",
+        "target": "sign-in modal (email and password fields)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nfrom selenium.common.exceptions import (\n    NoSuchElementException,\n    ElementClickInterceptedException,\n    TimeoutException,\n)\n\nwait = WebDriverWait(driver, 20)\n\n# 1. C",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:07:42.154163",
+      "page_signature": "79a2e75550003d62380b69484fceff96",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The job page requires the user to be signed in before applying. A visible 'Sign In' button is present and has been successfully used on this page before to start the login flow.",
+        "target": "button[data-automation-id='utilityButtonSignIn']",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "wait = WebDriverWait(driver, 15)\n\nclicked = False\n\ntry:\n    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, \"button[data-automation-id='utilityButtonSignIn']\")))\n    driver.execute_script(\"arguments[0].scrollIntoView({block: 'center'});\", sign_in_btn)\n    driver.execute_script(\"arguments[0].click();\", sign_in_btn)\n    print(\"\u2713 Clicked 'Sign In' button via JS\")\n    clicked = True\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Direct click failed: {e}\")\n\nif not clicked:\n    try:\n     ",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:08:13.299654",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "from selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nfrom selenium.common.exceptions import (\n    NoSuchElementException,\n    ElementClickInterceptedException,\n    TimeoutException,\n)\n\n# assume driver, resume_data, resume_pdf_path, resume_photo_path are already defined\nwait = WebDriverWait(driver, 20)\n\nemail = resume_data.get(\"email\", \"\")",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:08:31.415465",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# --- Fill Email ---\nemail = (\n    resume_data.get(\"email\")\n    or resume_data.get(\"personal_info\", {}).get(\"email\", \"\")\n)\nem",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:08:44.958385",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# Fill Email\ntry:\n    email_input = wait.until(EC.presence_of_element_located((By.ID, \"input-260\")))\n    email_input.clear()\n    email = resume_data.get(\"email\", \"\")\n    email_input.send_keys(email)\n    print(\"\u2713 Email filled\")\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Email field error: {e}\")\n\n# Fill Password\ntry:\n    password_input = wait.until(EC.pres",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:09:19.327727",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# -------- Fill Email ----------\ntry:\n    email_input = wait.until(\n        EC.presence_of_element_located((By.ID, \"input-260",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:09:34.062774",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 15)\nclicked = False\n\ntry:\n    # Fill email\n    email_input = wait.until(EC.presence_of_element_located((By.ID, \"input-260\")))\n    ",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:09:49.101651",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\nemail = resume_data.get(\"email\", \"\")\npassword = resume_data.get(\"password\", \"\")\n\n# Fill Email\nemail_field = wait.until(EC.element_to_be_clickable((By.ID, \"input-260\")))\nemail_field.clear()\nemail_field.send_keys(email)\n\n# Fill Password\npwd_field = wait.until(EC.element_to_be_clickable((By.ID, \"input-261\")))\npwd_field.clear()\npwd_field.send_keys(passw",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:10:02.831937",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# Wait for the sign\u2011in modal to appear\ntry:\n    email_field = wait.until(\n        EC.presence_of_element_located((By.ID, \"inp",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:10:17.562235",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# Wait for the sign\u2011in modal to be visible\ntry:\n    modal = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, \"[a",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:10:33.574774",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# Fill Email\ntry:\n    email_field = wait.until(EC.presence_of_element_located((By.ID, \"input-260\")))\n    email_field.clear()\n    email = resume_data.get(\"email\", \"\")\n    email_field.send_keys(email)\n    print(\"\u2713 Email filled\")\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Email field not found: {e}\")\n\n# Fill Password\ntry:\n    pwd_field = driver.find_element",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:10:49.150353",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "A Workday sign\u2011in modal is displayed and must be completed before any other interaction. Using the stored email and password will allow access to the job page.",
+        "target": {
+          "email_input_id": "input-260",
+          "password_input_id": "input-261",
+          "sign_in_button_selector": "button[data-automation-id='signInSubmitButton']"
+        },
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nimport time\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nfrom selenium.common.exceptions import (\n    NoSuchElementException,\n    ElementClickInterceptedException,\n    TimeoutException,\n)\n\nwait = WebDriverWait(driver,",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:24:30.124397",
+      "page_signature": "1dd91f4d41149eeb9d451111cb6326fc",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The page currently shows a cookie consent pop-up that can block further interactions. Accepting cookies has been the successful first step on this page in previous attempts, and it is required before any form filling or navigation.",
+        "target": "Accept Cookies button (data_automation_id: legalNoticeAcceptButton)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "from selenium.webdriver.common.by import By\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nfrom selenium.common.exceptions import (\n    NoSuchElementException,\n    ElementClickInterceptedException,\n    TimeoutException,\n)\n\nwait = WebDriverWait(driver, 15)\n\ntry:\n    # Wait for the Accept Cookies button to be present in DOM\n    accept_btn = wait.until(\n        EC.presence_of_element_located(\n            (By.CSS_SELECTOR, \"bu",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:24:57.824883",
+      "page_signature": "79a2e75550003d62380b69484fceff96",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The job page requires the user to sign in before applying. A visible 'Sign In' button is present and has been successfully used on this page before to initiate the login flow.",
+        "target": "button with data_automation_id='utilityButtonSignIn' (text: 'Sign In')",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "wait = WebDriverWait(driver, 15)\n\ndef click_sign_in():\n    try:\n        # Locate the button using the known data-automation-id\n        sign_in_btn = wait.until(\n            EC.element_to_be_clickable((By.CSS_SELECTOR, \"button[data-automation-id='utilityButtonSignIn']\"))\n        )\n        # Scroll into view and click via JavaScript for reliability\n        driver.execute_script(\"arguments[0].scrollIntoView({block: 'center'});\", sign_in_btn)\n        time.sleep(0.3)\n        driver.execute_script(\"ar",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:25:45.593648",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any other interaction. Past successes on this page used the stored email and password to sign in. Filling the email and password fields and submitting will grant access to the job details.",
+        "target": "Workday sign\u2011in modal (Email Address* input, Password* input, and Sign In button)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "wait = WebDriverWait(driver, 20)\n\n# ---------- Fill Email ----------\ntry:\n    email_field = wait.until(\n        EC.presence_of_element_located(\n            (By.CSS_SELECTOR, \"input[id='input-11'], input[data-automation-id='email'], input[type='email'], input[autocomplete='email']\")\n        )\n    )\n    email_field.clear()\n    email = resume_data.get(\"email\", \"\")\n    email_field.send_keys(email)\n    print(\"\u2713 Email filled\")\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Email field not found: {e}\")\n\n# -----",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:26:00.450886",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any other interaction. Past successes on this page used the stored email and password to sign in. Filling the email and password fields and submitting will grant access to the job details.",
+        "target": "Workday sign\u2011in modal (Email Address* input, Password* input, and Sign In button)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# ---------- Wait for and fill the Sign\u2011In modal ----------\ntry:\n    # Email field (input with id input-11)\n    email_field = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, \"input#input-11, input[data-automation-id='email'], input[type='email']\")))\n    email_field.clear()\n    email = resume_data.get(\"email\", \"\")\n    email_field.send_key",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:26:23.808885",
+      "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
+      "action": {
+        "action_type": "fill_form",
+        "reasoning": "The page shows a Workday sign\u2011in modal that must be completed before any other interaction. Past successes on this page used the stored email and password to sign in. Filling the email and password fields and submitting will grant access to the job details.",
+        "target": "Workday sign\u2011in modal (Email Address* input, Password* input, and Sign In button)",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# --- Locate and fill Email ---\ntry:\n    email_field = wait.until(\n        EC.presence_of_element_located(\n            (By.CSS_SELECTOR, \"input#input-11, input[data-automation-id='email'], input[type='email'], input[autocomplete='email']\")\n        )\n    )\n    email_field.clear()\n    email = resume_data.get(\"email\") or resume_data.get(\"personal_info\"",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:27:11.363675",
+      "page_signature": "6e987adf6a2a3fe379d5bd95d868a113",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The job posting page shows an 'Apply' button which is needed to start the application process for the GCP Engineer role.",
+        "target": "button with visible text 'Apply'",
+        "confidence": "high",
+        "using_memory": false
+      },
+      "code_snippet": "from selenium.webdriver.common.by import By\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\ndef click_apply():\n    try:\n        apply_btn = wait.until(EC.element_to_be_clickable((By.XPATH, \"//button[normalize-space()='Apply']\")))\n    except Exception:\n        apply_btn = wait.until(EC.presence_of_element_located((By.XPATH, \"//*[self::button or self::a][normalize-space()='Apply'",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:29:01.245700",
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The page shows a modal with three options to start the application. To proceed with filling the application, we need to click one of the buttons. Selecting 'Apply Manually' will open the full application form where we can input details and upload the resume.",
+        "target": "button with text 'Apply Manually'",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "from selenium.webdriver.common.by import By\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nfrom selenium.common.exceptions import (\n    NoSuchElementException,\n    ElementClickInterceptedException,\n    TimeoutException,\n)\n\nwait = WebDriverWait(driver, 20)\n\n# 1. Accept cookies if the banner is present\ntry:\n    cookie_btn = wait.until(\n        EC.element_to_be_clickable((By.XPATH, \"//button[contains(translate(., 'ABCDEFGHIJK",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:30:52.469516",
+      "page_signature": "6e987adf6a2a3fe379d5bd95d868a113",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The job posting page shows an 'Apply' button which is required to start the application process. We have previously succeeded by clicking this button on similar Workday job pages, so we should repeat that action.",
+        "target": "Apply button",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "from selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nimport time\n\nwait = WebDriverWait(driver, 20)\n\n# ---- 1. Accept cookies if a consent button is present ----\ntry:\n    cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, \"//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept')]\")))\n",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:31:29.766733",
+      "page_signature": "6e987adf6a2a3fe379d5bd95d868a113",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "The job posting page shows an 'Apply' button which is required to start the application process. We have previously succeeded by clicking this button on similar Workday job pages, so we should repeat that action.",
+        "target": "Apply button",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.common.keys import Keys\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\nfrom selenium.common.exceptions import (\n    NoSuchElementException,\n    TimeoutException,\n    ElementClickInterceptedException,\n)\n\nwait = WebDriverWait(driver, 20)\n\n# ----",
+      "success": true,
+      "error": null
+    },
+    {
+      "timestamp": "2025-10-25T10:32:17.664321",
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "A modal is displayed with options to start the application. To fill the form we need to proceed, and previous successful attempts used the 'Apply Manually' button to open the full application form.",
+        "target": "button with text 'Apply Manually' inside the modal (e.g., //button[contains(., 'Apply Manually')])",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "wait = WebDriverWait(driver, 20)\n\n# Wait for the modal to appear and the \"Apply Manually\" button to be present\napply_btn = None\ntry:\n    apply_btn = wait.until(\n        EC.presence_of_element_located(\n            (By.XPATH, \"//button[contains(., 'Apply Manually')]\")\n        )\n    )\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Apply Manually button not found: {e}\")\n\nif apply_btn:\n    clicked = False\n    # Strategy 1: Normal click\n    try:\n        apply_btn.click()\n        print(\"\u2713 Clicked 'Apply Manuall",
+      "success": false,
+      "error": "No state change: No meaningful change detected - action likely failed"
+    },
+    {
+      "timestamp": "2025-10-25T10:32:46.594736",
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "A modal is displayed with options to start the application. To fill the form we need to proceed, and previous successful attempts used the 'Apply Manually' button to open the full application form.",
+        "target": "button with text 'Apply Manually' inside the modal (e.g., //button[contains(., 'Apply Manually')])",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Validation failed: No meaningful change detected - action likely failed\n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# Ensure any cookie banner is dismissed (common on Workday pages)\ntry:\n    cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, \"//button[contains(., 'Accept')]\")))\n    driver.execute_script(\"arguments[0].click();\", cookie_btn)\nexcept Exception:\n    pass\n\n# Wait for the modal dialog that contains the target button\ntry:\n    modal = wait.unti",
+      "success": false,
+      "error": "Message: no such element: Unable to locate element: {\"method\":\"xpath\",\"selector\":\"//button[contains(normalize-space(.), 'Apply Manually')]\"}\n  (Session info: chrome=140.0.7339.208); For documentation "
+    },
+    {
+      "timestamp": "2025-10-25T10:32:54.740903",
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "A modal is displayed with options to start the application. To fill the form we need to proceed, and previous successful attempts used the 'Apply Manually' button to open the full application form.",
+        "target": "button with text 'Apply Manually' inside the modal (e.g., //button[contains(., 'Apply Manually')])",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "# Previous error: Message: no such element: Unable to locate element: {\"method\":\"xpath\",\"selector\":\"//button[contains(normalize-space(.), 'Apply Manually')]\"}\n  (Session info: chrome=140.0.7339.208); For documentation \n# Adjusting approach...\n\nwait = WebDriverWait(driver, 20)\n\n# Ensure the modal dialog is present (role='dialog')\ntry:\n    modal = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, \"[role='dialog']\")))\nexcept Exception as e:\n    print(f\"\u26a0\ufe0f Modal not found: {e}\")\n\n# Locate ",
+      "success": false,
+      "error": "unexpected indent (<string>, line 2)"
+    },
+    {
+      "timestamp": "2025-10-25T10:33:42.766554",
+      "page_signature": "1dd91f4d41149eeb9d451111cb6326fc",
+      "action": {
+        "action_type": "click_button",
+        "reasoning": "A cookie consent pop\u2011up with an 'Accept Cookies' button is present and blocks further interactions. Accepting cookies is the recommended first step and has succeeded in prior attempts on this page.",
+        "target": "button[data-automation-id='legalNoticeAcceptButton']",
+        "confidence": "high",
+        "using_memory": true
+      },
+      "code_snippet": "wait = WebDriverWait(driver, 15)\ntry:\n    accept_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, \"button[data-automation-id='legalNoticeAcceptButton']\")))\n    try:\n        accept_btn.click()\n        print(\"\u2713 Clicked 'Accept Cookies' button (standard click)\")\n    except Exception as e:\n        # Fallback to JavaScript click if click is intercepted or fails\n        driver.execute_script(\"arguments[0].scrollIntoView({block: 'center'});\", accept_btn)\n        time.sleep(0.5)\n        dri",
+      "success": true,
+      "error": null
     }
   ],
   "element_selectors": {
@@ -333,12 +933,28 @@
       "button[data-automation-id="
     ],
     "79a2e75550003d62380b69484fceff96": [
-      "button[data-automation-id="
+      "button[data-automation-id=",
+      "[data-automation-id="
     ],
     "9ef1c94fbf6f6eef2742288978ab185f": [
       "[aria-modal=",
       "button[data-automation-id=",
-      "button.css-1ru62dj"
+      "button.css-1ru62dj",
+      "input#input-22, input[data-automation-id=",
+      "input#input-23, input[data-automation-id=",
+      "[data-automation-id=",
+      "input#input-11, input[data-automation-id=",
+      "input#input-12, input[data-automation-id=",
+      "form[data-automation-id*="
+    ],
+    "6e987adf6a2a3fe379d5bd95d868a113": [
+      "input[data-automation-id=",
+      "button[data-automation-id="
+    ],
+    "b520fe50f7609808801bb90acffb275a": [
+      "input[data-automation-id=",
+      "button[data-automation-id=",
+      "[role="
     ]
   },
   "page_patterns": {},
@@ -348,6 +964,26 @@
       "page_signature": "9ef1c94fbf6f6eef2742288978ab185f",
       "action_type": "fill_form",
       "error_keyword": "No state change: No meaningful change detected - a"
+    },
+    {
+      "page_signature": "6e987adf6a2a3fe379d5bd95d868a113",
+      "action_type": "click_button",
+      "error_keyword": "No state change: No meaningful change detected - a"
+    },
+    {
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action_type": "click_button",
+      "error_keyword": "No state change: No meaningful change detected - a"
+    },
+    {
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action_type": "click_button",
+      "error_keyword": "Message: no such element: Unable to locate element"
+    },
+    {
+      "page_signature": "b520fe50f7609808801bb90acffb275a",
+      "action_type": "click_button",
+      "error_keyword": "unexpected indent (<string>, line 2)"
     }
   ]
 }

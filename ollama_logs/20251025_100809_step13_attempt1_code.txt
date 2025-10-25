@@ -1,0 +1,90 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+
+# assume driver, resume_data, resume_pdf_path, resume_photo_path are already defined
+wait = WebDriverWait(driver, 20)
+
+email = resume_data.get("email", "")
+password = resume_data.get("password", "")
+
+# ---------- Fill Email ----------
+try:
+    email_field = wait.until(
+        EC.presence_of_element_located((By.ID, "input-260"))
+    )
+    email_field.clear()
+    email_field.send_keys(email)
+    print("✓ Email filled")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"⚠️ Email field not found: {e}")
+
+# ---------- Fill Password ----------
+try:
+    password_field = wait.until(
+        EC.presence_of_element_located((By.ID, "input-261"))
+    )
+    password_field.clear()
+    password_field.send_keys(password)
+    print("✓ Password filled")
+except (TimeoutException, NoSuchElementException) as e:
+    print(f"⚠️ Password field not found: {e}")
+
+# ---------- Click Sign‑In ----------
+clicked = False
+sign_in_selector = "button[data-automation-id='signInSubmitButton']"
+
+def js_click(elem):
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", elem)
+    driver.execute_script("arguments[0].click();", elem)
+
+# Strategy 1: Direct JS click on the button
+if not clicked:
+    try:
+        sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, sign_in_selector)))
+        # Remove possible intercepting attributes
+        driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+        driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+        js_click(sign_in_btn)
+        print("✓ Clicked Sign In button via JS")
+        clicked = True
+    except (TimeoutException, ElementClickInterceptedException, NoSuchElementException):
+        pass
+
+# Strategy 2: Click overlay that may be intercepting
+if not clicked:
+    try:
+        overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        js_click(overlay)
+        print("✓ Clicked overlay click_filter")
+        clicked = True
+    except NoSuchElementException:
+        pass
+
+# Strategy 3: Submit the form directly
+if not clicked:
+    try:
+        form = driver.find_element(By.XPATH, "//form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted form via JS")
+        clicked = True
+    except NoSuchElementException:
+        pass
+
+# Strategy 4: Press Enter in password field
+if not clicked:
+    try:
+        password_field.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except Exception:
+        pass
+
+if not clicked:
+    print("⚠️ Unable to trigger Sign In action; manual intervention may be required")

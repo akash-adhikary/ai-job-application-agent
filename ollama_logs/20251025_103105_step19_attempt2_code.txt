@@ -1,0 +1,99 @@
+# Previous error: Validation failed: No meaningful change detected - action likely failed
+# Adjusting approach...
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    ElementClickInterceptedException,
+)
+
+wait = WebDriverWait(driver, 20)
+
+# ---- 1. Accept cookies if present ----
+try:
+    accept_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'accept')]")
+        )
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", accept_btn)
+    driver.execute_script("arguments[0].click();", accept_btn)
+    print("✓ Accepted cookies")
+except (TimeoutException, NoSuchElementException):
+    pass
+
+# ---- 2. Handle sign‑in modal if it appears ----
+def perform_login():
+    try:
+        # Email field
+        email_field = wait.until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")
+            )
+        )
+        email_field.clear()
+        email_field.send_keys(resume_data.get("email", ""))
+
+        # Password field
+        pwd_field = driver.find_element(
+            By.CSS_SELECTOR, "input[data-automation-id='password'], input[type='password']"
+        )
+        pwd_field.clear()
+        pwd_field.send_keys(resume_data.get("password", ""))
+
+        # Try clicking the official sign‑in button
+        try:
+            sign_in_btn = driver.find_element(
+                By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton'], button[class*='css-1ru62dj']"
+            )
+            driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+            driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button")
+        except NoSuchElementException:
+            # Fallback: press Enter in password field
+            pwd_field.send_keys(Keys.RETURN)
+            print("✓ Submitted login with Enter")
+        # Wait for post‑login page to load
+        wait.until(EC.invisibility_of_element((By.CSS_SELECTOR, "input[data-automation-id='password']")))
+        return True
+    except Exception as e:
+        print(f"⚠️ Login step failed: {e}")
+        return False
+
+# Detect login overlay / modal
+try:
+    login_modal = driver.find_element(By.XPATH, "//div[contains(@class,'login') or .//input[@type='email']]")
+    if login_modal.is_displayed():
+        print("ℹ️ Login modal detected, attempting to log in")
+        perform_login()
+except NoSuchElementException:
+    pass
+
+# ---- 3. Click the "Apply" button ----
+def click_apply():
+    try:
+        apply_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Apply'] | //a[normalize-space()='Apply']")
+            )
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+        time.sleep(0.5)
+        try:
+            apply_btn.click()
+            print("✓ Clicked Apply button (normal click)")
+        except ElementClickInterceptedException:
+            driver.execute_script("arguments[0].click();", apply_btn)
+            print("✓ Clicked Apply button (JS fallback)")
+        return True
+    except (TimeoutException, NoSuchElementException) as e:
+        print(f"⚠️ Apply button not found or not clickable: {e}")
+        return False
+
+click_apply()

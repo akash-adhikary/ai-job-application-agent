@@ -1,0 +1,86 @@
+wait = WebDriverWait(driver, 20)
+
+# ---------- Fill Email ----------
+try:
+    email_field = wait.until(
+        EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input[id='input-11'], input[data-automation-id='email'], input[type='email'], input[autocomplete='email']")
+        )
+    )
+    email_field.clear()
+    email = resume_data.get("email", "")
+    email_field.send_keys(email)
+    print("✓ Email filled")
+except Exception as e:
+    print(f"⚠️ Email field not found: {e}")
+
+# ---------- Fill Password ----------
+try:
+    password_field = driver.find_element(
+        By.CSS_SELECTOR, "input[id='input-12'], input[data-automation-id='password'], input[type='password']"
+    )
+    password_field.clear()
+    pwd = resume_data.get("password", "")
+    password_field.send_keys(pwd)
+    print("✓ Password filled")
+except Exception as e:
+    print(f"⚠️ Password field not found: {e}")
+
+time.sleep(1)  # small pause before clicking
+
+# ---------- Click Sign‑In ----------
+clicked = False
+
+# Strategy 1: direct button via data‑automation‑id
+if not clicked:
+    try:
+        sign_in_btn = driver.find_element(
+            By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton'], button.css-1ru62dj"
+        )
+        driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+        driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Clicked Sign In button (direct)")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Direct Sign In click failed: {e}")
+
+# Strategy 2: click overlay that may intercept
+if not clicked:
+    try:
+        click_filter = driver.find_element(
+            By.CSS_SELECTOR, "[data-automation-id='click_filter'], .css-p1fzb6"
+        )
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked click_filter overlay")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Click filter not found or click failed: {e}")
+
+# Strategy 3: submit the form directly
+if not clicked:
+    try:
+        form = driver.find_element(By.CSS_SELECTOR, "form")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Submitted form directly")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Form submit failed: {e}")
+
+# Strategy 4: press Enter in password field
+if not clicked:
+    try:
+        password_field.send_keys(Keys.RETURN)
+        print("✓ Pressed Enter in password field")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Enter key press failed: {e}")
+
+# Optional: wait for post‑login element to ensure success
+if clicked:
+    try:
+        wait.until(EC.invisibility_of_element_located((By.CSS_SELECTOR, "[aria-modal='true']")))
+        print("✅ Sign‑in modal closed, login likely successful")
+    except Exception:
+        print("⚠️ Modal still present after attempts")

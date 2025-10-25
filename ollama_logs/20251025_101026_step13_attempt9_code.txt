@@ -1,0 +1,77 @@
+# Previous error: Validation failed: No meaningful change detected - action likely failed
+# Adjusting approach...
+
+wait = WebDriverWait(driver, 20)
+
+# Fill Email
+try:
+    email_field = wait.until(EC.presence_of_element_located((By.ID, "input-260")))
+    email_field.clear()
+    email = resume_data.get("email", "")
+    email_field.send_keys(email)
+    print("✓ Email filled")
+except Exception as e:
+    print(f"⚠️ Email field not found: {e}")
+
+# Fill Password
+try:
+    pwd_field = driver.find_element(By.ID, "input-261")
+    pwd_field.clear()
+    pwd = resume_data.get("password", "")
+    pwd_field.send_keys(pwd)
+    print("✓ Password filled")
+except Exception as e:
+    print(f"⚠️ Password field not found: {e}")
+
+# Attempt to click Sign In button using multiple strategies
+clicked = False
+
+# Strategy 1: Direct JS click on the known selector
+if not clicked:
+    try:
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+        driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Sign In button clicked via JS")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Direct JS click failed: {e}")
+
+# Strategy 2: Click the overlay/filter that may be intercepting clicks
+if not clicked:
+    try:
+        click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", click_filter)
+        print("✓ Clicked click_filter overlay")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Click filter not found or click failed: {e}")
+
+# Strategy 3: Submit the nearest form
+if not clicked:
+    try:
+        form = driver.find_element(By.XPATH, "//form[.//input[@id='input-260']]")
+        driver.execute_script("arguments[0].submit();", form)
+        print("✓ Form submitted directly")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Form submission failed: {e}")
+
+# Strategy 4: Press ENTER in the password field
+if not clicked:
+    try:
+        pwd_field.send_keys(Keys.RETURN)
+        print("✓ Enter key sent to password field")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Sending Enter key failed: {e}")
+
+# Final check: ensure modal is gone (optional)
+time.sleep(3)
+try:
+    driver.find_element(By.ID, "input-260")
+    print("⚠️ Still on sign‑in modal, may need retry.")
+except Exception:
+    print("✅ Sign‑in modal should be closed.")

@@ -1,0 +1,67 @@
+# Previous error: Validation failed: No meaningful change detected - action likely failed
+# Adjusting approach...
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 15)
+clicked = False
+
+try:
+    # Fill email
+    email_input = wait.until(EC.presence_of_element_located((By.ID, "input-260")))
+    email_input.clear()
+    email_input.send_keys(resume_data.get("email", ""))
+    print("✓ Email filled")
+except Exception as e:
+    print(f"⚠️ Email input not found: {e}")
+
+try:
+    # Fill password
+    password_input = wait.until(EC.presence_of_element_located((By.ID, "input-261")))
+    password_input.clear()
+    password_input.send_keys(resume_data.get("password", ""))
+    print("✓ Password filled")
+except Exception as e:
+    print(f"⚠️ Password input not found: {e}")
+
+# Attempt to click the Sign In button with several strategies
+try:
+    sign_in_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")))
+    # Remove possible intercepting attributes
+    driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+    driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+    driver.execute_script("arguments[0].click();", sign_in_btn)
+    print("✓ Sign In button clicked via JS")
+    clicked = True
+except Exception as e:
+    print(f"⚠️ Direct click failed: {e}")
+
+if not clicked:
+    try:
+        # Click through possible overlay filter
+        overlay = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+        driver.execute_script("arguments[0].click();", overlay)
+        time.sleep(0.5)
+        sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+        driver.execute_script("arguments[0].click();", sign_in_btn)
+        print("✓ Sign In button clicked after removing overlay")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ Overlay click strategy failed: {e}")
+
+if not clicked:
+    try:
+        # Fallback: submit the form using ENTER key in password field
+        password_input.send_keys(Keys.RETURN)
+        print("✓ Submitted form by pressing ENTER")
+        clicked = True
+    except Exception as e:
+        print(f"⚠️ ENTER submit failed: {e}")
+
+if not clicked:
+    print("❌ Unable to click Sign In button - manual intervention may be required")

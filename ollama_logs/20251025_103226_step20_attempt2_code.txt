@@ -1,0 +1,47 @@
+# Previous error: Validation failed: No meaningful change detected - action likely failed
+# Adjusting approach...
+
+wait = WebDriverWait(driver, 20)
+
+# Ensure any cookie banner is dismissed (common on Workday pages)
+try:
+    cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Accept')]")))
+    driver.execute_script("arguments[0].click();", cookie_btn)
+except Exception:
+    pass
+
+# Wait for the modal dialog that contains the target button
+try:
+    modal = wait.until(EC.presence_of_element_located((By.XPATH, "//div[@role='dialog' or @aria-modal='true']")))
+except Exception as e:
+    print(f"⚠️ Modal not found: {e}")
+    raise
+
+# Locate the 'Apply Manually' button inside the modal
+apply_btn = None
+try:
+    apply_btn = modal.find_element(By.XPATH, ".//button[contains(normalize-space(.), 'Apply Manually')]")
+except Exception:
+    # Fallback to a more global search if not found within modal
+    try:
+        apply_btn = driver.find_element(By.XPATH, "//button[contains(normalize-space(.), 'Apply Manually')]")
+    except Exception as e:
+        print(f"⚠️ 'Apply Manually' button not located: {e}")
+        raise
+
+# Scroll into view and click using JavaScript (robust against interceptors)
+try:
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", apply_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", apply_btn)
+    print("✓ Clicked 'Apply Manually' button")
+except Exception as e:
+    print(f"⚠️ Click failed, attempting alternative strategies: {e}")
+    # Alternative: click via ActionChains
+    try:
+        from selenium.webdriver.common.action_chains import ActionChains
+        ActionChains(driver).move_to_element(apply_btn).click().perform()
+        print("✓ Clicked via ActionChains")
+    except Exception as ee:
+        print(f"❌ All click attempts failed: {ee}")
+        raise

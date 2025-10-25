@@ -1,0 +1,44 @@
+# Previous error: Message: no such element: Unable to locate element: {"method":"xpath","selector":"//button[contains(normalize-space(.), 'Apply Manually')]"}
+  (Session info: chrome=140.0.7339.208); For documentation 
+# Adjusting approach...
+
+wait = WebDriverWait(driver, 20)
+
+# Ensure the modal dialog is present (role='dialog')
+try:
+    modal = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role='dialog']")))
+except Exception as e:
+    print(f"⚠️ Modal not found: {e}")
+
+# Locate the 'Apply Manually' button inside the modal
+apply_btn = None
+selectors = [
+    (By.XPATH, "//button[contains(., 'Apply Manually')]"),
+    (By.CSS_SELECTOR, "button[data-automation-id][class*='apply-manually']"),
+    (By.CSS_SELECTOR, "button[data-automation-id='applyManually']"),
+]
+
+for by, sel in selectors:
+    try:
+        apply_btn = wait.until(EC.element_to_be_clickable((by, sel)))
+        break
+    except Exception:
+        continue
+
+if not apply_btn:
+    print("❌ 'Apply Manually' button not found with defined selectors.")
+else:
+    try:
+        # Scroll into view and click via JavaScript (handles click interceptors)
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+        time.sleep(0.5)
+        driver.execute_script("arguments[0].click();", apply_btn)
+        print("✅ Clicked 'Apply Manually' button successfully.")
+    except Exception as click_err:
+        print(f"⚠️ JavaScript click failed: {click_err}")
+        # Fallback to regular click
+        try:
+            apply_btn.click()
+            print("✅ Clicked 'Apply Manually' with regular click.")
+        except Exception as final_err:
+            print(f"❌ Final attempt to click failed: {final_err}")

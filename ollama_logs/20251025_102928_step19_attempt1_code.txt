@@ -1,0 +1,135 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+wait = WebDriverWait(driver, 20)
+
+# ---- 1. Accept cookies if a consent button is present ----
+try:
+    cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'accept')]")))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", cookie_btn)
+    driver.execute_script("arguments[0].click();", cookie_btn)
+    print("✓ Accepted cookies")
+except Exception:
+    print("ℹ️ No cookie consent button found")
+
+# ---- 2. Handle possible sign‑in modal ----
+def attempt_sign_in():
+    try:
+        # locate email field
+        email_field = wait.until(EC.presence_of_element_located((
+            By.CSS_SELECTOR,
+            "input[data-automation-id='email'], input[type='email'], input[autocomplete='email']"
+        )))
+        email_field.clear()
+        email = resume_data.get("personal_info", {}).get("email", "")
+        email_field.send_keys(email)
+        print("✓ Filled email")
+
+        # locate password field
+        password_field = driver.find_element(
+            By.CSS_SELECTOR,
+            "input[data-automation-id='password'], input[type='password']"
+        )
+        password_field.clear()
+        password_field.send_keys(resume_data.get("password", ""))
+        print("✓ Filled password")
+
+        # attempt to click sign‑in button via several strategies
+        clicked = False
+        try:
+            sign_in_btn = driver.find_element(By.CSS_SELECTOR, "button[data-automation-id='signInSubmitButton']")
+            driver.execute_script("arguments[0].removeAttribute('tabindex');", sign_in_btn)
+            driver.execute_script("arguments[0].removeAttribute('aria-hidden');", sign_in_btn)
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", sign_in_btn)
+            driver.execute_script("arguments[0].click();", sign_in_btn)
+            print("✓ Clicked Sign In button (JS)")
+            clicked = True
+        except Exception:
+            pass
+
+        if not clicked:
+            try:
+                click_filter = driver.find_element(By.CSS_SELECTOR, "[data-automation-id='click_filter']")
+                driver.execute_script("arguments[0].click();", click_filter)
+                print("✓ Clicked click_filter overlay")
+                clicked = True
+            except Exception:
+                pass
+
+        if not clicked:
+            try:
+                form = driver.find_element(By.CSS_SELECTOR, "form[data-automation-id*='signIn'], form")
+                driver.execute_script("arguments[0].submit();", form)
+                print("✓ Submitted sign‑in form directly")
+                clicked = True
+            except Exception:
+                pass
+
+        if not clicked:
+            try:
+                password_field.send_keys(Keys.RETURN)
+                print("✓ Pressed Enter in password field")
+                clicked = True
+            except Exception:
+                pass
+
+        if not clicked:
+            print("⚠️ Unable to trigger Sign In button")
+    except Exception as e:
+        print(f"ℹ️ Sign‑in modal not detected or error: {e}")
+
+# If a sign‑in prompt appears, attempt login
+try:
+    sign_in_prompt = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        "//button[contains(@data-automation-id,'signIn') or contains(.,'Sign In') or contains(.,'Log In')]"
+    )))
+    attempt_sign_in()
+except Exception:
+    # No explicit sign‑in button detected; still try in case a modal is present later
+    pass
+
+# ---- 3. Locate and click the "Apply" button ----
+apply_clicked = False
+try:
+    apply_btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')]"
+    )))
+    driver.execute_script("arguments[0].scrollIntoView({block:'center'});", apply_btn)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();", apply_btn)
+    print("✓ Clicked Apply button (JS)")
+    apply_clicked = True
+except Exception as e:
+    print(f"⚠️ Direct click on Apply button failed: {e}")
+
+# ---- 4. Fallback: try clicking via ActionChains if JS click still intercepted ----
+if not apply_clicked:
+    try:
+        from selenium.webdriver import ActionChains
+        apply_btn = wait.until(EC.element_to_be_clickable((
+            By.XPATH,
+            "//button[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'apply')]"
+        )))
+        actions = ActionChains(driver)
+        actions.move_to_element(apply_btn).pause(0.3).click().perform()
+        print("✓ Clicked Apply button via ActionChains")
+        apply_clicked = True
+    except Exception as e2:
+        print(f"❌ Unable to click Apply button: {e2}")
+
+# ---- 5. Verify that the application form/modal opened ----
+if apply_clicked:
+    try:
+        # Look for a typical Workday application form heading
+        form_heading = wait.until(EC.presence_of_element_located((
+            By.XPATH,
+            "//*[contains(translate(., 'APPLICATION', 'application'), 'application') or @data-automation-id='applicationForm']"
+        )))
+        print("✅ Application form detected, ready for further steps")
+    except Exception:
+        print("ℹ️ Application form not detected immediately; may need further handling")
