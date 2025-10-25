@@ -807,6 +807,125 @@ Generate ONLY Python code (no markdown, no explanations):"""
 
     return code.strip()
 
+def capture_page_state(driver):
+    """Capture current page state for comparison."""
+    try:
+        state = {
+            "url": driver.current_url,
+            "title": driver.title,
+            "body_text_hash": hashlib.md5(driver.find_element(By.TAG_NAME, "body").text.encode()).hexdigest(),
+            "input_count": len(driver.find_elements(By.TAG_NAME, "input")),
+            "button_count": len(driver.find_elements(By.TAG_NAME, "button")),
+            "visible_modals": len([m for m in driver.find_elements(By.CSS_SELECTOR, "[role='dialog'], [aria-modal='true']") if m.is_displayed()]),
+            "error_messages": [],
+            "form_values": {}
+        }
+
+        # Capture form values to detect if form was cleared/submitted
+        inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='text'], input[type='email'], input[type='password']")
+        for inp in inputs[:10]:  # Limit to avoid too much data
+            try:
+                inp_id = inp.get_attribute("id") or inp.get_attribute("name")
+                if inp_id:
+                    state["form_values"][inp_id] = inp.get_attribute("value") or ""
+            except:
+                pass
+
+        # Check for common error indicators
+        error_selectors = [
+            "[class*='error']", "[class*='alert']", "[class*='warning']",
+            "[data-automation-id*='error']", "[role='alert']"
+        ]
+        for selector in error_selectors:
+            try:
+                errors = driver.find_elements(By.CSS_SELECTOR, selector)
+                for err in errors:
+                    if err.is_displayed() and err.text.strip():
+                        state["error_messages"].append(err.text.strip()[:100])
+            except:
+                pass
+
+        return state
+    except Exception as e:
+        return {"url": driver.current_url, "error": str(e)}
+
+def states_are_different(state1, state2, action_type):
+    """Check if two page states are meaningfully different based on the action type."""
+
+    # URL change is usually a strong success indicator
+    if state1.get("url") != state2.get("url"):
+        return True, "success", "URL changed - navigation successful"
+
+    # For sign-in actions, modal closing is success
+    if action_type == "click_button" and "sign" in str(action_type).lower():
+        if state1.get("visible_modals", 0) > state2.get("visible_modals", 0):
+            return True, "success", "Modal closed - likely signed in"
+
+    # Check for error messages (indicates failure)
+    new_errors = set(state2.get("error_messages", [])) - set(state1.get("error_messages", []))
+    if new_errors:
+        return True, "failure", f"Error appeared: {list(new_errors)[0]}"
+
+    # Page content change
+    if state1.get("body_text_hash") != state2.get("body_text_hash"):
+        # Check if form was cleared (might indicate submission)
+        form_cleared = False
+        if state1.get("form_values"):
+            cleared_fields = 0
+            for field_id, old_value in state1.get("form_values", {}).items():
+                new_value = state2.get("form_values", {}).get(field_id, "")
+                if old_value and not new_value:
+                    cleared_fields += 1
+            if cleared_fields >= len(state1.get("form_values", {})) // 2:
+                form_cleared = True
+
+        if form_cleared:
+            return True, "likely_success", "Form cleared - possibly submitted"
+        return True, "partial_success", "Page content changed"
+
+    # Modal state change
+    if state1.get("visible_modals", 0) != state2.get("visible_modals", 0):
+        if state2.get("visible_modals", 0) > state1.get("visible_modals", 0):
+            return True, "partial", "New modal appeared"
+        else:
+            return True, "success", "Modal closed"
+
+    # No meaningful change - this is usually a failure for action steps
+    return False, "no_change", "No meaningful change detected - action likely failed"
+
+def validate_action_success(driver, initial_state, action, expected_wait=5):
+    """Validate if an action actually succeeded by checking state changes."""
+
+    print(f"\n🔍 Validating action success...")
+
+    # Wait for potential changes
+    time.sleep(expected_wait)
+
+    # Capture new state
+    new_state = capture_page_state(driver)
+
+    # Compare states
+    changed, result_type, reason = states_are_different(initial_state, new_state, action.get("action_type"))
+
+    if result_type == "success":
+        print(f"✅ Action validated: {reason}")
+        return True, reason
+    elif result_type == "likely_success":
+        print(f"🔶 Likely successful: {reason}")
+        return True, reason
+    elif result_type == "partial_success":
+        print(f"⚠️ Partial success: {reason}")
+        return True, reason  # Consider partial as success but log it
+    elif result_type == "failure":
+        print(f"❌ Action failed: {reason}")
+        return False, reason
+    elif result_type == "no_change":
+        print(f"❌ Action had no effect: {reason}")
+        return False, reason
+    else:
+        print(f"❓ Uncertain result: {reason}")
+        return False, reason
+
 def execute_single_step(driver, resume_data, step_num, memory, session):
     """Execute ONE action with memory-informed strategies."""
 
@@ -821,6 +940,9 @@ def execute_single_step(driver, resume_data, step_num, memory, session):
     print("📊 Reading page...")
     page_info = extract_page_info(driver)
     page_signature = create_page_signature(page_info)
+
+    # Capture initial state for validation
+    initial_state = capture_page_state(driver)
 
     # Check if we've been here before
     print_page_summary(page_info, memory, page_signature)
@@ -899,24 +1021,54 @@ def execute_single_step(driver, resume_data, step_num, memory, session):
 
             exec(code, exec_globals)
 
-            print(f"\n✅ Execution completed successfully!")
-            success = True
+            print(f"\n✅ Code executed without exception")
 
-            # Record successful action
-            record_action(memory, page_signature, action, code, success=True)
+            # VALIDATE if the action actually succeeded
+            actual_success, validation_reason = validate_action_success(
+                driver, initial_state, action, expected_wait=3
+            )
 
-            # Add to success sequence if page changed
-            time.sleep(2)
-            if driver.current_url != current_url:
-                if not session.get("current_sequence"):
-                    session["current_sequence"] = []
-                session["current_sequence"].append({
-                    "page_signature": page_signature,
-                    "action": action,
-                    "url": current_url
-                })
+            if actual_success:
+                print(f"✅ Action genuinely successful: {validation_reason}")
+                success = True
 
-            break  # Success, exit retry loop
+                # Record successful action WITH validation reason
+                record_action(memory, page_signature, action, code, success=True)
+                add_learning(memory, page_info.get("url", ""),
+                           f"Successful action: {action.get('action_type')} - {validation_reason}",
+                           success=True)
+
+                # Add to success sequence if page changed
+                if driver.current_url != current_url:
+                    if not session.get("current_sequence"):
+                        session["current_sequence"] = []
+                    session["current_sequence"].append({
+                        "page_signature": page_signature,
+                        "action": action,
+                        "url": current_url,
+                        "validation": validation_reason
+                    })
+
+                break  # Success, exit retry loop
+            else:
+                # Code executed but didn't achieve desired outcome
+                print(f"⚠️ Code executed but action failed validation: {validation_reason}")
+                last_error = f"Validation failed: {validation_reason}"
+
+                # Record as failed even though code executed
+                record_action(memory, page_signature, action, code, success=False,
+                            error_msg=f"No state change: {validation_reason}")
+
+                # Learn from this specific failure
+                add_learning(memory, page_info.get("url", ""),
+                           f"Action executed but had no effect: {action.get('action_type')} - {validation_reason}",
+                           success=False)
+
+                # Continue to retry with different approach
+                if retry_attempt < MAX_RETRIES - 1:
+                    print(f"\n🔄 Will retry with different approach...")
+                else:
+                    print(f"\n❌ Max retries reached - action consistently has no effect")
 
         except Exception as e:
             error_msg = traceback.format_exc()
@@ -954,10 +1106,20 @@ def execute_single_step(driver, resume_data, step_num, memory, session):
         if not success:
             print("   ⚠️  Action may have failed - page didn't change")
 
-    # Save memory after each step
+    # Final validation - double check the actual outcome
+    final_state = capture_page_state(driver)
+    _, final_result, final_reason = states_are_different(initial_state, final_state, action.get("action_type"))
+
+    # Save memory after each step with detailed outcome
     save_agent_memory(memory)
 
-    return success or page_changed, "Success" if success else "Completed with issues"
+    # Return based on actual validation, not just code execution
+    if final_result in ["success", "likely_success"]:
+        return True, f"Validated success: {final_reason}"
+    elif final_result == "partial_success":
+        return True, f"Partial success: {final_reason}"
+    else:
+        return False, f"Action failed validation: {final_reason}"
 
 def main():
     print("\n" + "="*80)
