@@ -87,16 +87,7 @@ def create_page_signature(page_info):
 
 def load_agent_memory():
     """Load enhanced memory with action history and success patterns."""
-    try:
-        if os.path.exists(MEMORY_FILE):
-            with open(MEMORY_FILE, "r", encoding="utf-8") as f:
-                memory = json.load(f)
-                print(f"🧠 Memory loaded: {len(memory.get('learnings', []))} learnings, {len(memory.get('action_history', []))} action records")
-                return memory
-    except Exception as e:
-        print(f"⚠️ Could not load memory: {e}")
-
-    return {
+    default_memory = {
         "learnings": [],
         "domain_knowledge": {
             "first action": "accept cookies pop-up if present, to avoid blocking further actions.",
@@ -116,9 +107,65 @@ def load_agent_memory():
         "element_selectors": {}  # Successful element selectors by page signature
     }
 
+    try:
+        if os.path.exists(MEMORY_FILE):
+            with open(MEMORY_FILE, "r", encoding="utf-8") as f:
+                memory = json.load(f)
+
+                # Migrate old memory format to new format
+                if "element_selectors" not in memory:
+                    memory["element_selectors"] = {}
+                    print("🔄 Migrating memory: Added element_selectors")
+
+                if "action_history" not in memory:
+                    memory["action_history"] = []
+                    print("🔄 Migrating memory: Added action_history")
+
+                if "page_patterns" not in memory:
+                    memory["page_patterns"] = {}
+                    print("🔄 Migrating memory: Added page_patterns")
+
+                if "success_sequences" not in memory:
+                    memory["success_sequences"] = []
+                    print("🔄 Migrating memory: Added success_sequences")
+
+                if "failure_patterns" not in memory:
+                    memory["failure_patterns"] = []
+                    print("🔄 Migrating memory: Added failure_patterns")
+
+                # Ensure domain_knowledge has all required fields
+                if "domain_knowledge" not in memory:
+                    memory["domain_knowledge"] = default_memory["domain_knowledge"]
+                else:
+                    # Add any missing domain knowledge keys
+                    for key, value in default_memory["domain_knowledge"].items():
+                        if key not in memory["domain_knowledge"]:
+                            memory["domain_knowledge"][key] = value
+
+                print(f"🧠 Memory loaded: {len(memory.get('learnings', []))} learnings, {len(memory.get('action_history', []))} action records")
+                return memory
+    except Exception as e:
+        print(f"⚠️ Could not load memory: {e}")
+
+    return default_memory
+
 def save_agent_memory(memory):
     """Save enhanced memory."""
     try:
+        # Ensure all required keys exist before saving
+        if "learnings" not in memory:
+            memory["learnings"] = []
+        if "action_history" not in memory:
+            memory["action_history"] = []
+        if "success_sequences" not in memory:
+            memory["success_sequences"] = []
+        if "failure_patterns" not in memory:
+            memory["failure_patterns"] = []
+        if "element_selectors" not in memory:
+            memory["element_selectors"] = {}
+        if "page_patterns" not in memory:
+            memory["page_patterns"] = {}
+
         # Limit memory size to prevent it from growing too large
         memory["learnings"] = memory["learnings"][-100:]  # Keep last 100 learnings
         memory["action_history"] = memory["action_history"][-200:]  # Keep last 200 actions
