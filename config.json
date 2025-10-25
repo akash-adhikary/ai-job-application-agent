@@ -1,0 +1,53 @@
+{
+  "user_profile": {
+    "email": "akash.adhikary@hotmail.com",
+    "password": "Hinjewadi@123",
+    "first_name": "Akash",
+    "last_name": "Adhikary",
+    "phone": "+91-8420433877",
+    "address": "671, KPC Layout, Kasasvanahalli",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "zip_code": "560043",
+    "country": "India",
+    "linkedin_url": "https://linkedin.com/in/adhikary-akash",
+    "github_url": "https://github.com/akash-adhikary",
+    "portfolio_url": "",
+    "current_company": "ThoughtSpot",
+    "current_title": "Senior Data Engineer",
+    "years_experience": 6,
+    "education": [
+      {
+        "degree": "Bachelor of Technology",
+        "field": "Electronics & Communication Engineering",
+        "school": "Haldia Institute of Technology",
+        "year": "2019"
+      }
+    ],
+    "skills": ["Python", "PySpark", "SQL", "AWS", "GCP", "Snowflake", "Kafka", "Airflow", "Databricks", "BigQuery", "Docker", "Spark", "Matillion", "Qlik Replicate", "Informatica"],
+    "resume_path": "Resume_akash_disn.pdf",
+    "photo_path": "AkashPortrait.jpg",
+    "cover_letter_template": "I am excited to apply for the {position} role at {company}. As a Senior Data Engineer with 6+ years of experience in designing cloud-native, large-scale data platforms and real-time analytics pipelines, I am confident I can contribute significantly to your team. My expertise includes building event-driven architectures using Kafka, Pub/Sub, and Spark, orchestrating complex workflows with Airflow and Matillion, and implementing ETL framework design and CDC-based data modeling using Snowpipe, Streams, and Tasks. I have proven experience partnering with cross-functional product, ML, and analytics teams to deliver high-quality, globally scalable data solutions across GCP, AWS, and Snowflake."
+  },
+  "ai_config": {
+    "provider": "ollama",
+    "api_key": "",
+    "model": "gpt-oss:120B-cloud",
+    "base_url": "http://localhost:11434",
+    "temperature": 0.3
+  },
+  "browser_config": {
+    "headless": false,
+    "window_size": "1920,1080",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "implicit_wait": 10,
+    "page_load_timeout": 30
+  },
+  "agent_config": {
+    "max_retries": 3,
+    "retry_delay": 5,
+    "debug_mode": true,
+    "save_screenshots": true,
+    "log_level": "INFO"
+  }
+}
